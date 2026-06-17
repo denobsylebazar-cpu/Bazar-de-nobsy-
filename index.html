@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+    <meta name="google-site-verification" content="EeZ8feRNihjdDl220C4KhTG3ArUuo6cZLaiwO5p1MHs" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Le bazar de Nobsy - Articles variés à bon prix avec livraison à Joliette, Québec">
+    <meta name="theme-color" content="#0084ff">
+    <meta name="keywords" content="bazar, bons deals, achat en ligne, Nobsy, pas cher, Canada, Montréal, Toronto">
+    <meta name="author" content="Le bazar de Nobsy">
+    <meta name="language" content="French">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://lebazardenobsy-star.github.io/Le-bazar-de-Nobsy/">
+    
+    <meta property="og:title" content="Le bazar de Nobsy - Bons deals et articles variés">
+    <meta property="og:description" content="Découvre les meilleurs deals et articles variés à petits prix sur Le bazar de Nobsy">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lebazardenobsy-star.github.io/Le-bazar-de-Nobsy/">
+    <meta property="og:image" content="https://lebazardenobsy-star.github.io/Le-bazar-de-Nobsy/preview.jpg">
+    
+    <title>Le bazar de Nobsy - Bons deals et articles variés</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Style admin rapide */
+        #btnAdmin {position:fixed; bottom:20px; right:20px; width:50px; height:50px; border-radius:50%; background:#333; color:white; border:none; font-size:24px; cursor:pointer; z-index:9999; opacity:0.3; transition:0.3s;}
+        #btnAdmin:hover {opacity:1;}
+        #popupPin {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; justify-content:center; align-items:center;}
+        .ligne-devis {display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:10px; margin-bottom:10px;}
+        #formAjoutProduit {max-width:600px; margin:auto; display:grid; gap:15px;}
+    </style>
+</head>
+<body>
+
+    <div id="banner-toit-rouge" style="position: fixed; top: 90px; left: 50%; transform: translateX(-50%); background: #ff0000; color: white; padding: 10px 18px; border-radius: 12px; font-weight: bold; font-size: 15px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 9999; max-width: 90%;">
+    🚨 Nouvel local au marché aux puces à Joliette qui s'appelle Toit Rouge
+    </div>
+
+    <nav class="navbar">
+        <div class="logo">le bazar de nobsy</div>
+        <ul class="nav-menu">
+            <li><a href="#accueil" class="nav-link">Accueil</a></li>
+            <li><a href="#about" class="nav-link">À propos</a></li>
+            <li><a href="#produits" class="nav-link">Produits</a></li>
+            <li><a href="#catalogue">Catalogue</a></li>
+            <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+        <div class="hamburger"><span></span><span></span><span></span></div>
+    </nav>
+
+    <section id="accueil" class="hero">
+        <div class="hero-content">
+            <h1>Bienvenue au Bazar de Nobsy</h1>
+            <p class="hero-subtitle">Bons deals, articles variés, et lives en direct depuis Joliette, Québec</p>
+            <div class="hero-buttons">
+                <button class="btn" id="btnProduits">Voir les produits</button>
+                <button class="btn btn-secondary" id="btnLive">Rejoindre le Live</button>
+                <button class="btn" onclick="window.open('https://sites.google.com/view/catalogue-le-bazar-de-nobsy/accueil')">Visiter notre site de catalogues</button>
+                <button class="btn" onclick="window.open('https://ruinsnradz.servegame.com/')">En partenariat avec Ruins'n Radz</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="fade-in-section">
+        <div class="container">
+            <h2 class="section-title">À propos</h2>
+            <div class="about-content">
+                <p>Bonjour à tous ! Bienvenue sur le bazar de Nobsy. Je propose des articles variés à bon prix. 
+                Si un article vous intéresse, écrivez-moi en privé sur Messenger et je vous répondrai rapidement.</p>
+                <p><strong>Merci et bon magasinage à vous !</strong></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FORMULAIRE ADMIN CACHÉ -->
+    <section id="admin" class="fade-in-section" style="background:#f5f5f5; padding:40px 0; display:none;">
+        <div class="container">
+            <h2 class="section-title">Ajouter un produit</h2>
+            <form id="formAjoutProduit">
+                <input type="text" id="nomProduit" placeholder="Nom du produit" required>
+                <textarea id="descProduit" placeholder="Description" rows="3" required></textarea>
+                <input type="number" id="prixProduit" placeholder="Prix $" step="0.01" required>
+                <input type="url" id="imageProduit" placeholder="URL de l'image" required>
+                <select id="categorieProduit" required>
+                    <option value="">Choisir la catégorie...</option>
+                    <option value="decoration">Décoration</option>
+                    <option value="vaisselle">Vaisselle et cuisine</option>
+                    <option value="bijoux">Bijoux</option>
+                    <option value="jeux">Casse tête et jeux</option>
+                    <option value="film">Jeux vidéo et film</option>
+                    <option value="peluche">Peluche et porte clé</option>
+                    <option value="vetement">Vêtement</option>
+                    <option value="maquillage">Maquillage et accessoire</option>
+                    <option value="lumiere">Lumière</option>
+                </select>
+                <button type="submit" class="btn">Ajouter le produit</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- SECTION PRODUITS PAR CATÉGORIE -->
+    <section id="produits" class="fade-in-section">
+        <div class="container">
+            <h2 class="section-title">Produits du moment</h2>
+            
+            <section id="decoration">
+                <h3>Décoration</h3>
+                <div class="products-grid" id="grid-decoration"></div>
+            </section>
+
+            <section id="vaisselle">
+                <h3>Vaisselle et cuisine</h3>
+                <div class="products-grid" id="grid-vaisselle"></div>
+            </section>
+
+            <section id="bijoux">
+                <h3>Bijoux</h3>
+                <div class="products-grid" id="grid-bijoux"></div>
+            </section>
+
+            <section id="vetement">
+                <h3>Vêtements</h3>
+                <div class="products-grid" id="grid-vetement"></div>
+            </section>
+
+            <section id="peluche">
+                <h3>Peluche et porte clé</h3>
+                <div class="products-grid" id="grid-peluche">
+                    <!-- Exemple produit existant -->
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="https://i.postimg.cc/R01vGLjM/1780242864768.jpg" alt="Tigrou" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="product-body">
+                            <h3 class="product-name">Tigrou porte-clé</h3>
+                            <p class="product-description">Porte clé peluche Tigrou 🐅</p>
+                            <p class="product-price"><strong>5$</strong></p>
+                            <button class="btn product-button" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">Commander sur Messenger</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="lumiere">
+                <h3>Lumière</h3>
+                <div class="products-grid" id="grid-lumiere"></div>
+            </section>
+        </div>
+    </section>
+
+    <section id="catalogue" class="fade-in-section">
+        <div class="catalogue-drawer">
+            <button class="catalogue-toggle">Catalogue <span class="arrow">▼</span></button>
+            <div class="catalogue-content">
+                <a href="#decoration">Décoration</a>
+                <a href="#vaisselle">Vaisselle et cuisine</a>
+                <a href="#bijoux">Bijoux</a>
+                <a href="#jeux">Casse tête et jeux</a>
+                <a href="#film">Jeux vidéo et film</a>
+                <a href="#peluche">Peluche et porte clé</a>
+                <a href="#vetement">Vêtement</a>
+                <a href="#maquillage">Maquillage et accessoire</a>
+                <a href="#lumiere">Lumière</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="fade-in-section">
+        <div class="container">
+            <h2 class="section-title">Contact</h2>
+            <div class="contact-grid">
+                <div class="contact-column">
+                    <div class="contact-item">
+                        <div class="contact-item-label">📍 Localisation</div>
+                        <div class="contact-item-value">Joliette, Québec</div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-item-label">🚚 Livraison</div>
+                        <div class="contact-item-value">Oui, avec frais selon la distance</div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-item-label">💬 Contact</div>
+                        <div class="contact-item-value">Messenger uniquement</div>
+                        <button class="btn contact-button" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">Envoyer un message</button>
+                    </div>
+                </div>
+                <div class="contact-column">
+                    <div class="map-container">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2839.4769825869433!2d-73.41619!3d46.00326!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cc9e36e8d8d8d8d%3A0x1234567890abcdef!2sJoliette%2C%20QC%2C%20Canada!5e0!3m2!1sfr!2sca!4v1720000" style="border:0; width: 100%; height: 300px; border-radius: 12px;" allowfullscreen loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <p>&copy; 2026 Le bazar de Nobsy. Tous droits réservés.</p>
+        <p><a href="https://www.facebook.com/share/g/18YTkXrkvB/" target="_blank" rel="noopener noreferrer">Rejoindre notre groupe Facebook</a></p>
+    </footer>
+
+    <!-- Bouton Admin + Popup PIN -->
+    <button id="btnAdmin">⚙️</button>
+    <div id="popupPin">
+        <div style="background:white; padding:30px; border-radius:12px; text-align:center;">
+            <h3>Code d'accès Admin</h3>
+            <input type="password" id="inputPin" placeholder="Entrer code" maxlength="6" style="padding:10px; font-size:18px; text-align:center; width:150px;">
+            <br><br>
+            <button class="btn" onclick="verifierPin()">Entrer</button>
+            <button class="btn btn-secondary" onclick="fermerPin()">Annuler</button>
+            <p id="erreurPin" style="color:red; display:none; margin-top:10px;">Code incorrect</p>
+        </div>
+    </div>
+
+    <script>
+        // Catalogue toggle
+        document.querySelector('.catalogue-toggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.querySelector('.catalogue-content').classList.toggle('active');
+        });
+
+        // Admin PIN
+        const CODE_ADMIN = "200611";
+        document.getElementById('btnAdmin').addEventListener('click', () => {
+            document.getElementById('popupPin').style.display = 'flex';
+            document.getElementById('inputPin').focus();
+        });
+
+        function verifierPin() {
+            const pin = document.getElementById('inputPin').value;
+            if (pin === CODE_ADMIN) {
+                document.getElementById('admin').style.display = 'block';
+                document.getElementById('popupPin').style.display = 'none';
+                document.getElementById('inputPin').value = '';
+                document.getElementById('erreurPin').style.display = 'none';
+                document.getElementById('admin').scrollIntoView({behavior: 'smooth'});
+            } else {
+                document.getElementById('erreurPin').style.display = 'block';
+                document.getElementById('inputPin').value = '';
+            }
+        }
+
+        function fermerPin() {
+            document.getElementById('popupPin').style.display = 'none';
+            document.getElementById('inputPin').value = '';
+            document.getElementById('erreurPin').style.display = 'none';
+        }
+
+        document.getElementById('inputPin').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') verifierPin();
+        });
+
+        // Ajout produit
+        document.getElementById('formAjoutProduit').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nom = document.getElementById('nomProduit').value;
+            const desc = document.getElementById('descProduit').value;
+            const prix = document.getElementById('prixProduit').value;
+            const img = document.getElementById('imageProduit').value;
+            const cat = document.getElementById('categorieProduit').value;
+            
+            const card = `
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="${img}" alt="${nom}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="product-body">
+                        <h3 class="product-name">${nom}</h3>
+                        <p class="product-description">${desc}</p>
+                        <p class="product-price"><strong>${prix}$</strong></p>
+                        <button class="btn product-button" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">Commander sur Messenger</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('grid-' + cat).insertAdjacentHTML('beforeend', card);
+            this.reset();
+            alert('Produit ajouté dans ' + cat + ' ✅');
+        });
+    </script>
+</body>
+</html>
