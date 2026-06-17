@@ -27,16 +27,27 @@
     <link rel="stylesheet" href="style.css">
     <style>
         /* Style admin rapide */
-        #btnAdmin {position:fixed; bottom:20px; right:20px; width:50px; height:50px; border-radius:50%; background:#333; color:white; border:none; font-size:24px; cursor:pointer; z-index:9999; opacity:0.7; transition:opacity 0.3s;}
+        #btnAdmin {position:fixed; bottom:20px; right:20px; width:50px; height:50px; border-radius:50%; background:#333; color:white; border:none; font-size:24px; cursor:pointer; z-index:9999; opacity:0.4;}
         #btnAdmin:hover {opacity:1;}
         #popupPin {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; justify-content:center; align-items:center;}
         .ligne-devis {display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr; gap:10px; margin-bottom:10px;}
         #formAjoutProduit {max-width:600px; margin:auto; display:grid; gap:15px;}
+        
+        /* Styles pour le filtre catégorie */
+        #category-back-button {
+            display: none;
+            margin-bottom: 20px;
+        }
+        #category-title {
+            display: none;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
 
-    <div id="banner-toit-rouge" style="position: fixed; top: 90px; left: 50%; transform: translateX(-50%); background: #ff0000; color: white; padding: 10px 18px; border-radius: 12px; font-weight: bold; z-index: 100; max-width: 90%; text-align: center;">
+    <div id="banner-toit-rouge" style="position: fixed; top: 90px; left: 50%; transform: translateX(-50%); background: #ff0000; color: white; padding: 10px 18px; border-radius: 12px; font-weight: bold; z-index: 1500;">
     🚨 Nouvel local au marché aux puces à Joliette qui s'appelle Toit Rouge
     </div>
 
@@ -105,7 +116,16 @@
     <!-- SECTION PRODUITS PAR CATÉGORIE -->
     <section id="produits" class="fade-in-section">
         <div class="container">
-            <h2 class="section-title">Produits du moment</h2>
+            <!-- Bouton retour au catalogue -->
+            <div id="category-back-button">
+                <button class="btn btn-secondary" id="backToCatalogBtn">← Retour au catalogue</button>
+            </div>
+            
+            <!-- Titre de la catégorie sélectionnée -->
+            <h2 id="category-title" class="section-title"></h2>
+            
+            <!-- Titre par défaut (Produits du moment) -->
+            <h2 id="default-title" class="section-title">Produits du moment</h2>
             
             <section id="decoration">
                 <h3>Décoration</h3>
@@ -137,6 +157,7 @@
                 <div class="products-grid" id="grid-peluche">
                     <!-- Exemple produit existant -->
                     <div class="product-card">
+                        <button class="btn-delete-product" title="Supprimer ce produit">✕</button>
                         <div class="product-image">
                             <img src="https://i.postimg.cc/R01vGLjM/1780242864768.jpg" alt="Tigrou" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
@@ -171,15 +192,15 @@
         <div class="catalogue-drawer">
             <button class="catalogue-toggle">Catalogue <span class="arrow">▼</span></button>
             <div class="catalogue-content">
-                <a href="#decoration">Décoration</a>
-                <a href="#vaisselle">Vaisselle et cuisine</a>
-                <a href="#bijoux">Bijoux</a>
-                <a href="#jeux">Casse tête et jeux</a>
-                <a href="#film">Jeux vidéo et film</a>
-                <a href="#peluche">Peluche et porte clé</a>
-                <a href="#vetement">Vêtement</a>
-                <a href="#maquillage">Maquillage et accessoire</a>
-                <a href="#lumiere">Lumière</a>
+                <a href="#" class="catalogue-link" data-category="decoration">Décoration</a>
+                <a href="#" class="catalogue-link" data-category="vaisselle">Vaisselle et cuisine</a>
+                <a href="#" class="catalogue-link" data-category="bijoux">Bijoux</a>
+                <a href="#" class="catalogue-link" data-category="jeux">Casse tête et jeux</a>
+                <a href="#" class="catalogue-link" data-category="film">Jeux vidéo et film</a>
+                <a href="#" class="catalogue-link" data-category="peluche">Peluche et porte clé</a>
+                <a href="#" class="catalogue-link" data-category="vetement">Vêtement</a>
+                <a href="#" class="catalogue-link" data-category="maquillage">Maquillage et accessoire</a>
+                <a href="#" class="catalogue-link" data-category="lumiere">Lumière</a>
             </div>
         </div>
     </section>
@@ -205,7 +226,8 @@
                 </div>
                 <div class="contact-column">
                     <div class="map-container">
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2823.893789214084!2d-73.41694!3d46.00876!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cc9e3a5b8c01e61%3A0x8e8b8e8e8e8e8e8e!2sJoliette%2C%20QC!5e0!3m2!1sfr!2sca!4v1234567890" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2823.893789214084!2d-73.41694!3d46.00876!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cc9e3a5b8c[...]
+                        " width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>
                 </div>
             </div>
