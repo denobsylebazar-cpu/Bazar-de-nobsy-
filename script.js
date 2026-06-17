@@ -287,6 +287,115 @@ if (catalogueToggle) {
     });
 }
 
+/* ========== FILTRE PAR CATÉGORIE ========== */
+const categories = [
+    'decoration', 'vaisselle', 'bijoux', 'jeux', 'film', 'peluche', 'vetement', 'maquillage', 'lumiere'
+];
+
+const categoryNames = {
+    'decoration': 'Décoration',
+    'vaisselle': 'Vaisselle et cuisine',
+    'bijoux': 'Bijoux',
+    'jeux': 'Casse tête et jeux',
+    'film': 'Jeux vidéo et film',
+    'peluche': 'Peluche et porte clé',
+    'vetement': 'Vêtement',
+    'maquillage': 'Maquillage et accessoire',
+    'lumiere': 'Lumière'
+};
+
+// Récupérer tous les liens du catalogue
+const catalogueLinks = document.querySelectorAll('.catalogue-link');
+catalogueLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const category = this.getAttribute('data-category');
+        filterByCategory(category);
+        
+        // Fermer le menu catalogue
+        catalogueToggle.classList.remove('active');
+        document.querySelector('.catalogue-content').classList.remove('active');
+    });
+});
+
+function filterByCategory(category) {
+    // Masquer toutes les sections de catégorie
+    categories.forEach(cat => {
+        const section = document.getElementById(cat);
+        if (section) {
+            section.style.display = 'none';
+        }
+    });
+    
+    // Afficher uniquement la catégorie sélectionnée
+    const selectedSection = document.getElementById(category);
+    if (selectedSection) {
+        selectedSection.style.display = 'block';
+    }
+    
+    // Afficher le bouton retour et le titre de la catégorie
+    const backBtn = document.getElementById('category-back-button');
+    const categoryTitle = document.getElementById('category-title');
+    const defaultTitle = document.getElementById('default-title');
+    
+    if (backBtn) backBtn.style.display = 'block';
+    if (categoryTitle) {
+        categoryTitle.style.display = 'block';
+        categoryTitle.textContent = categoryNames[category];
+    }
+    if (defaultTitle) defaultTitle.style.display = 'none';
+    
+    // Scroll vers la section produits
+    const produitSection = document.getElementById('produits');
+    if (produitSection) {
+        const navbarHeight = document.querySelector('.navbar').offsetHeight;
+        const targetPosition = produitSection.offsetTop - navbarHeight;
+        window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+        });
+    }
+}
+
+function showAllCategories() {
+    // Afficher toutes les sections de catégorie
+    categories.forEach(cat => {
+        const section = document.getElementById(cat);
+        if (section) {
+            section.style.display = 'block';
+        }
+    });
+    
+    // Masquer le bouton retour et le titre de la catégorie
+    const backBtn = document.getElementById('category-back-button');
+    const categoryTitle = document.getElementById('category-title');
+    const defaultTitle = document.getElementById('default-title');
+    
+    if (backBtn) backBtn.style.display = 'none';
+    if (categoryTitle) categoryTitle.style.display = 'none';
+    if (defaultTitle) defaultTitle.style.display = 'block';
+    
+    // Scroll vers la section produits
+    const produitSection = document.getElementById('produits');
+    if (produitSection) {
+        const navbarHeight = document.querySelector('.navbar').offsetHeight;
+        const targetPosition = produitSection.offsetTop - navbarHeight;
+        window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Ajouter l'event listener au bouton retour
+const backToCatalogBtn = document.getElementById('backToCatalogBtn');
+if (backToCatalogBtn) {
+    backToCatalogBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        showAllCategories();
+    });
+}
+
 /* ========== ACCESSIBILITY ENHANCEMENTS ========== */
 document.querySelectorAll('.btn').forEach(button => {
     button.addEventListener('keypress', function(e) {
