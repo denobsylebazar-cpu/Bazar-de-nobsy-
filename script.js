@@ -148,6 +148,7 @@ window.addEventListener('scroll', function() {
 
 /* ========== ADMIN PANEL + PIN 200611 ========== */
 const CODE_ADMIN = "200611";
+let isAdminOpen = false;
 
 // Montrer popup PIN
 const btnAdmin = document.getElementById('btnAdmin');
@@ -167,6 +168,10 @@ function verifierPin() {
         document.getElementById('inputPin').value = '';
         document.getElementById('erreurPin').style.display = 'none';
         document.getElementById('admin').scrollIntoView({behavior: 'smooth'});
+        
+        // Ajouter la classe pour afficher les boutons X
+        document.body.classList.add('admin-open');
+        isAdminOpen = true;
     } else {
         document.getElementById('erreurPin').style.display = 'block';
         document.getElementById('inputPin').value = '';
@@ -201,6 +206,7 @@ if (formAjoutProduit) {
         
         const card = `
             <div class="product-card">
+                <button class="btn-delete-product" title="Supprimer ce produit">✕</button>
                 <div class="product-image">
                     <img src="${img}" alt="${nom}" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
@@ -216,11 +222,61 @@ if (formAjoutProduit) {
         const grid = document.getElementById('grid-' + cat);
         if (grid) {
             grid.insertAdjacentHTML('beforeend', card);
+            
+            // Ajouter l'event listener au nouveau bouton X
+            const newCard = grid.lastElementChild;
+            const deleteBtn = newCard.querySelector('.btn-delete-product');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', handleDeleteProduct);
+            }
+            
             this.reset();
             alert('Produit ajouté dans ' + cat + ' ✅');
+            
+            // Fermer le panneau admin après ajout
+            document.getElementById('admin').style.display = 'none';
+            document.body.classList.remove('admin-open');
+            isAdminOpen = false;
         }
     });
 }
+
+/* ========== GESTION SUPPRESSION PRODUIT ========== */
+function handleDeleteProduct(event) {
+    event.preventDefault();
+    
+    // Demander le mot de passe
+    const password = prompt('Entrez le mot de passe pour supprimer ce produit:');
+    
+    if (password === null) {
+        // L'utilisateur a cliqué sur "Annuler"
+        return;
+    }
+    
+    if (password === CODE_ADMIN) {
+        // Trouver la carte produit parente et la supprimer avec une animation
+        const productCard = this.closest('.product-card');
+        if (productCard) {
+            productCard.style.transition = 'all 0.3s ease-out';
+            productCard.style.opacity = '0';
+            productCard.style.transform = 'scale(0.8)';
+            setTimeout(() => {
+                productCard.remove();
+                console.log('Produit supprimé ✓');
+            }, 300);
+        }
+    } else {
+        alert('Mot de passe incorrect ❌');
+    }
+}
+
+// Ajouter les event listeners au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteButtons = document.querySelectorAll('.btn-delete-product');
+    deleteButtons.forEach(btn => {
+        btn.addEventListener('click', handleDeleteProduct);
+    });
+});
 
 /* ========== CATALOGUE TOGGLE ========== */
 const catalogueToggle = document.querySelector('.catalogue-toggle');
