@@ -1,6 +1,7 @@
 // 1. CONFIGURATION SUPABASE (Remplace par tes vraies infos)
-const SUPABASE_URL = 'https://TON_ID_PROJET.supabase.co';
-const SUPABASE_ANON_KEY = 'TA_CLE_ANON_PUBLIQUE';
+const SUPABASE_URL = 'https://ghcaswgaghkzvyvmzkyb.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoY2Fzd2dhZ2hrenZ5dm16a3liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MzUzMTUsImV4cCI6MjA5NzAxMTMxNX0.xwuTKMah1y1C2TkAqiKEe288UrfvY8DK_TyLauAKWB4
+    ';
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const CODE_ADMIN = "200611";
