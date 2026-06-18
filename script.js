@@ -5,56 +5,48 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const CODE_ADMIN = "200611";
 
-// 2. FONCTION DE CHARGEMENT ULTRA-ROBUSTE
+// 2. CHARGEMENT DES PRODUITS
 async function chargerProduits() {
-    console.log("Démarrage du chargement...");
+    console.log("Chargement des produits...");
     
-    // On récupère les produits
-    const { data: products, error } = await db.from('products').select('*');
+    const { data: products, error } = await db.from('products').select('*').order('created_at', { ascending: false });
 
     if (error) {
-        alert("Erreur Supabase : " + error.message);
+        console.error("Erreur Supabase :", error.message);
         return;
     }
 
-    console.log("Produits reçus : " + products.length);
+    console.log("Produits reçus :", products.length);
 
     // Vider toutes les grilles
     const grilles = document.querySelectorAll('.products-grid');
     grilles.forEach(g => g.innerHTML = "");
 
-    // Dictionnaire pour corriger les catégories automatiquement
-    const mapCat = {
-        "décoration": "decoration", "decoration": "decoration",
-        "vaisselle et cuisine": "vaisselle", "vaisselle": "vaisselle",
-        "bijoux": "bijoux",
-        "casse tête et jeux": "jeux", "jeux": "jeux",
-        "jeux vidéo et film": "film", "film": "film",
-        "peluche et porte clé": "peluche", "peluche": "peluche",
-        "vêtement": "vetement", "vetement": "vetement",
-        "maquillage et accessoire": "maquillage", "maquillage": "maquillage",
-        "lumière": "lumiere", "lumiere": "lumiere"
-    };
-
     products.forEach(product => {
-        // On nettoie le nom de la catégorie reçue
-        let rawCat = product.category.toLowerCase().trim();
-        let finalCat = mapCat[rawCat] || rawCat; // On utilise la map ou le nom brut
+        // NETTOYAGE CRUCIAL : "Décoration" -> "decoration"
+        let catNettoyee = product.category
+            .toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Enlève les accents
+            .replace(/\s+/g, '') // Enlève les espaces
+            .split('et')[0]; // Prend le premier mot si "vaisselle et cuisine"
 
-        const gridId = 'grid-' + finalCat;
-        const grid = document.getElementById(gridId);
+        // Correction spécifique pour les noms longs
+        if (catNettoyee.includes("vaisselle")) catNettoyee = "vaisselle";
+        if (catNettoyee.includes("casse")) catNettoyee = "jeux";
+        if (catNettoyee.includes("video")) catNettoyee = "film";
+        if (catNettoyee.includes("peluche")) catNettoyee = "peluche";
+        if (catNettoyee.includes("maquillage")) catNettoyee = "maquillage";
+
+        const grid = document.getElementById('grid-' + catNettoyee);
 
         if (grid) {
             grid.insertAdjacentHTML('beforeend', créerCardHTML(product));
         } else {
-            console.error("Grille introuvable pour : " + gridId);
-            // Si on ne trouve pas la grille, on le met dans la première grille trouvée pour ne pas le perdre
+            console.warn("Impossible de trouver la grille pour : grid-" + catNettoyee);
+            // Secours : mettre dans la première grille si on ne trouve pas
             if(grilles[0]) grilles[0].insertAdjacentHTML('beforeend', créerCardHTML(product));
         }
     });
-
-    // On force l'affichage des sections (au cas où elles seraient cachées)
-    showAllCategories();
 }
 
 function créerCardHTML(product) {
@@ -62,17 +54,20 @@ function créerCardHTML(product) {
     return `
         <div class="product-card" data-id="${product.id}">
             <button class="btn-delete-product" style="display: ${displayX}" onclick="handleDeleteProduct(event)">✕</button>
-            <div class="product-image"><img src="${product.image_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='https://via.placeholder.com/150'"></div>
-            <div class="product-body">
-                <h3>${product.name}</h3>
-                <p>${product.description}</p>
-                <p><strong>${product.price}$</strong></p>
-                <button class="btn" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">Commander</button>
+            <div class="product-image">
+                <img src="${product.image_url}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/150'">
             </div>
-        </div>`;
+            <div class="product-body">
+                <h3 class="product-name">${product.name}</h3>
+                <p class="product-description">${product.description}</p>
+                <p class="product-price"><strong>${product.price}$</strong></p>
+                <button class="btn product-button" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">Commander</button>
+            </div>
+        </div>
+    `;
 }
 
-/* ========== GESTION ADMIN ========== */
+/* ========== FONCTIONS ADMIN ========== */
 window.verifierPin = function() {
     const pin = document.getElementById('inputPin').value;
     if (pin === CODE_ADMIN) {
@@ -88,7 +83,7 @@ window.verifierPin = function() {
 
 window.fermerPin = function() { document.getElementById('popupPin').style.display = 'none'; };
 
-/* ========== AJOUTER ========== */
+/* ========== AJOUTER PRODUIT ========== */
 const form = document.getElementById('formAjoutProduit');
 if (form) {
     form.onsubmit = async function(e) {
@@ -100,17 +95,25 @@ if (form) {
             image_url: document.getElementById('imageProduit').value,
             category: document.getElementById('categorieProduit').value
         };
+
         const { error } = await db.from('products').insert([nouveau]);
-        if (error) alert(error.message);
-        else { alert("Ajouté !"); form.reset(); chargerProduits(); }
+
+        if (error) {
+            alert("Erreur : " + error.message);
+        } else {
+            alert("Produit ajouté avec succès ! ✓");
+            form.reset();
+            document.getElementById('admin').style.display = 'none';
+            chargerProduits();
+        }
     };
 }
 
-/* ========== SUPPRIMER ========== */
+/* ========== SUPPRIMER PRODUIT ========== */
 window.handleDeleteProduct = async function(event) {
     const card = event.target.closest('.product-card');
     const id = card.getAttribute('data-id');
-    if (confirm("Supprimer ?")) {
+    if (confirm("Supprimer ce produit définitivement ?")) {
         const { error } = await db.from('products').delete().eq('id', id);
         if (error) alert(error.message);
         else card.remove();
@@ -118,26 +121,45 @@ window.handleDeleteProduct = async function(event) {
 };
 
 /* ========== FILTRES ========== */
-window.showAllCategories = function() {
-    const ids = ['decoration','vaisselle','bijoux','jeux','film','peluche','vetement','maquillage','lumiere'];
-    ids.forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = 'block'; });
-    const backBtn = document.getElementById('category-back-button');
-    if(backBtn) backBtn.style.display = 'none';
-    const defTitle = document.getElementById('default-title');
-    if(defTitle) defTitle.style.display = 'block';
-};
-
 window.filterByCategory = function(cat) {
-    const ids = ['decoration','vaisselle','bijoux','jeux','film','peluche','vetement','maquillage','lumiere'];
-    ids.forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = 'none'; });
-    if(document.getElementById(cat)) document.getElementById(cat).style.display = 'block';
+    const sections = ['decoration','vaisselle','bijoux','jeux','film','peluche','vetement','maquillage','lumiere'];
+    sections.forEach(id => {
+        const s = document.getElementById(id);
+        if (s) s.style.display = 'none';
+    });
+    const selected = document.getElementById(cat);
+    if (selected) selected.style.display = 'block';
+    
     document.getElementById('category-back-button').style.display = 'block';
     document.getElementById('default-title').style.display = 'none';
 };
 
+window.showAllCategories = function() {
+    const sections = ['decoration','vaisselle','bijoux','jeux','film','peluche','vetement','maquillage','lumiere'];
+    sections.forEach(id => {
+        const s = document.getElementById(id);
+        if (s) s.style.display = 'block';
+    });
+    document.getElementById('category-back-button').style.display = 'none';
+    document.getElementById('default-title').style.display = 'block';
+};
+
 /* ========== INITIALISATION ========== */
 document.addEventListener('DOMContentLoaded', () => {
+    // Bouton engrenage
     const btnAdmin = document.getElementById('btnAdmin');
     if (btnAdmin) btnAdmin.onclick = () => document.getElementById('popupPin').style.display = 'flex';
+
+    // Bouton retour
+    const backBtn = document.getElementById('backToCatalogBtn');
+    if (backBtn) backBtn.onclick = showAllCategories;
+
+    // Liens catalogue
+    document.querySelectorAll('.catalogue-link').forEach(link => {
+        link.onclick = function() {
+            filterByCategory(this.getAttribute('data-category'));
+        };
+    });
+
     chargerProduits();
 });
