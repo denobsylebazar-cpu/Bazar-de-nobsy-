@@ -1,282 +1,203 @@
-/* ========== BANNIÈRE NOUVEAU LOCAL - GESTION ========== */
-document.addEventListener('DOMContentLoaded', function() {
-    const banner = document.getElementById('banner-toit-rouge');
-    
-    if (!banner) return;
-    
-    // Date de début : 12 juin 2026
-    const startDate = new Date('2026-06-12');
-    const today = new Date();
-    
-    // Calculer la date d'expiration (14 jours après le début)
-    const expirationDate = new Date(startDate);
-    expirationDate.setDate(expirationDate.getDate() + 14); // Expire le 26 juin 2026
-    
-    // Vérifier si la bannière doit être supprimée complètement
-    if (today > expirationDate) {
-        banner.remove();
-        console.log('Bannière supprimée : période de 14 jours dépassée (expiration : 26 juin 2026)');
+// 1. CONFIGURATION SUPABASE (Remplace par tes vraies infos)
+const SUPABASE_URL = 'https://TON_ID_PROJET.supabase.co';
+const SUPABASE_ANON_KEY = 'TA_CLE_ANON_PUBLIQUE';
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const CODE_ADMIN = "200611";
+
+/* ========== CHARGEMENT DES PRODUITS (READ) ========== */
+async function chargerProduits() {
+    // On vide les grilles avant de recharger
+    const grilles = document.querySelectorAll('.products-grid');
+    grilles.forEach(g => g.innerHTML = '<p style="padding:20px;">Chargement...</p>');
+
+    const { data: products, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error("Erreur de chargement:", error.message);
         return;
     }
-    
-    // Afficher la bannière immédiatement au chargement
-    banner.classList.remove('hidden');
-    console.log('Bannière affichée au chargement de la page');
-    
-    // Gestion de l'animation : 2 minutes affichée + 30 secondes masquée
-    const showDuration = 2 * 60 * 1000; // 2 minutes
-    const hideDuration = 30 * 1000;      // 30 secondes
-    
-    function toggleBannerCycle() {
-        setTimeout(function() {
-            banner.classList.add('hidden');
-            console.log('Bannière masquée');
-            
-            setTimeout(function() {
-                banner.classList.remove('hidden');
-                console.log('Bannière réaffichée');
-                toggleBannerCycle();
-            }, hideDuration);
-        }, showDuration);
-    }
-    
-    toggleBannerCycle();
-    console.log('Animation bannière activée - Cycle: 2min affichée + 30s masquée - Expires le 26 juin 2026');
-});
 
-/* ========== MOBILE MENU FUNCTIONALITY ========== */
-document.addEventListener('DOMContentLoaded', function() {
-    const hamburger = document.querySelector('.hamburger');
-    const navMenu = document.querySelector('.nav-menu');
-    const navLinks = document.querySelectorAll('.nav-link');
+    // On vide à nouveau pour enlever le message "Chargement..."
+    grilles.forEach(g => g.innerHTML = '');
 
-    if (hamburger) {
-        hamburger.addEventListener('click', function() {
-            hamburger.classList.toggle('active');
-            navMenu.classList.toggle('active');
-        });
-    }
-
-    navLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            hamburger.classList.remove('active');
-            navMenu.classList.remove('active');
-        });
-    });
-
-    document.addEventListener('click', function(event) {
-        const isClickInsideMenu = navMenu.contains(event.target);
-        const isClickOnHamburger = hamburger.contains(event.target);
-        
-        if (!isClickInsideMenu && !isClickOnHamburger && navMenu.classList.contains('active')) {
-            hamburger.classList.remove('active');
-            navMenu.classList.remove('active');
+    products.forEach(product => {
+        const grid = document.getElementById('grid-' + product.category);
+        if (grid) {
+            const cardHTML = créerCardHTML(product);
+            grid.insertAdjacentHTML('beforeend', cardHTML);
         }
     });
-});
 
-/* ========== SMOOTH SCROLL WITH NAVBAR OFFSET ========== */
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-        const href = this.getAttribute('href');
-        if (href === '#') return;
-        
+    // On ré-attache les événements de suppression après le rendu
+    attacherEvenementsSuppression();
+}
+
+function créerCardHTML(product) {
+    // On vérifie si on est en mode admin pour afficher le bouton X
+    const displayX = document.body.classList.contains('admin-open') ? 'block' : 'none';
+    
+    return `
+        <div class="product-card" data-id="${product.id}">
+            <button class="btn-delete-product" style="display: ${displayX}" title="Supprimer">✕</button>
+            <div class="product-image">
+                <img src="${product.image_url}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div class="product-body">
+                <h3 class="product-name">${product.name}</h3>
+                <p class="product-description">${product.description}</p>
+                <p class="product-price"><strong>${product.price}$</strong></p>
+                <button class="btn product-button" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">Commander sur Messenger</button>
+            </div>
+        </div>
+    `;
+}
+
+/* ========== AJOUTER UN PRODUIT (CREATE) ========== */
+const formAjoutProduit = document.getElementById('formAjoutProduit');
+if (formAjoutProduit) {
+    formAjoutProduit.addEventListener('submit', async function(e) {
         e.preventDefault();
-        const target = document.querySelector(href);
         
-        if (target) {
-            const navbarHeight = document.querySelector('.navbar').offsetHeight;
-            const targetPosition = target.offsetTop - navbarHeight;
-            
-            window.scrollTo({
-                top: targetPosition,
-                behavior: 'smooth'
-            });
-        }
-    });
-});
+        const nouveauProduit = {
+            name: document.getElementById('nomProduit').value,
+            description: document.getElementById('descProduit').value,
+            price: parseFloat(document.getElementById('prixProduit').value),
+            image_url: document.getElementById('imageProduit').value,
+            category: document.getElementById('categorieProduit').value
+        };
 
-/* ========== BUTTON EVENT LISTENERS ========== */
-const btnProduits = document.getElementById('btnProduits');
-if (btnProduits) {
-    btnProduits.addEventListener('click', function() {
-        const produitSection = document.getElementById('produits');
-        const navbarHeight = document.querySelector('.navbar').offsetHeight;
-        const targetPosition = produitSection.offsetTop - navbarHeight;
-        window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        const { data, error } = await supabase
+            .from('products')
+            .insert([nouveauProduit]);
+
+        if (error) {
+            alert("Erreur lors de l'ajout : " + error.message);
+        } else {
+            alert('Produit ajouté avec succès ! ✅');
+            formAjoutProduit.reset();
+            document.getElementById('admin').style.display = 'none';
+            chargerProduits(); // Recharger la liste
+        }
     });
 }
 
-const btnLive = document.getElementById('btnLive');
-if (btnLive) {
-    btnLive.addEventListener('click', function() {
-        window.open('https://www.facebook.com/share/g/18YTkXrkvB/', '_blank');
-    });
-}
+/* ========== SUPPRIMER UN PRODUIT (DELETE) ========== */
+async function handleDeleteProduct(event) {
+    const card = event.target.closest('.product-card');
+    const id = card.getAttribute('data-id');
+    
+    const password = prompt('Entrez le code PIN pour confirmer la suppression:');
+    
+    if (password === CODE_ADMIN) {
+        const { error } = await supabase
+            .from('products')
+            .delete()
+            .eq('id', id);
 
-/* ========== INTERSECTION OBSERVER FOR FADE-IN ANIMATIONS ========== */
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
-
-const observer = new IntersectionObserver(function(entries) {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
+        if (error) {
+            alert("Erreur lors de la suppression : " + error.message);
+        } else {
+            card.remove();
+            console.log('Produit supprimé de la base de données');
         }
-    });
-}, observerOptions);
-
-document.querySelectorAll('.fade-in-section').forEach(element => {
-    observer.observe(element);
-});
-
-/* ========== NAVBAR SCROLL EFFECT ========== */
-let lastScrollTop = 0;
-const navbar = document.querySelector('.navbar');
-window.addEventListener('scroll', function() {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    if (scrollTop > 0) {
-        navbar.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-    } else {
-        navbar.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+    } else if (password !== null) {
+        alert('Code incorrect ❌');
     }
-    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-});
+}
 
-/* ========== ADMIN PANEL + PIN 200611 ========== */
-const CODE_ADMIN = "200611";
-let isAdminOpen = false;
-
-// Montrer popup PIN
-const btnAdmin = document.getElementById('btnAdmin');
-if (btnAdmin) {
-    btnAdmin.addEventListener('click', () => {
-        document.getElementById('popupPin').style.display = 'flex';
-        document.getElementById('inputPin').focus();
+function attacherEvenementsSuppression() {
+    document.querySelectorAll('.btn-delete-product').forEach(btn => {
+        btn.removeEventListener('click', handleDeleteProduct); // Éviter les doublons
+        btn.addEventListener('click', handleDeleteProduct);
     });
 }
 
-// Vérifier le code
+/* ========== GESTION LOGIN ADMIN (UI) ========== */
 function verifierPin() {
     const pin = document.getElementById('inputPin').value;
     if (pin === CODE_ADMIN) {
         document.getElementById('admin').style.display = 'block';
         document.getElementById('popupPin').style.display = 'none';
-        document.getElementById('inputPin').value = '';
-        document.getElementById('erreurPin').style.display = 'none';
-        document.getElementById('admin').scrollIntoView({behavior: 'smooth'});
-        
-        // Ajouter la classe pour afficher les boutons X
         document.body.classList.add('admin-open');
-        isAdminOpen = true;
+        
+        // Afficher tous les boutons de suppression
+        document.querySelectorAll('.btn-delete-product').forEach(b => b.style.display = 'block');
+        
+        document.getElementById('admin').scrollIntoView({behavior: 'smooth'});
     } else {
         document.getElementById('erreurPin').style.display = 'block';
-        document.getElementById('inputPin').value = '';
     }
 }
 
-function fermerPin() {
-    document.getElementById('popupPin').style.display = 'none';
-    document.getElementById('inputPin').value = '';
-    document.getElementById('erreurPin').style.display = 'none';
-}
-
-// Entrer avec Entrée
-const inputPin = document.getElementById('inputPin');
-if (inputPin) {
-    inputPin.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') verifierPin();
-    });
-}
-
-/* ========== AJOUT PRODUIT DYNAMIQUE ========== */
-const formAjoutProduit = document.getElementById('formAjoutProduit');
-if (formAjoutProduit) {
-    formAjoutProduit.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const nom = document.getElementById('nomProduit').value;
-        const desc = document.getElementById('descProduit').value;
-        const prix = document.getElementById('prixProduit').value;
-        const img = document.getElementById('imageProduit').value;
-        const cat = document.getElementById('categorieProduit').value;
-        
-        const card = `
-            <div class="product-card">
-                <button class="btn-delete-product" title="Supprimer ce produit">✕</button>
-                <div class="product-image">
-                    <img src="${img}" alt="${nom}" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div class="product-body">
-                    <h3 class="product-name">${nom}</h3>
-                    <p class="product-description">${desc}</p>
-                    <p class="product-price"><strong>${prix}$</strong></p>
-                    <button class="btn product-button" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">Commander sur Messenger</button>
-                </div>
-            </div>
-        `;
-        
-        const grid = document.getElementById('grid-' + cat);
-        if (grid) {
-            grid.insertAdjacentHTML('beforeend', card);
-            
-            // Ajouter l'event listener au nouveau bouton X
-            const newCard = grid.lastElementChild;
-            const deleteBtn = newCard.querySelector('.btn-delete-product');
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', handleDeleteProduct);
-            }
-            
-            this.reset();
-            alert('Produit ajouté dans ' + cat + ' ✅');
-            
-            // Fermer le panneau admin après ajout
-            document.getElementById('admin').style.display = 'none';
-            document.body.classList.remove('admin-open');
-            isAdminOpen = false;
-        }
-    });
-}
-
-/* ========== GESTION SUPPRESSION PRODUIT ========== */
-function handleDeleteProduct(event) {
-    event.preventDefault();
-    
-    // Demander le mot de passe
-    const password = prompt('Entrez le mot de passe pour supprimer ce produit:');
-    
-    if (password === null) {
-        // L'utilisateur a cliqué sur "Annuler"
-        return;
-    }
-    
-    if (password === CODE_ADMIN) {
-        // Trouver la carte produit parente et la supprimer avec une animation
-        const productCard = this.closest('.product-card');
-        if (productCard) {
-            productCard.style.transition = 'all 0.3s ease-out';
-            productCard.style.opacity = '0';
-            productCard.style.transform = 'scale(0.8)';
-            setTimeout(() => {
-                productCard.remove();
-                console.log('Produit supprimé ✓');
-            }, 300);
-        }
-    } else {
-        alert('Mot de passe incorrect ❌');
-    }
-}
-
-// Ajouter les event listeners au chargement de la page
+/* ========== INITIALISATION ========== */
 document.addEventListener('DOMContentLoaded', function() {
-    const deleteButtons = document.querySelectorAll('.btn-delete-product');
-    deleteButtons.forEach(btn => {
-        btn.addEventListener('click', handleDeleteProduct);
+    chargerProduits();
+});
+
+/* ========== CATALOGUE TOGGLE ========== */
+const catalogueToggle = document.querySelector('.catalogue-toggle');
+if (catalogueToggle) {
+    catalogueToggle.addEventListener('click', function() {
+        this.classList.toggle('active');
+        document.querySelector('.catalogue-content').classList.toggle('active');
+    });
+}
+
+/* ========== FILTRE PAR CATÉGORIE ========== */
+const categories = [
+    'decoration', 'vaisselle', 'bijoux', 'jeux', 'film', 'peluche', 'vetement', 'maquillage', 'lumiere'
+];
+
+const categoryNames = {
+    'decoration': 'Décoration',
+    'vaisselle': 'Vaisselle et cuisine',
+    'bijoux': 'Bijoux',
+    'jeux': 'Casse tête et jeux',
+    'film': 'Jeux vidéo et film',
+    'peluche': 'Peluche et porte clé',
+    'vetement': 'Vêtement',
+    'maquillage': 'Maquillage et accessoire',
+    'lumiere': 'Lumière'
+};
+
+// Récupérer tous les liens du catalogue
+const catalogueLinks = document.querySelectorAll('.catalogue-link');
+catalogueLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const category = this.getAttribute('data-category');
+        filterByCategory(category);
+        
+        // Fermer le menu catalogue
+        catalogueToggle.classList.remove('active');
+        document.querySelector('.catalogue-content').classList.remove('active');
     });
 });
+
+function filterByCategory(category) {
+    // Masquer toutes les sections de catégorie
+    categories.forEach(cat => {
+        const section = document.getElement = 'block';
+        document.getElementById('popupPin').style.display = 'none';
+        document.body.classList.add('admin-open');
+        
+        // Afficher tous les boutons de suppression
+        document.querySelectorAll('.btn-delete-product').forEach(b => b.style.display = 'block');
+        
+        document.getElementById('admin').scrollIntoView({behavior: 'smooth'});
+    } else {
+        document.getElementById('erreurPin').style.display = 'block';
+    }
+}
+
+/* ========== INITIALISATION ========== */
+document.addEventListener('DOMContentLoaded', function() {
+    chargerProduits();
+    
 
 /* ========== CATALOGUE TOGGLE ========== */
 const catalogueToggle = document.querySelector('.catalogue-toggle');
@@ -406,3 +327,4 @@ document.querySelectorAll('.btn').forEach(button => {
 });
 
 console.log('Le bazar de Nobsy - Site chargé avec succès! 🎉');
+});
