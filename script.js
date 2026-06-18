@@ -1,59 +1,14 @@
-/* ========== CONFIGURATION SUPABASE ========== */
 const SUPABASE_URL = 'https://ghcaswgaghkzvyvmzkyb.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoY2Fzd2dhZ2hrenZ5dm16a3liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MzUzMTUsImV4cCI6MjA5NzAxMTMxNX0.xwuTKMah1y1C2TkAqiKEe288UrfvY8DK_TyLauAKWB4';
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const CODE_ADMIN = "200611";
 
-/* ========== GESTION DU LOGIN ADMIN ========== */
-window.verifierPin = function() {
-    const pinInput = document.getElementById('inputPin');
-    const erreurPin = document.getElementById('erreurPin');
-    const panelAdmin = document.getElementById('admin'); // Section qui contient le formulaire
-    const popupPin = document.getElementById('popupPin');
-
-    if (pinInput.value === CODE_ADMIN) {
-        console.log("PIN correct !");
-        
-        // 1. Cacher le popup
-        if (popupPin) popupPin.style.display = 'none';
-        
-        // 2. Afficher le panneau admin s'il existe
-        if (panelAdmin) {
-            panelAdmin.style.display = 'block';
-            panelAdmin.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            alert("Attention: La section avec id='admin' est introuvable dans ton HTML !");
-        }
-
-        // 3. Activer le mode admin sur le corps de page
-        document.body.classList.add('admin-open');
-        
-        // 4. Afficher tous les boutons de suppression
-        document.querySelectorAll('.btn-delete-product').forEach(btn => {
-            btn.style.display = 'block';
-        });
-
-        pinInput.value = '';
-    } else {
-        if (erreurPin) erreurPin.style.display = 'block';
-        pinInput.value = '';
-    }
-};
-
-window.fermerPin = function() {
-    const popup = document.getElementById('popupPin');
-    if (popup) popup.style.display = 'none';
-};
-
 /* ========== CHARGEMENT DES PRODUITS ========== */
 async function chargerProduits() {
-    console.log("Chargement des produits en cours...");
+    console.log("Chargement des produits...");
     const grilles = document.querySelectorAll('.products-grid');
     
-    // On met un message d'attente
-    grilles.forEach(g => g.innerHTML = '<p style="padding:20px;">Chargement du bazar...</p>');
-
     const { data: products, error } = await db
         .from('products')
         .select('*')
@@ -61,25 +16,28 @@ async function chargerProduits() {
 
     if (error) {
         console.error("Erreur Supabase :", error.message);
-        alert("Erreur de connexion à la base de données.");
         return;
     }
 
-    console.log(products.length + " produits récupérés !");
+    console.log("Produits trouvés dans Supabase :", products.length);
 
     // On vide les grilles
     grilles.forEach(g => g.innerHTML = '');
 
-    if (products.length === 0) {
-        grilles.forEach(g => g.innerHTML = '<p>Aucun produit dans cette catégorie.</p>');
-    }
-
     products.forEach(product => {
-        const grid = document.getElementById('grid-' + product.category);
+        // NETTOYAGE : on enlève les accents et les majuscules pour trouver l'ID
+        // Exemple: "Décoration" devient "decoration"
+        let categoryID = product.category
+            .toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
+            .trim();
+
+        const grid = document.getElementById('grid-' + categoryID);
+        
         if (grid) {
             grid.insertAdjacentHTML('beforeend', créerCardHTML(product));
         } else {
-            console.warn("Pas de grille trouvée pour la catégorie : " + product.category);
+            console.warn("Pas de grille trouvée pour l'ID : grid-" + categoryID);
         }
     });
 }
@@ -101,15 +59,29 @@ function créerCardHTML(product) {
         </div>`;
 }
 
+/* ========== GESTION ADMIN ========== */
+window.verifierPin = function() {
+    const pin = document.getElementById('inputPin').value;
+    if (pin === CODE_ADMIN) {
+        document.getElementById('admin').style.display = 'block';
+        document.getElementById('popupPin').style.display = 'none';
+        document.body.classList.add('admin-open');
+        document.querySelectorAll('.btn-delete-product').forEach(b => b.style.display = 'block');
+        document.getElementById('admin').scrollIntoView({ behavior: 'smooth' });
+    } else {
+        document.getElementById('erreurPin').style.display = 'block';
+    }
+};
+
+window.fermerPin = function() {
+    document.getElementById('popupPin').style.display = 'none';
+};
+
 /* ========== AJOUTER UN PRODUIT ========== */
 const form = document.getElementById('formAjoutProduit');
 if (form) {
     form.onsubmit = async function(e) {
         e.preventDefault();
-        const btnSubmit = form.querySelector('button[type="submit"]');
-        btnSubmit.disabled = true;
-        btnSubmit.innerText = "Ajout...";
-
         const nouveau = {
             name: document.getElementById('nomProduit').value,
             description: document.getElementById('descProduit').value,
@@ -128,8 +100,6 @@ if (form) {
             document.getElementById('admin').style.display = 'none';
             chargerProduits();
         }
-        btnSubmit.disabled = false;
-        btnSubmit.innerText = "Ajouter le produit";
     };
 }
 
@@ -137,28 +107,23 @@ if (form) {
 window.handleDeleteProduct = async function(event) {
     const card = event.target.closest('.product-card');
     const id = card.getAttribute('data-id');
-    
-    if (confirm("Supprimer définitivement ce produit ?")) {
+    if (confirm("Supprimer ce produit ?")) {
         const { error } = await db.from('products').delete().eq('id', id);
-        if (error) alert("Erreur : " + error.message);
+        if (error) alert(error.message);
         else card.remove();
     }
 };
 
 /* ========== INITIALISATION ========== */
 document.addEventListener('DOMContentLoaded', () => {
-    // Bouton Engrenage
+    // Bouton engrenage
     const btnAdmin = document.getElementById('btnAdmin');
-    if (btnAdmin) {
-        btnAdmin.onclick = () => {
-            document.getElementById('popupPin').style.display = 'flex';
-        };
-    }
+    if (btnAdmin) btnAdmin.onclick = () => document.getElementById('popupPin').style.display = 'flex';
 
     // Menu Mobile
     const hamburger = document.querySelector('.hamburger');
     const navMenu = document.querySelector('.nav-menu');
-    if (hamburger && navMenu) {
+    if (hamburger) {
         hamburger.onclick = () => {
             hamburger.classList.toggle('active');
             navMenu.classList.toggle('active');
@@ -166,33 +131,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     chargerProduits();
+    
+    // On s'assure que tout est visible au début
+    if (typeof showAllCategories === 'function') showAllCategories();
 });
 
-/* ========== FILTRES CATÉGORIES ========== */
+/* ========== FILTRES ========== */
 window.filterByCategory = function(cat) {
     const sections = ['decoration', 'vaisselle', 'bijoux', 'jeux', 'film', 'peluche', 'vetement', 'maquillage', 'lumiere'];
-    sections.forEach(c => {
-        const s = document.getElementById(c);
-        if (s) s.style.display = 'none';
-    });
-    
-    const selected = document.getElementById(cat);
-    if (selected) {
-        selected.style.display = 'block';
-        window.scrollTo({ top: selected.offsetTop - 80, behavior: 'smooth' });
-    }
-    
-    const backBtn = document.getElementById('category-back-button');
-    if (backBtn) backBtn.style.display = 'block';
+    sections.forEach(c => { if(document.getElementById(c)) document.getElementById(c).style.display = 'none'; });
+    if(document.getElementById(cat)) document.getElementById(cat).style.display = 'block';
+    document.getElementById('category-back-button').style.display = 'block';
     document.getElementById('default-title').style.display = 'none';
 };
 
 window.showAllCategories = function() {
     const sections = ['decoration', 'vaisselle', 'bijoux', 'jeux', 'film', 'peluche', 'vetement', 'maquillage', 'lumiere'];
-    sections.forEach(c => {
-        const s = document.getElementById(c);
-        if (s) s.style.display = 'block';
-    });
+    sections.forEach(c => { if(document.getElementById(c)) document.getElementById(c).style.display = 'block'; });
     document.getElementById('category-back-button').style.display = 'none';
     document.getElementById('default-title').style.display = 'block';
 };
