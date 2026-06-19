@@ -4,8 +4,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// NOTE : Le CODE_ADMIN a été supprimé d'ici pour plus de sécurité.
-
 /* ========== CHARGEMENT ET TRI DES SECTIONS ========== */
 async function chargerProduits() {
     console.log("Mise à jour du catalogue...");
@@ -17,16 +15,22 @@ async function chargerProduits() {
 
     if (error) return;
 
+    // Vider les grilles
     const grilles = document.querySelectorAll('.products-grid');
     grilles.forEach(g => g.innerHTML = "");
 
+    // Remplir les grilles
     products.forEach(product => {
         let cat = product.category.toLowerCase().trim();
-        let targetId = "grid-decoration";
+        let targetId = "grid-decoration"; // Par défaut
+
+        // LOGIQUE DE DÉTECTION DES CATÉGORIES
         if (cat.includes("vaisselle")) targetId = "grid-vaisselle";
         else if (cat.includes("bijoux")) targetId = "grid-bijoux";
+        else if (cat.includes("pop")) targetId = "grid-pop";
+        else if (cat.includes("jeuxvideo")) targetId = "grid-jeuxvideo";
+        else if (cat.includes("film")) targetId = "grid-film";
         else if (cat.includes("jeux") || cat.includes("casse")) targetId = "grid-jeux";
-        else if (cat.includes("film") || cat.includes("video")) targetId = "grid-film";
         else if (cat.includes("peluche")) targetId = "grid-peluche";
         else if (cat.includes("vetement")) targetId = "grid-vetement";
         else if (cat.includes("maquillage")) targetId = "grid-maquillage";
@@ -38,7 +42,9 @@ async function chargerProduits() {
             gridElement.insertAdjacentHTML('beforeend', `
                 <div class="product-card" data-id="${product.id}">
                     <button class="btn-delete-product" style="display: ${showX}" onclick="handleDeleteProduct(event)">✕</button>
-                    <div class="product-image"><img src="${product.image_url}" onerror="this.src='https://via.placeholder.com/150'"></div>
+                    <div class="product-image">
+                        <img src="${product.image_url}" alt="${product.name} - Bazar de Nobsy Joliette" onerror="this.src='https://via.placeholder.com/150'">
+                    </div>
                     <div class="product-body">
                         <h3>${product.name}</h3>
                         <p>${product.description}</p>
@@ -49,8 +55,9 @@ async function chargerProduits() {
         }
     });
 
+    // --- LOGIQUE DE RÉORGANISATION (SÉCTIONS PLEINES EN HAUT) ---
     const container = document.querySelector('#produits .container');
-    const sectionsIds = ['decoration', 'vaisselle', 'bijoux', 'jeux', 'film', 'peluche', 'vetement', 'maquillage', 'lumiere'];
+    const sectionsIds = ['decoration', 'vaisselle', 'bijoux', 'jeux', 'pop', 'jeuxvideo', 'film', 'peluche', 'vetement', 'maquillage', 'lumiere'];
 
     sectionsIds.forEach(id => {
         const section = document.getElementById(id);
@@ -59,6 +66,7 @@ async function chargerProduits() {
             if (grid.children.length > 0) {
                 container.prepend(section); 
                 section.style.opacity = "1";
+                section.style.display = "block";
             } else {
                 container.appendChild(section);
                 section.style.opacity = "0.5";
@@ -70,10 +78,6 @@ async function chargerProduits() {
 /* ========== GESTION ADMIN (CONNEXION) ========== */
 window.verifierPin = async function() {
     const pin = document.getElementById('inputPin').value;
-
-    // On vérifie le PIN en appelant une fonction RPC (ou un test de suppression vide)
-    // Pour l'interface, on accepte le PIN s'il fait 6 chiffres pour ouvrir le menu
-    // Mais les vraies actions (supprimer/ajouter) seront bloquées par Supabase si le PIN est faux.
     if (pin.length === 6) {
         document.getElementById('admin').style.display = 'block';
         document.getElementById('popupPin').style.display = 'none';
@@ -95,16 +99,14 @@ window.handleDeleteProduct = async function(event) {
     const pin = prompt("Entrez le code PIN pour confirmer la suppression :");
     if (!pin) return;
 
-    // ON APPELLE LA FONCTION SQL SÉCURISÉE
     const { error } = await db.rpc('delete_product_secure', {
         prod_id: id,
         pin_code: pin
     });
 
     if (error) {
-        alert("Erreur : " + error.message); // Affichera "Code PIN incorrect !"
+        alert("Erreur : " + error.message);
     } else {
-        // Animation de sortie réussie
         card.style.transform = "scale(0)";
         card.style.opacity = "0";
         setTimeout(() => {
@@ -129,10 +131,12 @@ if (form) {
 
         try {
             const fileName = Date.now() + "-" + file.name;
-            const { data: uploadData } = await db.storage.from('product-images').upload(fileName, file);
+            const { data: uploadData, error: uploadError } = await db.storage.from('product-images').upload(fileName, file);
+            if (uploadError) throw uploadError;
+
             const { data: linkData } = db.storage.from('product-images').getPublicUrl(fileName);
 
-            await db.from('products').insert([{
+            const { error: insertError } = await db.from('products').insert([{
                 name: document.getElementById('nomProduit').value,
                 description: document.getElementById('descProduit').value,
                 price: parseFloat(document.getElementById('prixProduit').value),
@@ -140,16 +144,32 @@ if (form) {
                 category: document.getElementById('categorieProduit').value
             }]);
 
+            if (insertError) throw insertError;
+
             alert("Produit ajouté ! ✅");
             form.reset();
+            document.getElementById('preview-container').style.display = 'none';
             document.getElementById('admin').style.display = 'none';
-            document.body.classList.remove('admin-open');
             chargerProduits();
         } catch (err) {
             alert("Erreur : " + err.message);
         } finally {
             submitBtn.disabled = false;
             submitBtn.innerText = "🚀 Publier";
+        }
+    };
+}
+
+// Aperçu de l'image
+const imageProduitInput = document.getElementById('imageProduit');
+if (imageProduitInput) {
+    imageProduitInput.onchange = function() {
+        const [file] = this.files;
+        if (file) {
+            const previewContainer = document.getElementById('preview-container');
+            const previewImg = document.getElementById('imagePreview');
+            previewContainer.style.display = 'block';
+            previewImg.src = URL.createObjectURL(file);
         }
     };
 }
@@ -169,16 +189,23 @@ function initCatalogue() {
         link.onclick = function(e) {
             e.preventDefault();
             filterByCategory(this.getAttribute('data-category'));
-            toggleBtn.classList.remove('active');
-            content.classList.remove('active');
+            if (toggleBtn) toggleBtn.classList.remove('active');
+            if (content) content.classList.remove('active');
         };
     });
 }
 
 window.filterByCategory = function(cat) {
-    const ids = ['decoration','vaisselle','bijoux','jeux','film','peluche','vetement','maquillage','lumiere'];
-    ids.forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = 'none'; });
-    if(document.getElementById(cat)) document.getElementById(cat).style.display = 'block';
+    const ids = ['decoration','vaisselle','bijoux','jeux','pop','jeuxvideo','film','peluche','vetement','maquillage','lumiere'];
+    ids.forEach(id => {
+        const s = document.getElementById(id);
+        if (s) s.style.display = 'none';
+    });
+    const selected = document.getElementById(cat);
+    if (selected) {
+        selected.style.display = 'block';
+        selected.style.opacity = '1';
+    }
     document.getElementById('category-back-button').style.display = 'block';
     document.getElementById('default-title').style.display = 'none';
 };
@@ -193,8 +220,10 @@ window.showAllCategories = function() {
 document.addEventListener('DOMContentLoaded', () => {
     const btnAdmin = document.getElementById('btnAdmin');
     if (btnAdmin) btnAdmin.onclick = () => document.getElementById('popupPin').style.display = 'flex';
+    
     initCatalogue();
     chargerProduits();
+    
     const backBtn = document.getElementById('backToCatalogBtn');
     if (backBtn) backBtn.onclick = showAllCategories;
 });
