@@ -3,9 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Le bazar de Nobsy - Articles variés à bon prix à Joliette">
-    <title>Le bazar de Nobsy - Bons deals et articles variés</title>
     
+    <!-- SEO & Réseaux Sociaux -->
+    <title>Le bazar de Nobsy | Bons deals & Articles variés à Joliette</title>
+    <meta name="description" content="Découvrez les meilleurs deals à Joliette au bazar de Nobsy. Figurines Pop, jeux vidéo, bijoux et déco à petits prix. Livraison disponible, commandez sur Messenger !">
+    <meta property="og:title" content="Le bazar de Nobsy | Bons deals à Joliette">
+    <meta property="og:description" content="Trouvez des perles rares : Pop, figurines, jeux et plus encore à prix cassés.">
+    <meta property="og:url" content="https://lebazardenobsy-star.github.io/Le-bazar-de-Nobsy/">
+    <meta property="og:type" content="website">
+
+    <!-- Données Structurées Google -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Le bazar de Nobsy",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Joliette",
+        "addressRegion": "QC",
+        "addressCountry": "CA"
+      },
+      "url": "https://lebazardenobsy-star.github.io/Le-bazar-de-Nobsy/",
+      "priceRange": "$"
+    }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,21 +38,13 @@
         /* Styles Admin */
         #btnAdmin { position:fixed; bottom:20px; right:20px; width:50px; height:50px; border-radius:50%; background:#333; color:white; border:none; font-size:24px; cursor:pointer; z-index:9999; opacity:0.6; display: flex; align-items: center; justify-content: center; }
         #btnAdmin:hover { opacity:1; }
-        
         #popupPin { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000; justify-content:center; align-items:center; }
         .popup-content { background:white; padding:30px; border-radius:15px; text-align:center; width:90%; max-width:320px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        
         #formAjoutProduit { max-width:600px; margin:auto; display:grid; gap:15px; background: white; padding: 20px; border-radius: 10px; }
         #formAjoutProduit input, #formAjoutProduit textarea, #formAjoutProduit select { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
-
-        /* Filtres */
         #category-back-button, #category-title { display: none; margin: 20px 0; }
         .products-grid { min-height: 50px; }
-        
-        /* Bannière mobile */
-        @media (max-width: 600px) {
-            #banner-toit-rouge { font-size: 14px; width: 90%; text-align: center; }
-        }
+        @media (max-width: 600px) { #banner-toit-rouge { font-size: 14px; width: 90%; text-align: center; } }
     </style>
 </head>
 <body>
@@ -50,19 +65,19 @@
         <div class="hamburger"><span></span><span></span><span></span></div>
     </nav>
 
-    <section id="accueil" class="hero">
+    <header id="accueil" class="hero">
         <div class="hero-content">
             <h1>Bienvenue au Bazar de Nobsy</h1>
-            <p class="hero-subtitle">Bons deals et articles variés à Joliette, Québec</p>
+            <p class="hero-subtitle">Les meilleurs deals et articles variés à Joliette, Québec</p>
             <div class="hero-buttons">
                 <button class="btn" onclick="document.getElementById('produits').scrollIntoView({behavior:'smooth'})">Voir les produits</button>
                 <button class="btn btn-secondary" onclick="window.open('https://www.facebook.com/share/g/18YTkXrkvB/')">Rejoindre le Live</button>
                 <button class="btn" onclick="window.open('https://ruinsnradz.servegame.com/')">En partenariat avec Ruins'n Radz</button>
             </div>
         </div>
-    </section>
+    </header>
 
-    <!-- FORMULAIRE ADMIN (Affiche après le PIN) -->
+    <!-- FORMULAIRE ADMIN -->
     <section id="admin" style="background:#f0f2f5; padding:60px 0; display:none;">
         <div class="container">
             <h2 class="section-title">Ajouter un produit</h2>
@@ -71,24 +86,24 @@
                 <textarea id="descProduit" placeholder="Description" rows="3" required></textarea>
                 <input type="number" id="prixProduit" placeholder="Prix $" step="0.01" required>
                 
-                <!-- MODIFICATION : Sélection de photo au lieu d'URL -->
                 <label style="font-weight:bold; margin-top:5px;">📷 Sélectionner une photo :</label>
                 <input type="file" id="imageProduit" accept="image/*" required>
                 
-                <!-- Zone d'aperçu de la photo sélectionnée -->
                 <div id="preview-container" style="display:none; text-align:center; margin-top:10px;">
-                    <p style="font-size:0.8rem; color:gray;">Aperçu de la photo :</p>
-                    <img id="imagePreview" src="" style="max-width:150px; border-radius:12px; border:3px solid #0084ff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                    <p style="font-size:0.8rem; color:gray;">Aperçu :</p>
+                    <img id="imagePreview" src="" style="max-width:150px; border-radius:12px; border:3px solid #0084ff;">
                 </div>
 
                 <select id="categorieProduit" required>
                     <option value="">Choisir la catégorie...</option>
+                    <option value="pop">Pop et figurine</option>
+                    <option value="jeuxvideo">Jeux vidéo</option>
+                    <option value="film">Films</option>
                     <option value="decoration">Décoration</option>
                     <option value="vaisselle">Vaisselle et cuisine</option>
                     <option value="bijoux">Bijoux</option>
-                    <option value="jeux">Casse tête et jeux</option>
-                    <option value="film">Jeux vidéo et film</option>
-                    <option value="peluche">Peluche et porte clé</option>
+                    <option value="jeux">Casse-tête et jeux</option>
+                    <option value="peluche">Peluche et porte-clé</option>
                     <option value="vetement">Vêtement</option>
                     <option value="maquillage">Maquillage et accessoire</option>
                     <option value="lumiere">Lumière</option>
@@ -98,13 +113,12 @@
         </div>
     </section>
 
-    <!-- À PROPOS -->
+    <!-- SECTION À PROPOS -->
     <section id="about" class="fade-in-section">
         <div class="container">
-            <h2 class="section-title">À propos</h2>
+            <h2 class="section-title">Le bazar de Nobsy à Joliette</h2>
             <div class="about-content">
-                <p>Bonjour à tous ! Bienvenue sur le bazar de Nobsy. Je propose des articles variés à bon prix. Si un article vous intéresse, écrivez-moi en privé sur Messenger et je vous répondrai rapidement.</p>
-                <p><strong>Merci et bon magasinage à vous !</strong></p>
+                <p>Bonjour ! Bienvenue sur le site du <strong>bazar de Nobsy</strong>. Découvrez nos <strong>figurines Pop</strong>, nos <strong>jeux vidéo</strong> et nos articles de décoration à prix imbattables à Joliette. Contactez-nous sur Messenger pour commander !</p>
             </div>
         </div>
     </section>
@@ -118,12 +132,17 @@
             <h2 id="category-title" class="section-title"></h2>
             <h2 id="default-title" class="section-title">Nos Articles</h2>
             
+            <!-- Nouvelles catégories et catégories séparées -->
+            <div id="pop"><h3>🧸 Pop et figurine</h3><div class="products-grid" id="grid-pop"></div></div>
+            <div id="jeuxvideo"><h3>🎮 Jeux vidéo</h3><div class="products-grid" id="grid-jeuxvideo"></div></div>
+            <div id="film"><h3>🎬 Films</h3><div class="products-grid" id="grid-film"></div></div>
+            
+            <!-- Autres catégories -->
             <div id="decoration"><h3>🖼️ Décoration</h3><div class="products-grid" id="grid-decoration"></div></div>
             <div id="vaisselle"><h3>🍽️ Vaisselle et cuisine</h3><div class="products-grid" id="grid-vaisselle"></div></div>
             <div id="bijoux"><h3>💍 Bijoux</h3><div class="products-grid" id="grid-bijoux"></div></div>
-            <div id="jeux"><h3>🧩 Casse tête et jeux</h3><div class="products-grid" id="grid-jeux"></div></div>
-            <div id="film"><h3>🎮 Jeux vidéo et film</h3><div class="products-grid" id="grid-film"></div></div>
-            <div id="peluche"><h3>🧸 Peluche et porte clé</h3><div class="products-grid" id="grid-peluche"></div></div>
+            <div id="jeux"><h3>🧩 Casse-tête et jeux</h3><div class="products-grid" id="grid-jeux"></div></div>
+            <div id="peluche"><h3>🧸 Peluche et porte-clé</h3><div class="products-grid" id="grid-peluche"></div></div>
             <div id="vetement"><h3>👕 Vêtement</h3><div class="products-grid" id="grid-vetement"></div></div>
             <div id="maquillage"><h3>💄 Maquillage et accessoire</h3><div class="products-grid" id="grid-maquillage"></div></div>
             <div id="lumiere"><h3>💡 Lumière</h3><div class="products-grid" id="grid-lumiere"></div></div>
@@ -133,13 +152,15 @@
     <!-- CATALOGUE DRAWER -->
     <section id="catalogue">
         <div class="catalogue-drawer">
-            <button class="catalogue-toggle">Filtrer par catégorie <span class="arrow">▼</span></button>
+            <button class="catalogue-toggle">Explorer par catégorie <span class="arrow">▼</span></button>
             <div class="catalogue-content">
+                <a href="javascript:void(0)" class="catalogue-link" data-category="pop">Pop et figurine</a>
+                <a href="javascript:void(0)" class="catalogue-link" data-category="jeuxvideo">Jeux vidéo</a>
+                <a href="javascript:void(0)" class="catalogue-link" data-category="film">Films</a>
                 <a href="javascript:void(0)" class="catalogue-link" data-category="decoration">Décoration</a>
                 <a href="javascript:void(0)" class="catalogue-link" data-category="vaisselle">Vaisselle</a>
                 <a href="javascript:void(0)" class="catalogue-link" data-category="bijoux">Bijoux</a>
                 <a href="javascript:void(0)" class="catalogue-link" data-category="jeux">Jeux</a>
-                <a href="javascript:void(0)" class="catalogue-link" data-category="film">Films/Jeux Vidéo</a>
                 <a href="javascript:void(0)" class="catalogue-link" data-category="peluche">Peluches</a>
                 <a href="javascript:void(0)" class="catalogue-link" data-category="vetement">Vêtements</a>
                 <a href="javascript:void(0)" class="catalogue-link" data-category="maquillage">Maquillage</a>
@@ -151,43 +172,39 @@
     <!-- CONTACT -->
     <section id="contact" style="padding: 60px 0;">
         <div class="container">
-            <h2 class="section-title">Contact & Localisation</h2>
+            <h2 class="section-title">Contact à Joliette</h2>
             <div class="contact-grid">
                 <div style="padding: 20px;">
-                    <p>📍 <strong>Lieu :</strong> Joliette, Québec</p>
-                    <p>🚚 <strong>Livraison :</strong> Disponible (frais selon distance)</p>
+                    <p>📍 Joliette, Québec</p>
+                    <p>🚚 Livraison disponible.</p>
                     <br>
-                    <button class="btn" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">💬 Nous contacter sur Messenger</button>
+                    <button class="btn" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">💬 Messenger</button>
                 </div>
                 <div class="map-container">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2793.58!2d-73.416!3d46.008!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cc9e3a5b8c00000%3A0x0!2zNDbCsDAwJzI4LjgiTiA3M8KwMjUnMDAuMCJX!5e0!3m2!1sfr!2sca!4v1700000000000!5m2!1sfr!2sca" width="100%" height="300" style="border:0; border-radius:15px;" allowfullscreen="" loading="lazy"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2793.58!2d-73.416!3d46.008!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cc9e3a5b8c00000%3A0x0!2zNDbCsDAwJzI4LjgiTiA3M8KwMjUnMDAuMCJX!5e0!3m2!1sfr!2sca!4v1700000000000!5m2!1sfr!2sca" width="100%" height="300" style="border:0; border-radius:15px;" allowfullscreen="" loading="lazy" title="Carte Joliette"></iframe>
                 </div>
             </div>
         </div>
     </section>
     
-    <footer>
-        <p>&copy; 2026 Le bazar de Nobsy. Tous droits réservés.</p>
+    <footer style="text-align:center; padding: 20px; background:#333; color:white;">
+        <p>&copy; 2026 Le bazar de Nobsy - Joliette.</p>
     </footer>
 
-    <!-- Bouton Admin flottant -->
-    <button id="btnAdmin" title="Espace Admin">⚙️</button>
-
-    <!-- Popup PIN -->
+    <!-- Admin -->
+    <button id="btnAdmin">⚙️</button>
     <div id="popupPin">
         <div class="popup-content">
-            <h3 style="margin-bottom:20px;">Accès Administrateur</h3>
-            <input type="password" id="inputPin" placeholder="Code PIN" style="width:100%; padding:12px; text-align:center; font-size:20px; border-radius:8px; border:1px solid #ddd; margin-bottom:20px;">
+            <h3>Admin</h3>
+            <input type="password" id="inputPin" placeholder="Code PIN" style="width:100%; padding:12px; text-align:center; font-size:20px; margin-bottom:20px;">
             <div style="display:flex; gap:10px;">
                 <button class="btn" style="flex:1" onclick="verifierPin()">Entrer</button>
                 <button class="btn btn-secondary" style="flex:1" onclick="fermerPin()">Annuler</button>
             </div>
-            <p id="erreurPin" style="color:red; display:none; margin-top:15px; font-weight:bold;">❌ Code incorrect</p>
         </div>
     </div>
     
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
 </body>
-</html>
+    </html>
