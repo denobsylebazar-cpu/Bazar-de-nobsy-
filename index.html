@@ -57,8 +57,7 @@
             <div class="hero-buttons">
                 <button class="btn" onclick="document.getElementById('produits').scrollIntoView({behavior:'smooth'})">Voir les produits</button>
                 <button class="btn btn-secondary" onclick="window.open('https://www.facebook.com/share/g/18YTkXrkvB/')">Rejoindre le Live</button>
-                <button class="btn" onclick="window.open('https://ruinsnradz.servegame.com/?fbclid=IwdGRzaASZrT1jbGNrBJmtN2V4dG4DYWVtAjExAHNydGMGYXBwX2lkDDM1MDY4NTUzMTcyOAABHutqdmeA7YERyYH-9h9uRXHQdg8m26s51e1-Fwbxb8qMVZR-B_UxOYOeh4-a_aem_4FDOKNJGAcxMDCd7wz0CpQ')">En partenariat avec Ruins'n Radz</button>
-            </div>
+                <button class="btn" onclick="window.open('https://ruinsnradz.servegame.com/')">En partenariat avec Ruins'n Radz</button>
             </div>
         </div>
     </section>
@@ -71,7 +70,17 @@
                 <input type="text" id="nomProduit" placeholder="Nom du produit" required>
                 <textarea id="descProduit" placeholder="Description" rows="3" required></textarea>
                 <input type="number" id="prixProduit" placeholder="Prix $" step="0.01" required>
-                <input type="url" id="imageProduit" placeholder="URL de l'image (ex: Postimg)" required>
+                
+                <!-- MODIFICATION : Sélection de photo au lieu d'URL -->
+                <label style="font-weight:bold; margin-top:5px;">📷 Sélectionner une photo :</label>
+                <input type="file" id="imageProduit" accept="image/*" required>
+                
+                <!-- Zone d'aperçu de la photo sélectionnée -->
+                <div id="preview-container" style="display:none; text-align:center; margin-top:10px;">
+                    <p style="font-size:0.8rem; color:gray;">Aperçu de la photo :</p>
+                    <img id="imagePreview" src="" style="max-width:150px; border-radius:12px; border:3px solid #0084ff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                </div>
+
                 <select id="categorieProduit" required>
                     <option value="">Choisir la catégorie...</option>
                     <option value="decoration">Décoration</option>
@@ -89,20 +98,13 @@
         </div>
     </section>
 
-    <!-- ========== SECTION À PROPOS ========== -->
+    <!-- À PROPOS -->
     <section id="about" class="fade-in-section">
         <div class="container">
             <h2 class="section-title">À propos</h2>
-            
             <div class="about-content">
-                <p>
-                    Bonjour à tous ! Bienvenue sur le bazar de Nobsy. Je propose des articles variés à bon prix. 
-                    Si un article vous intéresse, écrivez-moi en privé sur Messenger et je vous répondrai rapidement. 
-                    Si vous êtes loin, des frais de livraison peuvent s'appliquer. Nous sommes situés à Joliette, Québec.
-                </p>
-                <p>
-                    <strong>Merci et bon magasinage à vous !</strong>
-                </p>
+                <p>Bonjour à tous ! Bienvenue sur le bazar de Nobsy. Je propose des articles variés à bon prix. Si un article vous intéresse, écrivez-moi en privé sur Messenger et je vous répondrai rapidement.</p>
+                <p><strong>Merci et bon magasinage à vous !</strong></p>
             </div>
         </div>
     </section>
@@ -113,11 +115,9 @@
             <div id="category-back-button">
                 <button class="btn btn-secondary" id="backToCatalogBtn">← Retour au catalogue complet</button>
             </div>
-            
             <h2 id="category-title" class="section-title"></h2>
             <h2 id="default-title" class="section-title">Nos Articles</h2>
             
-            <!-- Les grilles sont remplies par script.js -->
             <div id="decoration"><h3>🖼️ Décoration</h3><div class="products-grid" id="grid-decoration"></div></div>
             <div id="vaisselle"><h3>🍽️ Vaisselle et cuisine</h3><div class="products-grid" id="grid-vaisselle"></div></div>
             <div id="bijoux"><h3>💍 Bijoux</h3><div class="products-grid" id="grid-bijoux"></div></div>
@@ -190,4 +190,4 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
 </body>
-    </html>
+</html>
