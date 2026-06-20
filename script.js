@@ -15,19 +15,17 @@ async function chargerProduits() {
 
     if (error) return;
 
-    // Vider les grilles
     const grilles = document.querySelectorAll('.products-grid');
     grilles.forEach(g => g.innerHTML = "");
 
-    // Remplir les grilles
     products.forEach(product => {
         let cat = product.category.toLowerCase().trim();
         let targetId = "grid-decoration"; // Par défaut
 
-        // LOGIQUE DE DÉTECTION DES CATÉGORIES
         if (cat.includes("vaisselle")) targetId = "grid-vaisselle";
         else if (cat.includes("bijoux")) targetId = "grid-bijoux";
         else if (cat.includes("pop")) targetId = "grid-pop";
+        else if (cat.includes("livre")) targetId = "grid-livre"; // NOUVEAU
         else if (cat.includes("jeuxvideo")) targetId = "grid-jeuxvideo";
         else if (cat.includes("film")) targetId = "grid-film";
         else if (cat.includes("jeux") || cat.includes("casse")) targetId = "grid-jeux";
@@ -55,9 +53,9 @@ async function chargerProduits() {
         }
     });
 
-    // --- LOGIQUE DE RÉORGANISATION (SÉCTIONS PLEINES EN HAUT) ---
     const container = document.querySelector('#produits .container');
-    const sectionsIds = ['decoration', 'vaisselle', 'bijoux', 'jeux', 'pop', 'jeuxvideo', 'film', 'peluche', 'vetement', 'maquillage', 'lumiere'];
+    // AJOUT DE 'livre' DANS LA LISTE DE TRI
+    const sectionsIds = ['decoration', 'vaisselle', 'bijoux', 'jeux', 'pop', 'livre', 'jeuxvideo', 'film', 'peluche', 'vetement', 'maquillage', 'lumiere'];
 
     sectionsIds.forEach(id => {
         const section = document.getElementById(id);
@@ -75,128 +73,9 @@ async function chargerProduits() {
     });
 }
 
-/* ========== GESTION ADMIN (CONNEXION) ========== */
-window.verifierPin = async function() {
-    const pin = document.getElementById('inputPin').value;
-    if (pin.length === 6) {
-        document.getElementById('admin').style.display = 'block';
-        document.getElementById('popupPin').style.display = 'none';
-        document.body.classList.add('admin-open');
-        document.querySelectorAll('.btn-delete-product').forEach(b => b.style.display = 'block');
-        document.getElementById('admin').scrollIntoView({behavior: 'smooth'});
-    } else {
-        alert("PIN invalide (6 chiffres requis)");
-    }
-};
-
-window.fermerPin = function() { document.getElementById('popupPin').style.display = 'none'; };
-
-/* ========== SUPPRESSION SÉCURISÉE (RPC) ========== */
-window.handleDeleteProduct = async function(event) {
-    const card = event.target.closest('.product-card');
-    const id = card.getAttribute('data-id');
-    
-    const pin = prompt("Entrez le code PIN pour confirmer la suppression :");
-    if (!pin) return;
-
-    const { error } = await db.rpc('delete_product_secure', {
-        prod_id: id,
-        pin_code: pin
-    });
-
-    if (error) {
-        alert("Erreur : " + error.message);
-    } else {
-        card.style.transform = "scale(0)";
-        card.style.opacity = "0";
-        setTimeout(() => {
-            card.remove();
-            console.log("Produit supprimé en toute sécurité ✓");
-        }, 300);
-    }
-};
-
-/* ========== AJOUTER UN PRODUIT ========== */
-const form = document.getElementById('formAjoutProduit');
-if (form) {
-    form.onsubmit = async function(e) {
-        e.preventDefault();
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const fileInput = document.getElementById('imageProduit');
-        const file = fileInput.files[0];
-
-        if (!file) return alert("Choisis une photo !");
-        submitBtn.disabled = true;
-        submitBtn.innerText = "Envoi...";
-
-        try {
-            const fileName = Date.now() + "-" + file.name;
-            const { data: uploadData, error: uploadError } = await db.storage.from('product-images').upload(fileName, file);
-            if (uploadError) throw uploadError;
-
-            const { data: linkData } = db.storage.from('product-images').getPublicUrl(fileName);
-
-            const { error: insertError } = await db.from('products').insert([{
-                name: document.getElementById('nomProduit').value,
-                description: document.getElementById('descProduit').value,
-                price: parseFloat(document.getElementById('prixProduit').value),
-                image_url: linkData.publicUrl,
-                category: document.getElementById('categorieProduit').value
-            }]);
-
-            if (insertError) throw insertError;
-
-            alert("Produit ajouté ! ✅");
-            form.reset();
-            document.getElementById('preview-container').style.display = 'none';
-            document.getElementById('admin').style.display = 'none';
-            chargerProduits();
-        } catch (err) {
-            alert("Erreur : " + err.message);
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerText = "🚀 Publier";
-        }
-    };
-}
-
-// Aperçu de l'image
-const imageProduitInput = document.getElementById('imageProduit');
-if (imageProduitInput) {
-    imageProduitInput.onchange = function() {
-        const [file] = this.files;
-        if (file) {
-            const previewContainer = document.getElementById('preview-container');
-            const previewImg = document.getElementById('imagePreview');
-            previewContainer.style.display = 'block';
-            previewImg.src = URL.createObjectURL(file);
-        }
-    };
-}
-
-/* ========== CATALOGUE & FILTRES ========== */
-function initCatalogue() {
-    const toggleBtn = document.querySelector('.catalogue-toggle');
-    const content = document.querySelector('.catalogue-content');
-    if (toggleBtn && content) {
-        toggleBtn.onclick = function(e) {
-            e.stopPropagation();
-            this.classList.toggle('active');
-            content.classList.toggle('active');
-        };
-    }
-    document.querySelectorAll('.catalogue-link').forEach(link => {
-        link.onclick = function(e) {
-            e.preventDefault();
-            filterByCategory(this.getAttribute('data-category'));
-            if (toggleBtn) toggleBtn.classList.remove('active');
-            if (content) content.classList.remove('active');
-        };
-    });
-}
-
+/* GESTION ADMIN (Inchangée mais garde 'livre' dans filterByCategory) */
 window.filterByCategory = function(cat) {
-    const ids = ['decoration','vaisselle','bijoux','jeux','pop','jeuxvideo','film','peluche','vetement','maquillage','lumiere'];
+    const ids = ['decoration','vaisselle','bijoux','jeux','pop','livre','jeuxvideo','film','peluche','vetement','maquillage','lumiere'];
     ids.forEach(id => {
         const s = document.getElementById(id);
         if (s) s.style.display = 'none';
@@ -210,20 +89,4 @@ window.filterByCategory = function(cat) {
     document.getElementById('default-title').style.display = 'none';
 };
 
-window.showAllCategories = function() {
-    chargerProduits();
-    document.getElementById('category-back-button').style.display = 'none';
-    document.getElementById('default-title').style.display = 'block';
-};
-
-/* ========== INITIALISATION ========== */
-document.addEventListener('DOMContentLoaded', () => {
-    const btnAdmin = document.getElementById('btnAdmin');
-    if (btnAdmin) btnAdmin.onclick = () => document.getElementById('popupPin').style.display = 'flex';
-    
-    initCatalogue();
-    chargerProduits();
-    
-    const backBtn = document.getElementById('backToCatalogBtn');
-    if (backBtn) backBtn.onclick = showAllCategories;
-});
+// ... (Garde le reste de ton code identique pour le formulaire, suppression, etc.)
