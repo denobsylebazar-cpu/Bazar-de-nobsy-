@@ -79,10 +79,47 @@ async function chargerProduits() {
     });
 }
 
-/* ========== GESTION ADMIN (CONNEXION) ========== */
+/* ========== FILTRAGE PAR CATÉGORIE (Appelé par le Ruban et le Catalogue) ========== */
+window.filterByCategory = function(cat) {
+    console.log("Filtrage par catégorie : " + cat);
+    const ids = ['pop','jeuxvideo','livre','film','decoration','vaisselle','bijoux','jeux','peluche','vetement','maquillage','lumiere'];
+    
+    ids.forEach(id => {
+        const s = document.getElementById(id);
+        if (s) s.style.display = 'none';
+    });
+
+    const selected = document.getElementById(cat);
+    if (selected) {
+        selected.style.display = 'block';
+        selected.style.opacity = '1';
+        // Scroll fluide vers la section sélectionnée
+        const offset = 100; // Espace pour le ruban fixe
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = selected.getBoundingClientRect().top;
+        const elementPosition = elementRect - bodyRect;
+        const offsetPosition = elementPosition - offset;
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
+    }
+    
+    document.getElementById('category-back-button').style.display = 'block';
+    document.getElementById('default-title').style.display = 'none';
+};
+
+window.showAllCategories = function() {
+    chargerProduits(); // Relance le tri automatique
+    document.getElementById('category-back-button').style.display = 'none';
+    document.getElementById('default-title').style.display = 'block';
+    window.scrollTo({ top: document.getElementById('produits').offsetTop - 100, behavior: 'smooth' });
+};
+
+/* ========== GESTION ADMIN (CONNEXION & SUPPRESSION) ========== */
 window.verifierPin = async function() {
     const pin = document.getElementById('inputPin').value;
-    // On demande un PIN de 6 chiffres pour ouvrir l'interface
     if (pin.length === 6) {
         document.getElementById('admin').style.display = 'block';
         document.getElementById('popupPin').style.display = 'none';
@@ -96,34 +133,24 @@ window.verifierPin = async function() {
 
 window.fermerPin = function() { document.getElementById('popupPin').style.display = 'none'; };
 
-/* ========== SUPPRESSION SÉCURISÉE (VIA RPC SUPABASE) ========== */
 window.handleDeleteProduct = async function(event) {
     const card = event.target.closest('.product-card');
     const id = card.getAttribute('data-id');
-    
     const pin = prompt("Entrez le code PIN pour confirmer la suppression :");
     if (!pin) return;
 
-    // Appel de la fonction SQL sécurisée créée sur Supabase
-    const { error } = await db.rpc('delete_product_secure', {
-        prod_id: id,
-        pin_code: pin
-    });
+    const { error } = await db.rpc('delete_product_secure', { prod_id: id, pin_code: pin });
 
     if (error) {
         alert("Erreur : " + error.message);
     } else {
-        // Animation 3D de sortie
         card.style.transform = "scale(0) rotate(15deg)";
         card.style.opacity = "0";
-        setTimeout(() => {
-            card.remove();
-            console.log("Produit supprimé avec succès ✓");
-        }, 300);
+        setTimeout(() => { card.remove(); }, 300);
     }
 };
 
-/* ========== AJOUTER UN PRODUIT (AVEC PHOTO TÉLÉPHONE) ========== */
+/* ========== AJOUTER UN PRODUIT ========== */
 const form = document.getElementById('formAjoutProduit');
 if (form) {
     form.onsubmit = async function(e) {
@@ -133,24 +160,16 @@ if (form) {
         const file = fileInput.files[0];
 
         if (!file) return alert("Veuillez choisir une photo !");
-        
         submitBtn.disabled = true;
-        submitBtn.innerText = "⏳ Envoi de la photo...";
+        submitBtn.innerText = "⏳ Envoi...";
 
         try {
-            // 1. Envoyer l'image vers Supabase Storage (bucket: product-images)
             const fileName = Date.now() + "-" + file.name;
-            const { data: uploadData, error: uploadError } = await db.storage
-                .from('product-images')
-                .upload(fileName, file);
-
+            const { error: uploadError } = await db.storage.from('product-images').upload(fileName, file);
             if (uploadError) throw uploadError;
 
-            // 2. Récupérer l'URL publique
             const { data: linkData } = db.storage.from('product-images').getPublicUrl(fileName);
 
-            // 3. Insérer le produit dans la table
-            submitBtn.innerText = "📝 Publication...";
             const { error: insertError } = await db.from('products').insert([{
                 name: document.getElementById('nomProduit').value,
                 description: document.getElementById('descProduit').value,
@@ -172,26 +191,24 @@ if (form) {
             alert("Erreur : " + err.message);
         } finally {
             submitBtn.disabled = false;
-            submitBtn.innerText = "🚀 Publier le produit";
+            submitBtn.innerText = "🚀 Publier";
         }
     };
 }
 
-// Aperçu de l'image sélectionnée
+// Aperçu de l'image
 const imageProduitInput = document.getElementById('imageProduit');
 if (imageProduitInput) {
     imageProduitInput.onchange = function() {
         const [file] = this.files;
         if (file) {
-            const previewContainer = document.getElementById('preview-container');
-            const previewImg = document.getElementById('imagePreview');
-            previewContainer.style.display = 'block';
-            previewImg.src = URL.createObjectURL(file);
+            document.getElementById('preview-container').style.display = 'block';
+            document.getElementById('imagePreview').src = URL.createObjectURL(file);
         }
     };
 }
 
-/* ========== CATALOGUE & FILTRES ========== */
+/* ========== CATALOGUE (DRAWER) ========== */
 function initCatalogue() {
     const toggleBtn = document.querySelector('.catalogue-toggle');
     const content = document.querySelector('.catalogue-content');
@@ -207,43 +224,18 @@ function initCatalogue() {
     document.querySelectorAll('.catalogue-link').forEach(link => {
         link.onclick = function(e) {
             e.preventDefault();
-            const category = this.getAttribute('data-category');
-            filterByCategory(category);
-            // Fermer le menu
+            filterByCategory(this.getAttribute('data-category'));
             if (toggleBtn) toggleBtn.classList.remove('active');
             if (content) content.classList.remove('active');
         };
     });
 }
 
-window.filterByCategory = function(cat) {
-    const ids = ['pop','jeuxvideo','livre','film','decoration','vaisselle','bijoux','jeux','peluche','vetement','maquillage','lumiere'];
-    ids.forEach(id => {
-        const s = document.getElementById(id);
-        if (s) s.style.display = 'none';
-    });
-    const selected = document.getElementById(cat);
-    if (selected) {
-        selected.style.display = 'block';
-        selected.style.opacity = '1';
-    }
-    document.getElementById('category-back-button').style.display = 'block';
-    document.getElementById('default-title').style.display = 'none';
-};
-
-window.showAllCategories = function() {
-    chargerProduits();
-    document.getElementById('category-back-button').style.display = 'none';
-    document.getElementById('default-title').style.display = 'block';
-};
-
-/* ========== INITIALISATION AU DÉMARRAGE ========== */
+/* ========== INITIALISATION ========== */
 document.addEventListener('DOMContentLoaded', () => {
-    // Bouton Admin (Engrenage)
     const btnAdmin = document.getElementById('btnAdmin');
     if (btnAdmin) btnAdmin.onclick = () => document.getElementById('popupPin').style.display = 'flex';
     
-    // Bouton Retour Catalogue
     const backBtn = document.getElementById('backToCatalogBtn');
     if (backBtn) backBtn.onclick = showAllCategories;
 
