@@ -1,13 +1,14 @@
-/* ========== VARIABLES ET RESET ========== */
+/* ========== VARIABLES & CONFIGURATION ========== */
 :root {
     --primary-blue: #0084ff;
     --dark-black: #1a1a1a;
-    --light-gray: #f4f7f6;
+    --light-gray: #f8f9fa;
     --white: #ffffff;
     --shadow-3d: 0 10px 20px rgba(0,0,0,0.1), 0 6px 6px rgba(0,0,0,0.05);
-    /* Hauteurs précises pour l'empilement */
-    --h-banner: 40px;
-    --h-ribbon: 60px;
+    
+    /* Hauteurs pour l'empilement parfait */
+    --h-banner: 35px;
+    --h-ribbon: 55px;
     --h-navbar: 60px;
 }
 
@@ -16,37 +17,37 @@ html { scroll-behavior: smooth; }
 
 body { 
     font-family: 'Poppins', sans-serif; 
-    background: #fff; 
-    overflow-x: hidden; 
-    /* Espace total pour ne pas cacher le haut du site */
+    background-color: var(--white);
+    color: var(--dark-black);
+    /* Espace pour ne pas que le contenu passe sous les menus fixés */
     padding-top: calc(var(--h-banner) + var(--h-ribbon) + var(--h-navbar) + 10px); 
 }
 
-/* Texte en gras en bleu */
+/* Texte en gras en Bleu */
 strong, b { color: var(--primary-blue); font-weight: 700; }
 
-/* ========== 1. BANNIÈRE ROUGE (TOUT EN HAUT) ========== */
+/* ========== 1. BANNIÈRE ROUGE (FIXE TOUT EN HAUT) ========== */
 #banner-toit-rouge {
-    background: #ff0000; color: white; 
-    padding: 0 10px; text-align: center;
-    position: fixed; top: 0; left: 0; right: 0; 
-    z-index: 4000;
-    font-weight: bold; font-size: 13px; 
+    background-color: #ff0000;
+    color: white;
     height: var(--h-banner);
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 5000;
     display: flex; align-items: center; justify-content: center;
+    font-weight: bold; font-size: 13px;
 }
 
-/* ========== 2. RUBAN DE CATÉGORIES (SOUS LA BANNIÈRE) ========== */
+/* ========== 2. RUBAN CATÉGORIES (FIXE SOUS BANNIÈRE) ========== */
 .category-ribbon-container {
-    background: white; border-bottom: 1px solid #eee; 
-    position: fixed; top: var(--h-banner); left: 0; right: 0; 
-    z-index: 3900;
-    height: var(--h-ribbon); 
-    overflow: hidden;
+    background: white;
+    border-bottom: 1px solid #eee;
+    height: var(--h-ribbon);
+    position: fixed; top: var(--h-banner); left: 0; right: 0;
+    z-index: 4900;
     display: flex; align-items: center;
+    overflow: hidden;
 }
-
-.category-ribbon { display: flex; overflow-x: auto; white-space: nowrap; width: 100%; scrollbar-width: none; }
+.category-ribbon { display: flex; overflow-x: auto; scrollbar-width: none; width: 100%; }
 .category-ribbon::-webkit-scrollbar { display: none; }
 
 .ribbon-track { display: flex; gap: 10px; padding: 0 15px; animation: scrollRibbon 40s linear infinite; }
@@ -55,90 +56,95 @@ strong, b { color: var(--primary-blue); font-weight: 700; }
 .ribbon-item {
     background: #f0f7ff; color: var(--primary-blue); border: 1px solid #cce5ff;
     padding: 6px 15px; border-radius: 20px; white-space: nowrap;
-    font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+    font-size: 13px; font-weight: 600; cursor: pointer;
 }
 
-/* ========== 3. NAVBAR (SOUS LE RUBAN) ========== */
+/* ========== 3. NAVBAR (FIXE SOUS LE RUBAN) ========== */
 .navbar {
-    position: fixed; top: calc(var(--h-banner) + var(--h-ribbon)); left: 0; right: 0; 
-    z-index: 3800;
-    background: white; height: var(--h-navbar); padding: 0 20px; 
-    display: flex; justify-content: space-between; align-items: center; 
+    position: fixed; 
+    top: calc(var(--h-banner) + var(--h-ribbon)); 
+    left: 0; right: 0;
+    height: var(--h-navbar);
+    background: white;
+    z-index: 4800;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 20px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
+.logo { font-weight: 800; color: var(--primary-blue); text-transform: uppercase; font-size: 1.1rem; }
 
-.logo { font-weight: 800; color: var(--primary-blue); text-transform: uppercase; font-size: 1rem; }
-
-/* Menu Desktop (Caché sur mobile par défaut) */
-.nav-menu { display: flex; list-style: none; gap: 20px; }
-.nav-menu a { text-decoration: none; color: #333; font-weight: 500; font-size: 0.9rem; }
-
-/* ========== 4. HERO SECTION ========== */
-.hero {
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://i.postimg.cc/jjHfHdGY/1780202682425.jpg') center/cover;
-    min-height: 60vh; display: flex; align-items: center; justify-content: center; text-align: center; color: white;
-    padding: 20px; border-radius: 0 0 30px 30px; margin: 0 10px 40px 10px;
+/* Menu pour Mobile */
+.nav-menu {
+    position: fixed; left: -100%; top: calc(var(--h-banner) + var(--h-ribbon) + var(--h-navbar));
+    width: 100%; background: white; flex-direction: column;
+    padding: 20px; gap: 15px; transition: 0.3s;
+    box-shadow: 0 10px 10px rgba(0,0,0,0.05);
+    list-style: none; display: flex;
 }
+.nav-menu.active { left: 0; }
+.nav-menu a { text-decoration: none; color: var(--dark-black); font-weight: 600; }
 
-.hero-buttons { display: flex; flex-direction: column; gap: 12px; align-items: center; margin-top: 20px; width: 100%; }
+.hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; }
+.hamburger span { width: 25px; height: 3px; background: var(--primary-blue); border-radius: 2px; }
+
+/* ========== 4. HERO SECTION & BOUTONS ========== */
+.hero {
+    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://i.postimg.cc/jjHfHdGY/1780202682425.jpg') center/cover;
+    min-height: 60vh; display: flex; align-items: center; justify-content: center;
+    text-align: center; color: white; padding: 20px; border-radius: 20px; margin: 10px;
+}
+.hero-buttons { display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%; }
 
 .btn {
-    padding: 12px 25px; border-radius: 30px; border: none; font-weight: 600;
-    cursor: pointer; transition: 0.3s; text-decoration: none; width: 100%; max-width: 280px;
-    background: var(--primary-blue); color: white; font-family: inherit;
+    padding: 14px 25px; border-radius: 30px; border: none; font-weight: 600;
+    background: var(--primary-blue); color: white; cursor: pointer; 
+    transition: 0.3s; width: 100%; max-width: 300px; text-decoration: none;
 }
 .btn-secondary { background: white; color: var(--primary-blue); }
+.btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,132,255,0.3); }
 
-/* ========== 5. CARTES PRODUITS 3D ========== */
-.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding: 20px; }
+/* ========== 5. CARTES PRODUITS (EFFET 3D) ========== */
+.products-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px; padding: 20px;
+}
 .product-card {
     background: white; border-radius: 15px; overflow: hidden;
-    box-shadow: var(--shadow-3d); transition: 0.3s; position: relative;
-    border: 1px solid #eee;
+    box-shadow: var(--shadow-3d); border: 1px solid #eee;
+    transition: 0.3s; position: relative; height: 100%;
 }
-.product-image { height: 220px; width: 100%; }
+.product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,132,255,0.15); }
+
+.product-image { height: 250px; width: 100%; background: #f0f0f0; }
 .product-image img { width: 100%; height: 100%; object-fit: cover; }
-.product-body { padding: 15px; }
-.product-name { font-size: 1.1rem; margin-bottom: 5px; text-transform: capitalize; }
-.price { font-size: 1.2rem; color: var(--primary-blue); margin-bottom: 10px; display: block; }
+.product-body { padding: 20px; text-align: center; }
+.product-name { font-size: 1.2rem; margin-bottom: 10px; color: var(--dark-black); }
+.price { color: var(--primary-blue); font-size: 1.4rem; font-weight: bold; margin-bottom: 15px; display: block; }
 
-/* ========== 6. FORMULAIRE ADMIN ========== */
-#admin { background: var(--light-gray); padding: 30px 20px; border-radius: 20px; margin: 20px; }
-#formAjoutProduit { display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: auto; }
-#formAjoutProduit input, #formAjoutProduit textarea, #formAjoutProduit select {
-    padding: 12px; border-radius: 10px; border: 1px solid #ddd; width: 100%;
+/* ========== 6. ADMIN & POPUP ========== */
+#btnAdmin {
+    position: fixed; bottom: 25px; right: 25px; width: 55px; height: 55px;
+    background: rgba(26,26,26,0.8); color: white; border-radius: 50%;
+    border: none; font-size: 24px; cursor: pointer; z-index: 9999;
+}
+#popupPin {
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.8); z-index:10000; justify-content:center; align-items:center;
+}
+.popup-content { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 90%; max-width: 350px; }
+
+#admin { background: #f0f2f5; padding: 40px 20px; border-radius: 20px; margin: 20px; }
+#formAjoutProduit { display: flex; flex-direction: column; gap: 12px; max-width: 450px; margin: auto; }
+#formAjoutProduit input, #formAjoutProduit select, #formAjoutProduit textarea {
+    padding: 12px; border: 1px solid #ddd; border-radius: 10px; width: 100%;
 }
 
-/* ========== 7. CATALOGUE DU BAS ========== */
-.catalogue-drawer { max-width: 400px; margin: 40px auto; border-radius: 15px; overflow: hidden; border: 1px solid #ddd; }
+/* ========== 7. CATALOGUE DU BAS (DRAWER) ========== */
+.catalogue-drawer { max-width: 500px; margin: 40px auto; border-radius: 15px; overflow: hidden; border: 1px solid #ddd; }
 .catalogue-toggle { width: 100%; padding: 15px; background: var(--primary-blue); color: white; border: none; font-weight: bold; cursor: pointer; }
 .catalogue-content { display: none; background: white; padding: 10px; }
 .catalogue-content.active { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.catalogue-link { padding: 10px; text-decoration: none; color: #444; background: #f9f9f9; border-radius: 8px; text-align: center; font-size: 0.85rem; }
+.catalogue-link { padding: 10px; text-decoration: none; color: #444; background: #f9f9f9; border-radius: 8px; text-align: center; font-size: 0.9rem; }
 
-/* ========== MOBILE OPTIMISATION ========== */
-@media (max-width: 768px) {
-    .nav-menu {
-        position: fixed; left: -100%; top: calc(var(--h-banner) + var(--h-ribbon) + var(--h-navbar));
-        flex-direction: column; background: white; width: 100%; padding: 20px;
-        box-shadow: 0 10px 10px rgba(0,0,0,0.1); transition: 0.3s;
-    }
-    .nav-menu.active { left: 0; }
-    .hamburger { display: flex; flex-direction: column; gap: 4px; cursor: pointer; }
-    .hamburger span { width: 25px; height: 3px; background: var(--primary-blue); border-radius: 2px; }
-    
-    .hero h1 { font-size: 1.5rem; }
-}
-
-/* Bouton Admin flottant */
-#btnAdmin {
-    position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px;
-    border-radius: 50%; background: rgba(0,0,0,0.5); color: white;
-    border: none; font-size: 24px; z-index: 5000; cursor: pointer;
-}
-
-/* Popup PIN */
-#popupPin {
-    display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-    background:rgba(0,0,0,0.8); z-index:6000; justify-content:center; align-items:center;
-}
+/* ========== PATCH VISIBILITÉ ========== */
+.fade-in-section, #produits section { opacity: 1 !important; transform: none !important; visibility: visible !important; }
