@@ -38,24 +38,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* Styles Admin */
-        #btnAdmin { position:fixed; bottom:20px; right:20px; width:50px; height:50px; border-radius:50%; background:#333; color:white; border:none; font-size:24px; cursor:pointer; z-index:9999; opacity:0.6; display: flex; align-items: center; justify-content: center; }
-        #btnAdmin:hover { opacity:1; }
-        #popupPin { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000; justify-content:center; align-items:center; }
-        .popup-content { background:white; padding:30px; border-radius:15px; text-align:center; width:90%; max-width:320px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        #formAjoutProduit { max-width:600px; margin:auto; display:grid; gap:15px; background: white; padding: 20px; border-radius: 10px; }
-        #formAjoutProduit input, #formAjoutProduit textarea, #formAjoutProduit select { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
-        #category-back-button, #category-title { display: none; margin: 20px 0; }
-        .products-grid { min-height: 50px; }
-        @media (max-width: 600px) { #banner-toit-rouge { font-size: 14px; width: 90%; text-align: center; } }
-    </style>
 </head>
 <body>
 
-    <!-- Bannière Info -->
-    <div id="banner-toit-rouge" style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: #ff0000; color: white; padding: 10px 18px; border-radius: 12px; font-weight: bold; z-index: 1500; box-shadow: 0 4px 15px rgba(255,0,0,0.3);">
+    <!-- Bannière Info (Taille réduite via CSS) -->
+    <div id="banner-toit-rouge">
         🚨 Nouveau local au marché aux puces à Joliette : "Toit Rouge"
+    </div>
+
+    <!-- RUBAN DE CATÉGORIES HORIZONTAL DÉFILANT -->
+    <div class="category-ribbon-container">
+        <div class="category-ribbon">
+            <div class="ribbon-track">
+                <!-- Les catégories appellent les mêmes filtres que le catalogue -->
+                <button class="ribbon-item" onclick="filterByCategory('pop')">🧸 Pop & Figurine</button>
+                <button class="ribbon-item" onclick="filterByCategory('jeuxvideo')">🎮 Jeux Vidéo</button>
+                <button class="ribbon-item" onclick="filterByCategory('livre')">📚 Livres</button>
+                <button class="ribbon-item" onclick="filterByCategory('film')">🎬 Films</button>
+                <button class="ribbon-item" onclick="filterByCategory('decoration')">🖼️ Décoration</button>
+                <button class="ribbon-item" onclick="filterByCategory('vaisselle')">🍽️ Cuisine</button>
+                <button class="ribbon-item" onclick="filterByCategory('bijoux')">💍 Bijoux</button>
+                <button class="ribbon-item" onclick="filterByCategory('jeux')">🧩 Jeux</button>
+                <button class="ribbon-item" onclick="filterByCategory('peluche')">🧸 Peluches</button>
+                <button class="ribbon-item" onclick="filterByCategory('vetement')">👕 Vêtements</button>
+                <button class="ribbon-item" onclick="filterByCategory('maquillage')">💄 Beauté</button>
+                <button class="ribbon-item" onclick="filterByCategory('lumiere')">💡 Lumière</button>
+                <!-- Doublement de la liste pour l'effet infini -->
+                <button class="ribbon-item" onclick="filterByCategory('pop')">🧸 Pop & Figurine</button>
+                <button class="ribbon-item" onclick="filterByCategory('jeuxvideo')">🎮 Jeux Vidéo</button>
+                <button class="ribbon-item" onclick="filterByCategory('livre')">📚 Livres</button>
+            </div>
+        </div>
     </div>
 
     <nav class="navbar">
@@ -102,7 +115,7 @@
                     <option value="">Choisir la catégorie...</option>
                     <option value="pop">Pop et figurine</option>
                     <option value="jeuxvideo">Jeux vidéo</option>
-                    <option value="livre">Livres</option> <!-- AJOUTÉ -->
+                    <option value="livre">Livres</option>
                     <option value="film">Films</option>
                     <option value="decoration">Décoration</option>
                     <option value="vaisselle">Vaisselle et cuisine</option>
@@ -139,7 +152,7 @@
             
             <div id="pop"><h3>🧸 Pop et figurine</h3><div class="products-grid" id="grid-pop"></div></div>
             <div id="jeuxvideo"><h3>🎮 Jeux vidéo</h3><div class="products-grid" id="grid-jeuxvideo"></div></div>
-            <div id="livre"><h3>📚 Livres</h3><div class="products-grid" id="grid-livre"></div></div> <!-- AJOUTÉ -->
+            <div id="livre"><h3>📚 Livres</h3><div class="products-grid" id="grid-livre"></div></div>
             <div id="film"><h3>🎬 Films</h3><div class="products-grid" id="grid-film"></div></div>
             <div id="decoration"><h3>🖼️ Décoration</h3><div class="products-grid" id="grid-decoration"></div></div>
             <div id="vaisselle"><h3>🍽️ Vaisselle et cuisine</h3><div class="products-grid" id="grid-vaisselle"></div></div>
@@ -152,14 +165,14 @@
         </div>
     </section>
 
-    <!-- CATALOGUE DRAWER -->
+    <!-- CATALOGUE DRAWER (Bas de page) -->
     <section id="catalogue">
         <div class="catalogue-drawer">
             <button class="catalogue-toggle">Explorer par catégorie <span class="arrow">▼</span></button>
             <div class="catalogue-content">
                 <a href="javascript:void(0)" class="catalogue-link" data-category="pop">Pop et figurine</a>
                 <a href="javascript:void(0)" class="catalogue-link" data-category="jeuxvideo">Jeux vidéo</a>
-                <a href="javascript:void(0)" class="catalogue-link" data-category="livre">Livres</a> <!-- AJOUTÉ -->
+                <a href="javascript:void(0)" class="catalogue-link" data-category="livre">Livres</a>
                 <a href="javascript:void(0)" class="catalogue-link" data-category="film">Films</a>
                 <a href="javascript:void(0)" class="catalogue-link" data-category="decoration">Décoration</a>
                 <a href="javascript:void(0)" class="catalogue-link" data-category="vaisselle">Vaisselle</a>
@@ -211,4 +224,4 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
 </body>
-</html>
+    </html>
