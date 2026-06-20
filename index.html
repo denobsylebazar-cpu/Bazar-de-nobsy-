@@ -41,21 +41,20 @@
 </head>
 <body>
 
-    <!-- Bannière Info (Taille réduite via CSS) -->
+    <!-- Bannière Info (Fixe) -->
     <div id="banner-toit-rouge">
         🚨 Nouveau local au marché aux puces à Joliette : "Toit Rouge"
     </div>
 
-    <!-- RUBAN DE CATÉGORIES HORIZONTAL DÉFILANT -->
+    <!-- RUBAN DE CATÉGORIES HORIZONTAL -->
     <div class="category-ribbon-container">
         <div class="category-ribbon">
             <div class="ribbon-track">
-                <!-- Les catégories appellent les mêmes filtres que le catalogue -->
-                <button class="ribbon-item" onclick="filterByCategory('pop')">🧸 Pop & Figurine</button>
+                <button class="ribbon-item" onclick="filterByCategory('pop')">🧸 Pop</button>
                 <button class="ribbon-item" onclick="filterByCategory('jeuxvideo')">🎮 Jeux Vidéo</button>
                 <button class="ribbon-item" onclick="filterByCategory('livre')">📚 Livres</button>
                 <button class="ribbon-item" onclick="filterByCategory('film')">🎬 Films</button>
-                <button class="ribbon-item" onclick="filterByCategory('decoration')">🖼️ Décoration</button>
+                <button class="ribbon-item" onclick="filterByCategory('decoration')">🖼️ Déco</button>
                 <button class="ribbon-item" onclick="filterByCategory('vaisselle')">🍽️ Cuisine</button>
                 <button class="ribbon-item" onclick="filterByCategory('bijoux')">💍 Bijoux</button>
                 <button class="ribbon-item" onclick="filterByCategory('jeux')">🧩 Jeux</button>
@@ -63,8 +62,8 @@
                 <button class="ribbon-item" onclick="filterByCategory('vetement')">👕 Vêtements</button>
                 <button class="ribbon-item" onclick="filterByCategory('maquillage')">💄 Beauté</button>
                 <button class="ribbon-item" onclick="filterByCategory('lumiere')">💡 Lumière</button>
-                <!-- Doublement de la liste pour l'effet infini -->
-                <button class="ribbon-item" onclick="filterByCategory('pop')">🧸 Pop & Figurine</button>
+                <!-- Copies pour infini -->
+                <button class="ribbon-item" onclick="filterByCategory('pop')">🧸 Pop</button>
                 <button class="ribbon-item" onclick="filterByCategory('jeuxvideo')">🎮 Jeux Vidéo</button>
                 <button class="ribbon-item" onclick="filterByCategory('livre')">📚 Livres</button>
             </div>
@@ -89,13 +88,13 @@
             <div class="hero-buttons">
                 <button class="btn" onclick="document.getElementById('produits').scrollIntoView({behavior:'smooth'})">Voir les produits</button>
                 <button class="btn btn-secondary" onclick="window.open('https://www.facebook.com/share/g/18YTkXrkvB/')">Rejoindre le Live</button>
-                <button class="btn" onclick="window.open('https://ruinsnradz.servegame.com/')">En partenariat avec Ruins'n Radz</button>
+                <button class="btn" onclick="window.open('https://ruinsnradz.servegame.com/')">Partenariat Ruins'n Radz</button>
             </div>
         </div>
     </header>
 
     <!-- FORMULAIRE ADMIN -->
-    <section id="admin" style="background:#f0f2f5; padding:60px 0; display:none;">
+    <section id="admin" style="display:none;">
         <div class="container">
             <h2 class="section-title">Ajouter un produit</h2>
             <form id="formAjoutProduit">
@@ -103,12 +102,11 @@
                 <textarea id="descProduit" placeholder="Description" rows="3" required></textarea>
                 <input type="number" id="prixProduit" placeholder="Prix $" step="0.01" required>
                 
-                <label style="font-weight:bold; margin-top:5px;">📷 Sélectionner une photo :</label>
+                <label style="font-weight:bold; margin-top:5px; color:#333;">📷 Photo :</label>
                 <input type="file" id="imageProduit" accept="image/*" required>
                 
-                <div id="preview-container" style="display:none; text-align:center; margin-top:10px;">
-                    <p style="font-size:0.8rem; color:gray;">Aperçu :</p>
-                    <img id="imagePreview" src="" style="max-width:150px; border-radius:12px; border:3px solid #0084ff;">
+                <div id="preview-container" style="display:none; text-align:center;">
+                    <img id="imagePreview" src="" style="max-width:120px; border-radius:10px; border:2px solid #0084ff;">
                 </div>
 
                 <select id="categorieProduit" required>
@@ -131,7 +129,7 @@
         </div>
     </section>
 
-    <!-- SECTION À PROPOS -->
+    <!-- À PROPOS -->
     <section id="about" class="fade-in-section">
         <div class="container">
             <h2 class="section-title">Le bazar de Nobsy à Joliette</h2>
@@ -142,81 +140,85 @@
     </section>
     
     <!-- SECTION PRODUITS -->
-    <section id="produits" class="fade-in-section">
+    <section id="produits">
         <div class="container">
-            <div id="category-back-button">
-                <button class="btn btn-secondary" id="backToCatalogBtn">← Retour au catalogue complet</button>
+            <div id="category-back-button" style="display:none; text-align:center;">
+                <button class="btn btn-secondary" onclick="showAllCategories()">← Retour au catalogue complet</button>
             </div>
-            <h2 id="category-title" class="section-title"></h2>
+            
             <h2 id="default-title" class="section-title">Nos Articles</h2>
             
-            <div id="pop"><h3>🧸 Pop et figurine</h3><div class="products-grid" id="grid-pop"></div></div>
-            <div id="jeuxvideo"><h3>🎮 Jeux vidéo</h3><div class="products-grid" id="grid-jeuxvideo"></div></div>
-            <div id="livre"><h3>📚 Livres</h3><div class="products-grid" id="grid-livre"></div></div>
-            <div id="film"><h3>🎬 Films</h3><div class="products-grid" id="grid-film"></div></div>
-            <div id="decoration"><h3>🖼️ Décoration</h3><div class="products-grid" id="grid-decoration"></div></div>
-            <div id="vaisselle"><h3>🍽️ Vaisselle et cuisine</h3><div class="products-grid" id="grid-vaisselle"></div></div>
-            <div id="bijoux"><h3>💍 Bijoux</h3><div class="products-grid" id="grid-bijoux"></div></div>
-            <div id="jeux"><h3>🧩 Casse-tête et jeux</h3><div class="products-grid" id="grid-jeux"></div></div>
-            <div id="peluche"><h3>🧸 Peluche et porte-clé</h3><div class="products-grid" id="grid-peluche"></div></div>
-            <div id="vetement"><h3>👕 Vêtement</h3><div class="products-grid" id="grid-vetement"></div></div>
-            <div id="maquillage"><h3>💄 Maquillage et accessoire</h3><div class="products-grid" id="grid-maquillage"></div></div>
-            <div id="lumiere"><h3>💡 Lumière</h3><div class="products-grid" id="grid-lumiere"></div></div>
+            <div id="pop" class="cat-section"><h3>🧸 Pop et figurine</h3><div class="products-grid" id="grid-pop"></div></div>
+            <div id="jeuxvideo" class="cat-section"><h3>🎮 Jeux vidéo</h3><div class="products-grid" id="grid-jeuxvideo"></div></div>
+            <div id="livre" class="cat-section"><h3>📚 Livres</h3><div class="products-grid" id="grid-livre"></div></div>
+            <div id="film" class="cat-section"><h3>🎬 Films</h3><div class="products-grid" id="grid-film"></div></div>
+            <div id="decoration" class="cat-section"><h3>🖼️ Décoration</h3><div class="products-grid" id="grid-decoration"></div></div>
+            <div id="vaisselle" class="cat-section"><h3>🍽️ Vaisselle et cuisine</h3><div class="products-grid" id="grid-vaisselle"></div></div>
+            <div id="bijoux" class="cat-section"><h3>💍 Bijoux</h3><div class="products-grid" id="grid-bijoux"></div></div>
+            <div id="jeux" class="cat-section"><h3>🧩 Casse-tête et jeux</h3><div class="products-grid" id="grid-jeux"></div></div>
+            <div id="peluche" class="cat-section"><h3>🧸 Peluches</h3><div class="products-grid" id="grid-peluche"></div></div>
+            <div id="vetement" class="cat-section"><h3>👕 Vêtements</h3><div class="products-grid" id="grid-vetement"></div></div>
+            <div id="maquillage" class="cat-section"><h3>💄 Maquillage</h3><div class="products-grid" id="grid-maquillage"></div></div>
+            <div id="lumiere" class="cat-section"><h3>💡 Lumière</h3><div class="products-grid" id="grid-lumiere"></div></div>
         </div>
     </section>
 
-    <!-- CATALOGUE DRAWER (Bas de page) -->
+    <!-- CATALOGUE DU BAS (DRAWER) -->
     <section id="catalogue">
-        <div class="catalogue-drawer">
-            <button class="catalogue-toggle">Explorer par catégorie <span class="arrow">▼</span></button>
-            <div class="catalogue-content">
-                <a href="javascript:void(0)" class="catalogue-link" data-category="pop">Pop et figurine</a>
-                <a href="javascript:void(0)" class="catalogue-link" data-category="jeuxvideo">Jeux vidéo</a>
-                <a href="javascript:void(0)" class="catalogue-link" data-category="livre">Livres</a>
-                <a href="javascript:void(0)" class="catalogue-link" data-category="film">Films</a>
-                <a href="javascript:void(0)" class="catalogue-link" data-category="decoration">Décoration</a>
-                <a href="javascript:void(0)" class="catalogue-link" data-category="vaisselle">Vaisselle</a>
-                <a href="javascript:void(0)" class="catalogue-link" data-category="bijoux">Bijoux</a>
-                <a href="javascript:void(0)" class="catalogue-link" data-category="jeux">Jeux</a>
-                <a href="javascript:void(0)" class="catalogue-link" data-category="peluche">Peluches</a>
-                <a href="javascript:void(0)" class="catalogue-link" data-category="vetement">Vêtements</a>
-                <a href="javascript:void(0)" class="catalogue-link" data-category="maquillage">Maquillage</a>
-                <a href="javascript:void(0)" class="catalogue-link" data-category="lumiere">Lumière</a>
+        <div class="container">
+            <div class="catalogue-drawer">
+                <button class="catalogue-toggle" onclick="toggleCatalogue()">Explorer par catégorie ▼</button>
+                <div class="catalogue-content" id="catContent">
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('pop')">🧸 Pop</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('jeuxvideo')">🎮 Jeux Vidéo</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('livre')">📚 Livres</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('film')">🎬 Films</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('decoration')">🖼️ Déco</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('vaisselle')">🍽️ Cuisine</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('bijoux')">💍 Bijoux</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('jeux')">🧩 Jeux</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('peluche')">🧸 Peluches</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('vetement')">👕 Vêtements</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('maquillage')">💄 Beauté</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('lumiere')">💡 Lumière</a>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- CONTACT -->
-    <section id="contact" style="padding: 60px 0;">
+    <section id="contact">
         <div class="container">
-            <h2 class="section-title">Contact à Joliette</h2>
+            <h2 class="section-title">Contact & Localisation</h2>
             <div class="contact-grid">
                 <div style="padding: 20px;">
-                    <p>📍 Joliette, Québec</p>
-                    <p>🚚 Livraison disponible.</p>
+                    <p>📍 <strong>Lieu :</strong> Joliette, Québec</p>
+                    <p>🚚 <strong>Livraison :</strong> Disponible (frais selon distance)</p>
                     <br>
-                    <button class="btn" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">💬 Messenger</button>
+                    <button class="btn" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">💬 Nous contacter</button>
                 </div>
                 <div class="map-container">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2793.58!2d-73.416!3d46.008!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cc9e3a5b8c00000%3A0x0!2zNDbCsDAwJzI4LjgiTiA3M8KwMjUnMDAuMCJX!5e0!3m2!1sfr!2sca!4v1700000000000!5m2!1sfr!2sca" width="100%" height="300" style="border:0; border-radius:15px;" allowfullscreen="" loading="lazy" title="Carte Joliette"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2793.58!2d-73.416!3d46.008!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cc9e3a5b8c00000%3A0x0!2zNDbCsDAwJzI4LjgiTiA3M8KwMjUnMDAuMCJX!5e0!3m2!1sfr!2sca!4v1700000000000!5m2!1sfr!2sca" width="100%" height="300" style="border:0; border-radius:15px;" allowfullscreen="" loading="lazy"></iframe>
                 </div>
             </div>
         </div>
     </section>
     
-    <footer style="text-align:center; padding: 20px; background:#333; color:white;">
+    <footer>
         <p>&copy; 2026 Le bazar de Nobsy - Joliette.</p>
     </footer>
 
-    <!-- Admin -->
-    <button id="btnAdmin">⚙️</button>
+    <!-- Admin Flottant -->
+    <button id="btnAdmin" onclick="document.getElementById('popupPin').style.display='flex'">⚙️</button>
+
+    <!-- Popup PIN -->
     <div id="popupPin">
         <div class="popup-content">
             <h3>Admin</h3>
-            <input type="password" id="inputPin" placeholder="Code PIN" style="width:100%; padding:12px; text-align:center; font-size:20px; margin-bottom:20px;">
+            <input type="password" id="inputPin" placeholder="PIN" maxlength="6" style="width:100%; padding:10px; text-align:center; font-size:20px; margin-bottom:20px;">
             <div style="display:flex; gap:10px;">
                 <button class="btn" style="flex:1" onclick="verifierPin()">Entrer</button>
-                <button class="btn btn-secondary" style="flex:1" onclick="fermerPin()">Annuler</button>
+                <button class="btn btn-secondary" style="flex:1" onclick="fermerPin()">X</button>
             </div>
         </div>
     </div>
