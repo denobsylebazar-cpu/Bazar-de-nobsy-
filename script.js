@@ -1,4 +1,4 @@
-// 1. CONFIGURATION
+// 1. CONFIGURATION SUPABASE
 const SUPABASE_URL = 'https://ghcaswgaghkzvyvmzkyb.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoY2Fzd2dhZ2hrenZ5dm16a3liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MzUzMTUsImV4cCI6MjA5NzAxMTMxNX0.xwuTKMah1y1C2TkAqiKEe288UrfvY8DK_TyLauAKWB4';
 
@@ -13,21 +13,25 @@ async function chargerProduits() {
         .select('*')
         .order('created_at', { ascending: false });
 
-    if (error) return;
+    if (error) {
+        console.error("Erreur de chargement:", error.message);
+        return;
+    }
 
-    // Vider les grilles
+    // Vider toutes les grilles existantes
     const grilles = document.querySelectorAll('.products-grid');
     grilles.forEach(g => g.innerHTML = "");
 
-    // Remplir les grilles
+    // Remplir les grilles avec les produits
     products.forEach(product => {
         let cat = product.category.toLowerCase().trim();
         let targetId = "grid-decoration"; // Par défaut
 
-        // LOGIQUE DE DÉTECTION DES CATÉGORIES
+        // Détection de la grille correspondante
         if (cat.includes("vaisselle")) targetId = "grid-vaisselle";
         else if (cat.includes("bijoux")) targetId = "grid-bijoux";
         else if (cat.includes("pop")) targetId = "grid-pop";
+        else if (cat.includes("livre")) targetId = "grid-livre";
         else if (cat.includes("jeuxvideo")) targetId = "grid-jeuxvideo";
         else if (cat.includes("film")) targetId = "grid-film";
         else if (cat.includes("jeux") || cat.includes("casse")) targetId = "grid-jeux";
@@ -57,18 +61,18 @@ async function chargerProduits() {
 
     // --- LOGIQUE DE RÉORGANISATION (SÉCTIONS PLEINES EN HAUT) ---
     const container = document.querySelector('#produits .container');
-    const sectionsIds = ['decoration', 'vaisselle', 'bijoux', 'jeux', 'pop', 'jeuxvideo', 'film', 'peluche', 'vetement', 'maquillage', 'lumiere'];
+    const sectionsIds = ['pop', 'jeuxvideo', 'livre', 'film', 'decoration', 'vaisselle', 'bijoux', 'jeux', 'peluche', 'vetement', 'maquillage', 'lumiere'];
 
     sectionsIds.forEach(id => {
         const section = document.getElementById(id);
         const grid = document.getElementById('grid-' + id);
         if (section && grid) {
             if (grid.children.length > 0) {
-                container.prepend(section); 
+                container.prepend(section); // Remonte en haut
                 section.style.opacity = "1";
                 section.style.display = "block";
             } else {
-                container.appendChild(section);
+                container.appendChild(section); // Descend en bas
                 section.style.opacity = "0.5";
             }
         }
@@ -78,6 +82,7 @@ async function chargerProduits() {
 /* ========== GESTION ADMIN (CONNEXION) ========== */
 window.verifierPin = async function() {
     const pin = document.getElementById('inputPin').value;
+    // On demande un PIN de 6 chiffres pour ouvrir l'interface
     if (pin.length === 6) {
         document.getElementById('admin').style.display = 'block';
         document.getElementById('popupPin').style.display = 'none';
@@ -85,13 +90,13 @@ window.verifierPin = async function() {
         document.querySelectorAll('.btn-delete-product').forEach(b => b.style.display = 'block');
         document.getElementById('admin').scrollIntoView({behavior: 'smooth'});
     } else {
-        alert("PIN invalide (6 chiffres requis)");
+        alert("PIN invalide");
     }
 };
 
 window.fermerPin = function() { document.getElementById('popupPin').style.display = 'none'; };
 
-/* ========== SUPPRESSION SÉCURISÉE (RPC) ========== */
+/* ========== SUPPRESSION SÉCURISÉE (VIA RPC SUPABASE) ========== */
 window.handleDeleteProduct = async function(event) {
     const card = event.target.closest('.product-card');
     const id = card.getAttribute('data-id');
@@ -99,6 +104,7 @@ window.handleDeleteProduct = async function(event) {
     const pin = prompt("Entrez le code PIN pour confirmer la suppression :");
     if (!pin) return;
 
+    // Appel de la fonction SQL sécurisée créée sur Supabase
     const { error } = await db.rpc('delete_product_secure', {
         prod_id: id,
         pin_code: pin
@@ -107,16 +113,17 @@ window.handleDeleteProduct = async function(event) {
     if (error) {
         alert("Erreur : " + error.message);
     } else {
-        card.style.transform = "scale(0)";
+        // Animation 3D de sortie
+        card.style.transform = "scale(0) rotate(15deg)";
         card.style.opacity = "0";
         setTimeout(() => {
             card.remove();
-            console.log("Produit supprimé en toute sécurité ✓");
+            console.log("Produit supprimé avec succès ✓");
         }, 300);
     }
 };
 
-/* ========== AJOUTER UN PRODUIT ========== */
+/* ========== AJOUTER UN PRODUIT (AVEC PHOTO TÉLÉPHONE) ========== */
 const form = document.getElementById('formAjoutProduit');
 if (form) {
     form.onsubmit = async function(e) {
@@ -125,17 +132,25 @@ if (form) {
         const fileInput = document.getElementById('imageProduit');
         const file = fileInput.files[0];
 
-        if (!file) return alert("Choisis une photo !");
+        if (!file) return alert("Veuillez choisir une photo !");
+        
         submitBtn.disabled = true;
-        submitBtn.innerText = "Envoi...";
+        submitBtn.innerText = "⏳ Envoi de la photo...";
 
         try {
+            // 1. Envoyer l'image vers Supabase Storage (bucket: product-images)
             const fileName = Date.now() + "-" + file.name;
-            const { data: uploadData, error: uploadError } = await db.storage.from('product-images').upload(fileName, file);
+            const { data: uploadData, error: uploadError } = await db.storage
+                .from('product-images')
+                .upload(fileName, file);
+
             if (uploadError) throw uploadError;
 
+            // 2. Récupérer l'URL publique
             const { data: linkData } = db.storage.from('product-images').getPublicUrl(fileName);
 
+            // 3. Insérer le produit dans la table
+            submitBtn.innerText = "📝 Publication...";
             const { error: insertError } = await db.from('products').insert([{
                 name: document.getElementById('nomProduit').value,
                 description: document.getElementById('descProduit').value,
@@ -146,21 +161,23 @@ if (form) {
 
             if (insertError) throw insertError;
 
-            alert("Produit ajouté ! ✅");
+            alert("Produit publié ! ✅");
             form.reset();
             document.getElementById('preview-container').style.display = 'none';
             document.getElementById('admin').style.display = 'none';
+            document.body.classList.remove('admin-open');
             chargerProduits();
+
         } catch (err) {
             alert("Erreur : " + err.message);
         } finally {
             submitBtn.disabled = false;
-            submitBtn.innerText = "🚀 Publier";
+            submitBtn.innerText = "🚀 Publier le produit";
         }
     };
 }
 
-// Aperçu de l'image
+// Aperçu de l'image sélectionnée
 const imageProduitInput = document.getElementById('imageProduit');
 if (imageProduitInput) {
     imageProduitInput.onchange = function() {
@@ -178,6 +195,7 @@ if (imageProduitInput) {
 function initCatalogue() {
     const toggleBtn = document.querySelector('.catalogue-toggle');
     const content = document.querySelector('.catalogue-content');
+    
     if (toggleBtn && content) {
         toggleBtn.onclick = function(e) {
             e.stopPropagation();
@@ -185,10 +203,13 @@ function initCatalogue() {
             content.classList.toggle('active');
         };
     }
+
     document.querySelectorAll('.catalogue-link').forEach(link => {
         link.onclick = function(e) {
             e.preventDefault();
-            filterByCategory(this.getAttribute('data-category'));
+            const category = this.getAttribute('data-category');
+            filterByCategory(category);
+            // Fermer le menu
             if (toggleBtn) toggleBtn.classList.remove('active');
             if (content) content.classList.remove('active');
         };
@@ -196,7 +217,7 @@ function initCatalogue() {
 }
 
 window.filterByCategory = function(cat) {
-    const ids = ['decoration','vaisselle','bijoux','jeux','pop','jeuxvideo','film','peluche','vetement','maquillage','lumiere'];
+    const ids = ['pop','jeuxvideo','livre','film','decoration','vaisselle','bijoux','jeux','peluche','vetement','maquillage','lumiere'];
     ids.forEach(id => {
         const s = document.getElementById(id);
         if (s) s.style.display = 'none';
@@ -216,14 +237,16 @@ window.showAllCategories = function() {
     document.getElementById('default-title').style.display = 'block';
 };
 
-/* ========== INITIALISATION ========== */
+/* ========== INITIALISATION AU DÉMARRAGE ========== */
 document.addEventListener('DOMContentLoaded', () => {
+    // Bouton Admin (Engrenage)
     const btnAdmin = document.getElementById('btnAdmin');
     if (btnAdmin) btnAdmin.onclick = () => document.getElementById('popupPin').style.display = 'flex';
     
-    initCatalogue();
-    chargerProduits();
-    
+    // Bouton Retour Catalogue
     const backBtn = document.getElementById('backToCatalogBtn');
     if (backBtn) backBtn.onclick = showAllCategories;
+
+    initCatalogue();
+    chargerProduits();
 });
