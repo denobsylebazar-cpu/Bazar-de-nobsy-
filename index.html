@@ -7,46 +7,147 @@
     <!-- SEO & Réseaux Sociaux -->
     <title>Le bazar de Nobsy | Bons deals & Articles variés à Joliette</title>
     <meta name="description" content="Découvrez les meilleurs deals à Joliette au bazar de Nobsy. Figurines Pop, jeux vidéo, livres, bijoux et déco à petits prix. Livraison disponible, commandez sur Messenger !">
-    
-    <!-- Indexation Google Search Console -->
     <meta name="google-site-verification" content="IroNbFQ_1fITWkuZcoufSlIxAJ4PVPz7RKwwr_o6Gqo" />
     
-    <meta property="og:title" content="Le bazar de Nobsy | Bons deals à Joliette">
-    <meta property="og:description" content="Trouvez des perles rares : Pop, figurines, livres, jeux et plus encore à prix cassés.">
-    <meta property="og:url" content="https://lebazardenobsy-star.github.io/Le-bazar-de-Nobsy/">
-    <meta property="og:type" content="website">
-
-    <!-- Données Structurées Google -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "Le bazar de Nobsy",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Joliette",
-        "addressRegion": "QC",
-        "addressCountry": "CA"
-      },
-      "url": "https://lebazardenobsy-star.github.io/Le-bazar-de-Nobsy/",
-      "priceRange": "$"
-    }
-    </script>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* CSS INTERNE POUR LES CORRECTIFS DE MISE EN PAGE */
+        :root {
+            --primary-blue: #0084ff;
+            --h-banner: 40px;
+            --h-ribbon: 55px;
+            --h-navbar: 65px;
+        }
+
+        body {
+            padding-top: calc(var(--h-banner) + var(--h-ribbon) + var(--h-navbar));
+            background-color: #fff;
+        }
+
+        /* 1. BANNIÈRE ROUGE CENTRÉE */
+        #banner-toit-rouge {
+            background-color: #ff0000;
+            color: white;
+            height: var(--h-banner);
+            position: fixed; top: 0; left: 0; width: 100%;
+            z-index: 5000;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 13px;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        /* 2. RUBAN CATÉGORIES DÉFILANT */
+        .category-ribbon-container {
+            background: white;
+            border-bottom: 1px solid #eee;
+            height: var(--h-ribbon);
+            position: fixed; top: var(--h-banner); left: 0; width: 100%;
+            z-index: 4900;
+            display: flex; align-items: center;
+            overflow: hidden;
+        }
+        .category-ribbon { 
+            display: flex; 
+            overflow-x: auto; 
+            scrollbar-width: none; 
+            width: 100%; 
+            -webkit-overflow-scrolling: touch;
+        }
+        .category-ribbon::-webkit-scrollbar { display: none; }
+        .ribbon-track { 
+            display: flex; gap: 10px; padding: 0 15px; 
+            animation: scrollRibbon 40s linear infinite; 
+        }
+        .category-ribbon:active .ribbon-track { animation-play-state: paused; }
+        @keyframes scrollRibbon { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        
+        .ribbon-item {
+            background: #f0f7ff; color: var(--primary-blue); border: 1px solid var(--primary-blue);
+            padding: 6px 15px; border-radius: 20px; white-space: nowrap;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+
+        /* 3. NAVBAR AVEC HAMBURGER */
+        .navbar {
+            position: fixed; top: calc(var(--h-banner) + var(--h-ribbon)); left: 0; width: 100%;
+            height: var(--h-navbar); background: white;
+            z-index: 4800; display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .logo { font-weight: 800; color: var(--primary-blue); text-transform: uppercase; font-size: 1rem; }
+        
+        .hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; }
+        .hamburger span { width: 28px; height: 3px; background: var(--primary-blue); border-radius: 2px; }
+
+        .nav-menu {
+            position: fixed; top: calc(var(--h-banner) + var(--h-ribbon) + var(--h-navbar));
+            right: -100%; width: 70%; height: 100vh; background: white;
+            flex-direction: column; padding: 30px; gap: 20px; transition: 0.4s;
+            box-shadow: -10px 0 20px rgba(0,0,0,0.1); list-style: none; display: flex;
+        }
+        .nav-menu.active { right: 0; }
+        .nav-menu a { text-decoration: none; color: #333; font-weight: 600; font-size: 1.2rem; }
+
+        /* 4. BOUTONS D'ACTION (HERO) */
+        .hero-buttons {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 15px; width: 100%; padding: 20px;
+        }
+        .btn-hero {
+            background: var(--primary-blue);
+            color: white !important;
+            border: 2px solid #005ec4;
+            padding: 14px 25px;
+            border-radius: 12px;
+            font-weight: bold;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+            text-decoration: none;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 132, 255, 0.2);
+        }
+        .btn-hero:active { transform: scale(0.95); }
+
+        /* 5. EXPLORER PAR CATÉGORIE (BAS) */
+        .catalogue-drawer {
+            width: 90%; max-width: 400px; margin: 30px auto;
+            border-radius: 20px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
+        }
+        .catalogue-toggle {
+            width: 100%; padding: 15px; background: var(--primary-blue);
+            color: white; border: none; font-weight: bold; font-size: 1.1rem;
+        }
+        .catalogue-content {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px; padding: 15px; background: white;
+        }
+
+        /* ADMIN BUTTON TRANSPARENT */
+        #btnAdmin {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 50px; height: 50px; border-radius: 50%;
+            background: rgba(0,0,0,0.2); color: white; border: none;
+            font-size: 24px; z-index: 9999;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Bannière Info (Fixe) -->
+    <!-- 1. BANNIÈRE ROUGE -->
     <div id="banner-toit-rouge">
         🚨 Nouveau local au marché aux puces à Joliette : "Toit Rouge"
     </div>
 
-    <!-- RUBAN DE CATÉGORIES HORIZONTAL -->
+    <!-- 2. RUBAN DE CATÉGORIES -->
     <div class="category-ribbon-container">
         <div class="category-ribbon">
             <div class="ribbon-track">
@@ -62,149 +163,89 @@
                 <button class="ribbon-item" onclick="filterByCategory('vetement')">👕 Vêtements</button>
                 <button class="ribbon-item" onclick="filterByCategory('maquillage')">💄 Beauté</button>
                 <button class="ribbon-item" onclick="filterByCategory('lumiere')">💡 Lumière</button>
-                <!-- Copies pour infini -->
+                <!-- Copies pour défilement -->
                 <button class="ribbon-item" onclick="filterByCategory('pop')">🧸 Pop</button>
                 <button class="ribbon-item" onclick="filterByCategory('jeuxvideo')">🎮 Jeux Vidéo</button>
-                <button class="ribbon-item" onclick="filterByCategory('livre')">📚 Livres</button>
             </div>
         </div>
     </div>
 
+    <!-- 3. NAVBAR AVEC HAMBURGER -->
     <nav class="navbar">
         <div class="logo">le bazar de nobsy</div>
-        <ul class="nav-menu">
-            <li><a href="#accueil" class="nav-link">Accueil</a></li>
-            <li><a href="#produits" class="nav-link">Produits</a></li>
-            <li><a href="#catalogue">Catalogue</a></li>
-            <li><a href="#contact" class="nav-link">Contact</a></li>
+        <div class="hamburger" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <ul class="nav-menu" id="navMenu">
+            <li><a href="#accueil" onclick="toggleMenu()">Accueil</a></li>
+            <li><a href="#produits" onclick="toggleMenu()">Produits</a></li>
+            <li><a href="#catalogue" onclick="toggleMenu()">Catalogue</a></li>
+            <li><a href="#contact" onclick="toggleMenu()">Contact</a></li>
         </ul>
-        <div class="hamburger"><span></span><span></span><span></span></div>
     </nav>
 
     <header id="accueil" class="hero">
         <div class="hero-content">
             <h1>Bienvenue au Bazar de Nobsy</h1>
             <p class="hero-subtitle">Les meilleurs deals et articles variés à Joliette, Québec</p>
+            
+            <!-- 4. BOUTONS D'ACTION -->
             <div class="hero-buttons">
-                <button class="btn" onclick="document.getElementById('produits').scrollIntoView({behavior:'smooth'})">Voir les produits</button>
-                <button class="btn btn-secondary" onclick="window.open('https://www.facebook.com/share/g/18YTkXrkvB/')">Rejoindre le Live</button>
-                <button class="btn" onclick="window.open('https://ruinsnradz.servegame.com/')">Partenariat Ruins'n Radz</button>
+                <a href="#produits" class="btn-hero" onclick="document.getElementById('produits').scrollIntoView({behavior:'smooth'})">Voir les produits</a>
+                <a href="https://www.facebook.com/share/g/18YTkXrkvB/" target="_blank" class="btn-hero">Rejoindre le Live</a>
+                <a href="https://ruinsnradz.servegame.com/" target="_blank" class="btn-hero">Partenariat Ruins'n Radz</a>
             </div>
         </div>
     </header>
 
-    <!-- FORMULAIRE ADMIN -->
-    <section id="admin" style="display:none;">
-        <div class="container">
-            <h2 class="section-title">Ajouter un produit</h2>
-            <form id="formAjoutProduit">
-                <input type="text" id="nomProduit" placeholder="Nom du produit" required>
-                <textarea id="descProduit" placeholder="Description" rows="3" required></textarea>
-                <input type="number" id="prixProduit" placeholder="Prix $" step="0.01" required>
-                
-                <label style="font-weight:bold; margin-top:5px; color:#333;">📷 Photo :</label>
-                <input type="file" id="imageProduit" accept="image/*" required>
-                
-                <div id="preview-container" style="display:none; text-align:center;">
-                    <img id="imagePreview" src="" style="max-width:120px; border-radius:10px; border:2px solid #0084ff;">
-                </div>
-
-                <select id="categorieProduit" required>
-                    <option value="">Choisir la catégorie...</option>
-                    <option value="pop">Pop et figurine</option>
-                    <option value="jeuxvideo">Jeux vidéo</option>
-                    <option value="livre">Livres</option>
-                    <option value="film">Films</option>
-                    <option value="decoration">Décoration</option>
-                    <option value="vaisselle">Vaisselle et cuisine</option>
-                    <option value="bijoux">Bijoux</option>
-                    <option value="jeux">Casse-tête et jeux</option>
-                    <option value="peluche">Peluche et porte-clé</option>
-                    <option value="vetement">Vêtement</option>
-                    <option value="maquillage">Maquillage et accessoire</option>
-                    <option value="lumiere">Lumière</option>
-                </select>
-                <button type="submit" class="btn">🚀 Publier le produit</button>
-            </form>
-        </div>
-    </section>
-
-    <!-- À PROPOS -->
-    <section id="about" class="fade-in-section">
-        <div class="container">
-            <h2 class="section-title">Le bazar de Nobsy à Joliette</h2>
-            <div class="about-content">
-                <p>Bonjour ! Bienvenue sur le site du <strong>bazar de Nobsy</strong>. Découvrez nos <strong>figurines Pop</strong>, nos <strong>livres</strong>, nos <strong>jeux vidéo</strong> et nos articles de décoration à prix imbattables à Joliette. Contactez-nous sur Messenger pour commander !</p>
-            </div>
-        </div>
-    </section>
-    
     <!-- SECTION PRODUITS -->
     <section id="produits">
         <div class="container">
-            <div id="category-back-button" style="display:none; text-align:center;">
+            <div id="category-back-button" style="display:none; text-align:center; margin-bottom: 20px;">
                 <button class="btn btn-secondary" onclick="showAllCategories()">← Retour au catalogue complet</button>
             </div>
-            
             <h2 id="default-title" class="section-title">Nos Articles</h2>
             
-            <div id="pop" class="cat-section"><h3>🧸 Pop et figurine</h3><div class="products-grid" id="grid-pop"></div></div>
-            <div id="jeuxvideo" class="cat-section"><h3>🎮 Jeux vidéo</h3><div class="products-grid" id="grid-jeuxvideo"></div></div>
-            <div id="livre" class="cat-section"><h3>📚 Livres</h3><div class="products-grid" id="grid-livre"></div></div>
-            <div id="film" class="cat-section"><h3>🎬 Films</h3><div class="products-grid" id="grid-film"></div></div>
-            <div id="decoration" class="cat-section"><h3>🖼️ Décoration</h3><div class="products-grid" id="grid-decoration"></div></div>
-            <div id="vaisselle" class="cat-section"><h3>🍽️ Vaisselle et cuisine</h3><div class="products-grid" id="grid-vaisselle"></div></div>
-            <div id="bijoux" class="cat-section"><h3>💍 Bijoux</h3><div class="products-grid" id="grid-bijoux"></div></div>
-            <div id="jeux" class="cat-section"><h3>🧩 Casse-tête et jeux</h3><div class="products-grid" id="grid-jeux"></div></div>
-            <div id="peluche" class="cat-section"><h3>🧸 Peluches</h3><div class="products-grid" id="grid-peluche"></div></div>
-            <div id="vetement" class="cat-section"><h3>👕 Vêtements</h3><div class="products-grid" id="grid-vetement"></div></div>
-            <div id="maquillage" class="cat-section"><h3>💄 Maquillage</h3><div class="products-grid" id="grid-maquillage"></div></div>
-            <div id="lumiere" class="cat-section"><h3>💡 Lumière</h3><div class="products-grid" id="grid-lumiere"></div></div>
+            <!-- Les grilles sont chargées via JS -->
+            <div id="pop"><h3>🧸 Pop et figurine</h3><div class="products-grid" id="grid-pop"></div></div>
+            <div id="jeuxvideo"><h3>🎮 Jeux vidéo</h3><div class="products-grid" id="grid-jeuxvideo"></div></div>
+            <div id="livre"><h3>📚 Livres</h3><div class="products-grid" id="grid-livre"></div></div>
+            <div id="film"><h3>🎬 Films</h3><div class="products-grid" id="grid-film"></div></div>
+            <div id="decoration"><h3>🖼️ Décoration</h3><div class="products-grid" id="grid-decoration"></div></div>
+            <div id="vaisselle"><h3>🍽️ Vaisselle et cuisine</h3><div class="products-grid" id="grid-vaisselle"></div></div>
+            <div id="bijoux"><h3>💍 Bijoux</h3><div class="products-grid" id="grid-bijoux"></div></div>
+            <div id="jeux"><h3>🧩 Casse-tête et jeux</h3><div class="products-grid" id="grid-jeux"></div></div>
+            <div id="peluche"><h3>🧸 Peluches</h3><div class="products-grid" id="grid-peluche"></div></div>
+            <div id="vetement"><h3>👕 Vêtements</h3><div class="products-grid" id="grid-vetement"></div></div>
+            <div id="maquillage"><h3>💄 Beauté</h3><div class="products-grid" id="grid-maquillage"></div></div>
+            <div id="lumiere"><h3>💡 Lumière</h3><div class="products-grid" id="grid-lumiere"></div></div>
         </div>
     </section>
 
-    <!-- CATALOGUE DU BAS (DRAWER) -->
+    <!-- 3 (suite). EXPLORER PAR CATÉGORIE (BAS) -->
     <section id="catalogue">
-        <div class="container">
-            <div class="catalogue-drawer">
-                <button class="catalogue-toggle" onclick="toggleCatalogue()">Explorer par catégorie ▼</button>
-                <div class="catalogue-content" id="catContent">
-                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('pop')">🧸 Pop</a>
-                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('jeuxvideo')">🎮 Jeux Vidéo</a>
-                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('livre')">📚 Livres</a>
-                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('film')">🎬 Films</a>
-                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('decoration')">🖼️ Déco</a>
-                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('vaisselle')">🍽️ Cuisine</a>
-                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('bijoux')">💍 Bijoux</a>
-                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('jeux')">🧩 Jeux</a>
-                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('peluche')">🧸 Peluches</a>
-                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('vetement')">👕 Vêtements</a>
-                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('maquillage')">💄 Beauté</a>
-                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('lumiere')">💡 Lumière</a>
-                </div>
+        <div class="catalogue-drawer">
+            <button class="catalogue-toggle">Explorer par catégorie ▼</button>
+            <div class="catalogue-content">
+                <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('pop')">🧸 Pop</a>
+                <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('jeuxvideo')">🎮 Jeux</a>
+                <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('livre')">📚 Livres</a>
+                <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('film')">🎬 Films</a>
+                <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('decoration')">🖼️ Déco</a>
+                <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('vaisselle')">🍽️ Cuisine</a>
+                <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('bijoux')">💍 Bijoux</a>
+                <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('jeux')">🧩 Jeux</a>
+                <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('peluche')">🧸 Peluches</a>
+                <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('vetement')">👕 Habits</a>
+                <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('maquillage')">💄 Beauté</a>
+                <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('lumiere')">💡 Lumière</a>
             </div>
         </div>
     </section>
 
-    <!-- CONTACT -->
-    <section id="contact">
-        <div class="container">
-            <h2 class="section-title">Contact & Localisation</h2>
-            <div class="contact-grid">
-                <div style="padding: 20px;">
-                    <p>📍 <strong>Lieu :</strong> Joliette, Québec</p>
-                    <p>🚚 <strong>Livraison :</strong> Disponible (frais selon distance)</p>
-                    <br>
-                    <button class="btn" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">💬 Nous contacter</button>
-                </div>
-                <div class="map-container">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2793.58!2d-73.416!3d46.008!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cc9e3a5b8c00000%3A0x0!2zNDbCsDAwJzI4LjgiTiA3M8KwMjUnMDAuMCJX!5e0!3m2!1sfr!2sca!4v1700000000000!5m2!1sfr!2sca" width="100%" height="300" style="border:0; border-radius:15px;" allowfullscreen="" loading="lazy"></iframe>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <footer>
+    <footer style="text-align:center; padding: 30px; background:#333; color:white;">
         <p>&copy; 2026 Le bazar de Nobsy - Joliette.</p>
     </footer>
 
@@ -215,15 +256,22 @@
     <div id="popupPin">
         <div class="popup-content">
             <h3>Admin</h3>
-            <input type="password" id="inputPin" placeholder="PIN" maxlength="6" style="width:100%; padding:10px; text-align:center; font-size:20px; margin-bottom:20px;">
+            <input type="password" id="inputPin" placeholder="PIN" maxlength="6" style="width:100%; padding:12px; text-align:center; font-size:20px; border-radius:10px; border:1px solid #ddd; margin-bottom:15px;">
             <div style="display:flex; gap:10px;">
                 <button class="btn" style="flex:1" onclick="verifierPin()">Entrer</button>
-                <button class="btn btn-secondary" style="flex:1" onclick="fermerPin()">X</button>
+                <button class="btn btn-secondary" style="flex:1" onclick="document.getElementById('popupPin').style.display='none'">X</button>
             </div>
         </div>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
+    
+    <script>
+        // JS COMPLÉMENTAIRE POUR LE MENU TIROIR
+        function toggleMenu() {
+            document.getElementById('navMenu').classList.toggle('active');
+        }
+    </script>
 </body>
-    </html>
+            </html>
