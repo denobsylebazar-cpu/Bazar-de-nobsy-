@@ -1,33 +1,32 @@
 // 1. CONFIGURATION SUPABASE
 const SUPABASE_URL = 'https://ghcaswgaghkzvyvmzkyb.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoY2Fzd2dhZ2hrenZ5dm16a3liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MzUzMTUsImV4cCI6MjA5NzAxMTMxNX0.xwuTKMah1y1C2TkAqiKEe288UrfvY8DK_TyLauAKWB4';
-
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* ========== CHARGEMENT ET TRI DES SECTIONS ========== */
+/* ========== MENU MOBILE ========== */
+window.toggleMenu = function() {
+    const menu = document.getElementById('navMenu');
+    if (menu) menu.classList.toggle('active');
+};
+
+/* ========== TIROIR CATALOGUE ========== */
+window.toggleCatalogue = function() {
+    const content = document.getElementById('catContent');
+    if (content) content.classList.toggle('active');
+};
+
+/* ========== CHARGEMENT & TRI ========== */
 async function chargerProduits() {
-    console.log("Mise à jour du catalogue...");
-    
-    const { data: products, error } = await db
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
+    const { data: products, error } = await db.from('products').select('*').order('created_at', { ascending: false });
+    if (error) return;
 
-    if (error) {
-        console.error("Erreur de chargement:", error.message);
-        return;
-    }
-
-    // Vider toutes les grilles existantes
     const grilles = document.querySelectorAll('.products-grid');
     grilles.forEach(g => g.innerHTML = "");
 
-    // Remplir les grilles avec les produits
     products.forEach(product => {
         let cat = product.category.toLowerCase().trim();
-        let targetId = "grid-decoration"; // Par défaut
+        let targetId = "grid-decoration";
 
-        // Détection de la grille correspondante
         if (cat.includes("vaisselle")) targetId = "grid-vaisselle";
         else if (cat.includes("bijoux")) targetId = "grid-bijoux";
         else if (cat.includes("pop")) targetId = "grid-pop";
@@ -46,189 +45,47 @@ async function chargerProduits() {
             gridElement.insertAdjacentHTML('beforeend', `
                 <div class="product-card" data-id="${product.id}">
                     <button class="btn-delete-product" style="display: ${showX}" onclick="handleDeleteProduct(event)">✕</button>
-                    <div class="product-image">
-                        <img src="${product.image_url}" alt="${product.name} - Bazar de Nobsy Joliette" onerror="this.src='https://via.placeholder.com/150'">
-                    </div>
+                    <div class="product-image"><img src="${product.image_url}" onerror="this.src='https://via.placeholder.com/150'"></div>
                     <div class="product-body">
-                        <h3>${product.name}</h3>
-                        <p>${product.description}</p>
-                        <p class="price"><strong>${product.price}$</strong></p>
-                        <button class="btn" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">Commander</button>
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <p class="product-price"><strong class="price">${product.price}$</strong></p>
+                        <button class="btn-hero" style="max-width:100%;" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">Commander</button>
                     </div>
                 </div>`);
         }
     });
 
-    // --- LOGIQUE DE RÉORGANISATION (SÉCTIONS PLEINES EN HAUT) ---
+    // TRI : Remonter les sections pleines
     const container = document.querySelector('#produits .container');
     const sectionsIds = ['pop', 'jeuxvideo', 'livre', 'film', 'decoration', 'vaisselle', 'bijoux', 'jeux', 'peluche', 'vetement', 'maquillage', 'lumiere'];
-
     sectionsIds.forEach(id => {
         const section = document.getElementById(id);
         const grid = document.getElementById('grid-' + id);
-        if (section && grid) {
-            if (grid.children.length > 0) {
-                container.prepend(section); // Remonte en haut
-                section.style.opacity = "1";
-                section.style.display = "block";
-            } else {
-                container.appendChild(section); // Descend en bas
-                section.style.opacity = "0.5";
-            }
+        if (section && grid && grid.children.length > 0) {
+            container.prepend(section);
+            section.style.display = "block";
         }
     });
 }
 
-/* ========== GESTION ADMIN (CONNEXION) ========== */
-window.verifierPin = async function() {
-    const pin = document.getElementById('inputPin').value;
-    // On demande un PIN de 6 chiffres pour ouvrir l'interface
-    if (pin.length === 6) {
-        document.getElementById('admin').style.display = 'block';
-        document.getElementById('popupPin').style.display = 'none';
-        document.body.classList.add('admin-open');
-        document.querySelectorAll('.btn-delete-product').forEach(b => b.style.display = 'block');
-        document.getElementById('admin').scrollIntoView({behavior: 'smooth'});
-    } else {
-        alert("PIN invalide");
-    }
-};
-
-window.fermerPin = function() { document.getElementById('popupPin').style.display = 'none'; };
-
-/* ========== SUPPRESSION SÉCURISÉE (VIA RPC SUPABASE) ========== */
-window.handleDeleteProduct = async function(event) {
-    const card = event.target.closest('.product-card');
-    const id = card.getAttribute('data-id');
-    
-    const pin = prompt("Entrez le code PIN pour confirmer la suppression :");
-    if (!pin) return;
-
-    // Appel de la fonction SQL sécurisée créée sur Supabase
-    const { error } = await db.rpc('delete_product_secure', {
-        prod_id: id,
-        pin_code: pin
-    });
-
-    if (error) {
-        alert("Erreur : " + error.message);
-    } else {
-        // Animation 3D de sortie
-        card.style.transform = "scale(0) rotate(15deg)";
-        card.style.opacity = "0";
-        setTimeout(() => {
-            card.remove();
-            console.log("Produit supprimé avec succès ✓");
-        }, 300);
-    }
-};
-
-/* ========== AJOUTER UN PRODUIT (AVEC PHOTO TÉLÉPHONE) ========== */
-const form = document.getElementById('formAjoutProduit');
-if (form) {
-    form.onsubmit = async function(e) {
-        e.preventDefault();
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const fileInput = document.getElementById('imageProduit');
-        const file = fileInput.files[0];
-
-        if (!file) return alert("Veuillez choisir une photo !");
-        
-        submitBtn.disabled = true;
-        submitBtn.innerText = "⏳ Envoi de la photo...";
-
-        try {
-            // 1. Envoyer l'image vers Supabase Storage (bucket: product-images)
-            const fileName = Date.now() + "-" + file.name;
-            const { data: uploadData, error: uploadError } = await db.storage
-                .from('product-images')
-                .upload(fileName, file);
-
-            if (uploadError) throw uploadError;
-
-            // 2. Récupérer l'URL publique
-            const { data: linkData } = db.storage.from('product-images').getPublicUrl(fileName);
-
-            // 3. Insérer le produit dans la table
-            submitBtn.innerText = "📝 Publication...";
-            const { error: insertError } = await db.from('products').insert([{
-                name: document.getElementById('nomProduit').value,
-                description: document.getElementById('descProduit').value,
-                price: parseFloat(document.getElementById('prixProduit').value),
-                image_url: linkData.publicUrl,
-                category: document.getElementById('categorieProduit').value
-            }]);
-
-            if (insertError) throw insertError;
-
-            alert("Produit publié ! ✅");
-            form.reset();
-            document.getElementById('preview-container').style.display = 'none';
-            document.getElementById('admin').style.display = 'none';
-            document.body.classList.remove('admin-open');
-            chargerProduits();
-
-        } catch (err) {
-            alert("Erreur : " + err.message);
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerText = "🚀 Publier le produit";
-        }
-    };
-}
-
-// Aperçu de l'image sélectionnée
-const imageProduitInput = document.getElementById('imageProduit');
-if (imageProduitInput) {
-    imageProduitInput.onchange = function() {
-        const [file] = this.files;
-        if (file) {
-            const previewContainer = document.getElementById('preview-container');
-            const previewImg = document.getElementById('imagePreview');
-            previewContainer.style.display = 'block';
-            previewImg.src = URL.createObjectURL(file);
-        }
-    };
-}
-
-/* ========== CATALOGUE & FILTRES ========== */
-function initCatalogue() {
-    const toggleBtn = document.querySelector('.catalogue-toggle');
-    const content = document.querySelector('.catalogue-content');
-    
-    if (toggleBtn && content) {
-        toggleBtn.onclick = function(e) {
-            e.stopPropagation();
-            this.classList.toggle('active');
-            content.classList.toggle('active');
-        };
-    }
-
-    document.querySelectorAll('.catalogue-link').forEach(link => {
-        link.onclick = function(e) {
-            e.preventDefault();
-            const category = this.getAttribute('data-category');
-            filterByCategory(category);
-            // Fermer le menu
-            if (toggleBtn) toggleBtn.classList.remove('active');
-            if (content) content.classList.remove('active');
-        };
-    });
-}
-
+/* ========== FILTRES ========== */
 window.filterByCategory = function(cat) {
     const ids = ['pop','jeuxvideo','livre','film','decoration','vaisselle','bijoux','jeux','peluche','vetement','maquillage','lumiere'];
     ids.forEach(id => {
         const s = document.getElementById(id);
         if (s) s.style.display = 'none';
     });
+
     const selected = document.getElementById(cat);
     if (selected) {
         selected.style.display = 'block';
-        selected.style.opacity = '1';
+        window.scrollTo({ top: selected.offsetTop - 130, behavior: 'smooth' });
     }
+    
     document.getElementById('category-back-button').style.display = 'block';
     document.getElementById('default-title').style.display = 'none';
+    if (document.getElementById('catContent')) document.getElementById('catContent').classList.remove('active');
 };
 
 window.showAllCategories = function() {
@@ -237,16 +94,69 @@ window.showAllCategories = function() {
     document.getElementById('default-title').style.display = 'block';
 };
 
-/* ========== INITIALISATION AU DÉMARRAGE ========== */
-document.addEventListener('DOMContentLoaded', () => {
-    // Bouton Admin (Engrenage)
-    const btnAdmin = document.getElementById('btnAdmin');
-    if (btnAdmin) btnAdmin.onclick = () => document.getElementById('popupPin').style.display = 'flex';
-    
-    // Bouton Retour Catalogue
-    const backBtn = document.getElementById('backToCatalogBtn');
-    if (backBtn) backBtn.onclick = showAllCategories;
+/* ========== ADMIN ========== */
+window.verifierPin = function() {
+    const pin = document.getElementById('inputPin').value;
+    if (pin.length === 6) {
+        document.getElementById('admin').style.display = 'block';
+        document.getElementById('popupPin').style.display = 'none';
+        document.body.classList.add('admin-open');
+        document.querySelectorAll('.btn-delete-product').forEach(b => b.style.display = 'block');
+    }
+};
 
-    initCatalogue();
-    chargerProduits();
-});
+window.handleDeleteProduct = async function(event) {
+    const card = event.target.closest('.product-card');
+    const id = card.getAttribute('data-id');
+    const pin = prompt("Entrez le code PIN :");
+    if (!pin) return;
+    const { error } = await db.rpc('delete_product_secure', { prod_id: id, pin_code: pin });
+    if (!error) {
+        card.style.transform = "scale(0)";
+        setTimeout(() => card.remove(), 300);
+    } else { alert("PIN incorrect"); }
+};
+
+/* ========== AJOUTER PRODUIT ========== */
+const form = document.getElementById('formAjoutProduit');
+if (form) {
+    form.onsubmit = async function(e) {
+        e.preventDefault();
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const file = document.getElementById('imageProduit').files[0];
+        if (!file) return alert("Photo requise");
+        submitBtn.disabled = true;
+        submitBtn.innerText = "⏳ Envoi...";
+        try {
+            const fileName = Date.now() + "-" + file.name;
+            await db.storage.from('product-images').upload(fileName, file);
+            const { data: linkData } = db.storage.from('product-images').getPublicUrl(fileName);
+            await db.from('products').insert([{
+                name: document.getElementById('nomProduit').value,
+                description: document.getElementById('descProduit').value,
+                price: parseFloat(document.getElementById('prixProduit').value),
+                image_url: linkData.publicUrl,
+                category: document.getElementById('categorieProduit').value
+            }]);
+            alert("Produit publié ! ✅");
+            form.reset();
+            document.getElementById('admin').style.display = 'none';
+            chargerProduits();
+        } catch (err) { alert(err.message); } 
+        finally { submitBtn.disabled = false; submitBtn.innerText = "🚀 Publier"; }
+    };
+}
+
+// Aperçu image
+const imgInput = document.getElementById('imageProduit');
+if (imgInput) {
+    imgInput.onchange = function() {
+        const [file] = this.files;
+        if (file) {
+            document.getElementById('preview-container').style.display = 'block';
+            document.getElementById('imagePreview').src = URL.createObjectURL(file);
+        }
+    };
+}
+
+document.addEventListener('DOMContentLoaded', chargerProduits);
