@@ -1,10 +1,7 @@
-/* ========== VARIABLES ========== */
 :root {
     --primary-blue: #0084ff;
-    --dark: #1a1a1a;
-    --white: #ffffff;
     --h-ribbon: 55px;
-    --h-navbar: 60px;
+    --h-navbar: 65px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -16,18 +13,20 @@ body {
     padding-top: calc(var(--h-ribbon) + var(--h-navbar) + 10px); 
 }
 
-/* TEXTE GRAS ET TITRES EN BLEU */
-strong, b, .product-name, .price { color: var(--primary-blue) !important; font-weight: 700; }
-
-/* ESPACEMENT POUR NE PAS COLLER AUX MURS */
-.container, section, .about-content {
-    padding-left: 15px !important;
-    padding-right: 15px !important;
-    max-width: 1200px;
-    margin: 0 auto;
+/* TITRE SOUS LE RUBAN (LOGO) AGRANDI */
+.logo { 
+    font-weight: 800; 
+    color: var(--primary-blue); 
+    text-transform: uppercase; 
+    font-size: 1.3rem !important; /* UN PEU PLUS GRAND */
+    letter-spacing: 1px;
 }
 
-/* ========== 1. RUBAN DÉFILANT ========== */
+strong, b, .price { color: var(--primary-blue) !important; font-weight: 700; }
+
+.container { padding: 0 15px; max-width: 1200px; margin: 0 auto; }
+
+/* RUBAN */
 .category-ribbon-container {
     background: white; border-bottom: 1px solid #eee;
     position: fixed; top: 0; left: 0; right: 0;
@@ -35,83 +34,57 @@ strong, b, .product-name, .price { color: var(--primary-blue) !important; font-w
     display: flex; align-items: center; overflow: hidden;
 }
 .category-ribbon { display: flex; overflow-x: auto; width: 100%; scrollbar-width: none; }
-.category-ribbon::-webkit-scrollbar { display: none; }
 .ribbon-track { display: flex; gap: 10px; padding: 0 15px; animation: scrollRibbon 40s linear infinite; }
-.category-ribbon:active .ribbon-track { animation-play-state: paused !important; }
 @keyframes scrollRibbon { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
 .ribbon-item {
     background: #f0f7ff; color: var(--primary-blue); border: 1px solid var(--primary-blue);
-    padding: 6px 15px; border-radius: 20px; white-space: nowrap; font-size: 13px; font-weight: 600; cursor: pointer;
+    padding: 6px 15px; border-radius: 20px; white-space: nowrap; font-size: 13px; font-weight: 600;
 }
 
-/* ========== 2. NAVBAR ========== */
+/* NAVBAR */
 .navbar {
     position: fixed; top: var(--h-ribbon); left: 0; right: 0;
     height: var(--h-navbar); background: white; z-index: 4900;
     display: flex; justify-content: space-between; align-items: center;
     padding: 0 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
-.logo { font-weight: 800; color: var(--primary-blue); text-transform: uppercase; font-size: 1rem; }
 
-.hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; }
-.hamburger span { width: 25px; height: 3px; background: var(--primary-blue); border-radius: 2px; }
-
-.nav-menu {
-    position: fixed; right: -100%; top: calc(var(--h-ribbon) + var(--h-navbar));
-    width: 70%; height: 100vh; background: white; flex-direction: column;
-    padding: 30px; gap: 20px; transition: 0.4s; box-shadow: -10px 0 20px rgba(0,0,0,0.1); list-style: none; display: flex;
-}
-.nav-menu.active { right: 0; }
-
-/* ========== 3. HERO SECTION BOUTONS ========== */
+/* BOUTONS HERO */
 .hero {
     background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://i.postimg.cc/jjHfHdGY/1780202682425.jpg') center/cover;
-    min-height: 60vh; display: flex; align-items: center; justify-content: center;
+    min-height: 55vh; display: flex; align-items: center; justify-content: center;
     text-align: center; color: white; padding: 20px; border-radius: 20px; margin: 10px;
 }
-.hero-buttons { display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%; margin-top: 20px; }
+.hero-buttons { display: flex; flex-direction: column; gap: 12px; align-items: center; margin-top: 15px; }
 
 .btn-hero {
     background: var(--primary-blue); color: white !important;
-    border: 2px solid #0066cc; padding: 14px 25px; border-radius: 12px;
-    font-weight: 700; text-decoration: none; width: 100%; max-width: 300px; cursor: pointer; transition: 0.3s;
+    border: 2px solid #0066cc; padding: 12px 25px; border-radius: 12px;
+    font-weight: 700; text-decoration: none; width: 100%; max-width: 280px; cursor: pointer;
 }
-.btn-white { background: white; color: var(--primary-blue) !important; border-color: #eee; }
-.btn-hero:hover { transform: scale(1.03); box-shadow: 0 5px 15px rgba(0,132,255,0.3); }
+.btn-white { background: white; color: var(--primary-blue) !important; }
 
-/* ========== 4. CARTES PRODUITS (EFFET 3D + ZOOM) ========== */
-.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding: 15px 0; }
-
+/* CARTES PRODUITS 3D */
 .product-card {
-    background: white; border-radius: 15px; overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #eee;
-    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; height: 100%;
+    background: white; border-radius: 15px; overflow: hidden; margin-bottom: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08); border: 1px solid #eee;
+    transition: 0.3s; position: relative;
 }
-.product-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 40px rgba(0,132,255,0.15); border-color: var(--primary-blue); }
+.product-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,132,255,0.1); }
 
-.product-image { height: 250px; overflow: hidden; }
-.product-image img { width: 100%; height: 100%; object-fit: cover; transition: 0.6s; }
-.product-card:hover .product-image img { transform: scale(1.1); }
+/* TIROIR CATALOGUE */
+.catalogue-drawer { max-width: 400px; margin: 30px auto; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+.catalogue-toggle { width: 100%; padding: 15px; background: var(--primary-blue); color: white; border: none; font-weight: bold; }
+.catalogue-content.active { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; background: #fff; }
 
-.product-body { padding: 15px; text-align: center; }
-
-/* ========== 5. CATALOGUE DU BAS (TIROIR) ========== */
-.catalogue-drawer { max-width: 450px; margin: 40px auto; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #eee; }
-.catalogue-toggle { width: 100%; padding: 15px; background: var(--primary-blue); color: white; border: none; font-weight: bold; cursor: pointer; }
-.catalogue-content { display: none; background: white; padding: 15px; }
-.catalogue-content.active { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.catalogue-content a { padding: 12px; text-decoration: none; color: #444; background: #f8f9fa; border-radius: 10px; text-align: center; font-weight: 600; font-size: 0.85rem; }
-
-/* ========== ADMIN ========== */
-#btnAdmin {
-    position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px;
-    background: rgba(0, 0, 0, 0.2); color: white; border-radius: 50%;
-    border: none; font-size: 24px; z-index: 9999; cursor: pointer;
-}
-
+/* ADMIN */
+#btnAdmin { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; background: rgba(0,0,0,0.2); color: white; border-radius: 50%; border: none; font-size: 24px; z-index: 9999; }
 #popupPin { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; justify-content:center; align-items:center; }
 .popup-content { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 90%; max-width: 320px; }
 
-/* Correction visibilité section */
-.fade-in-section, #produits section { opacity: 1 !important; transform: none !important; visibility: visible !important; }
+/* FORMULAIRE ADMIN STYLE */
+#admin { padding: 40px 15px; background: #f8f9fa; border-radius: 20px; margin: 20px 10px; }
+#formAjoutProduit input, #formAjoutProduit select, #formAjoutProduit textarea {
+    width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #ddd;
+}
