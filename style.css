@@ -1,142 +1,287 @@
-/* ========== CONFIGURATION DE BASE ========== */
+/* ========== CSS VARIABLES & ROOT STYLES ========== */
 :root {
     --primary-blue: #0084ff;
+    --dark-black: #1a1a1a;
+    --light-gray: #f8f9fa;
     --white: #ffffff;
-    --dark: #1a1a1a;
-    /* Hauteurs fixes pour un empilement parfait */
-    --h-banner: 40px;
-    --h-ribbon: 60px;
-    --h-navbar: 60px;
+    --gray-text: #666;
+    --gray-border: #e0e0e0;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+    --shadow-card: 0 4px 12px rgba(0, 132, 255, 0.1);
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    --transition-fast: 0.2s ease-in-out;
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.5s ease-in-out;
 }
 
+/* ========== RESET & BASE STYLES ========== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-
-body { 
-    font-family: 'Poppins', sans-serif; 
-    background-color: #f8f9fa;
-    /* Somme des hauteurs du haut pour que le site commence en dessous */
-    padding-top: calc(var(--h-banner) + var(--h-ribbon) + var(--h-navbar) + 10px); 
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--white);
+    color: var(--dark-black);
+    line-height: 1.6;
+    overflow-x: hidden;
 }
 
-/* TEXTE GRAS ET PRIX EN BLEU */
-strong, b, .price, .product-name { color: var(--primary-blue) !important; font-weight: 700; }
-
-/* ========== 1. BANNIÈRE ROUGE (FIXE TOUT EN HAUT) ========== */
+/* ========== BANNIÈRE ROUGE (TAILLE RÉDUITE) ========== */
 #banner-toit-rouge {
-    background-color: #ff0000;
-    color: white;
-    height: var(--h-banner);
-    position: fixed; top: 0; left: 0; right: 0;
-    z-index: 5000;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: bold; font-size: 13px; text-align: center;
-    padding: 0 10px;
+    background-color: #dc143c;
+    color: var(--white);
+    padding: 6px 15px; /* RÉDUIT : Ancien était 12px 20px */
+    text-align: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 3000;
+    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.2);
+    animation: bannerShow 0.5s ease-out;
+    transition: opacity 0.3s ease-in-out;
+    opacity: 1;
+    font-weight: bold;
+    font-size: 13px; /* RÉDUIT : Ancien était 15px */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* ========== 2. RUBAN CATÉGORIES (SOUS LA BANNIÈRE) ========== */
+#banner-toit-rouge.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+@keyframes bannerShow {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== RUBAN DE CATÉGORIES HORIZONTAL ========== */
 .category-ribbon-container {
-    background: white;
+    background: var(--white);
     border-bottom: 1px solid #eee;
-    height: var(--h-ribbon);
-    position: fixed; top: var(--h-banner); left: 0; right: 0;
-    z-index: 4900;
-    display: flex; align-items: center;
+    padding: 8px 0;
+    position: fixed; /* Fixé en haut */
+    top: 31px; /* Se place juste après la bannière rouge réduite */
+    left: 0;
+    right: 0;
+    z-index: 2500;
     overflow: hidden;
 }
-.category-ribbon { 
-    display: flex; overflow-x: auto; width: 100%; scrollbar-width: none; 
-    -webkit-overflow-scrolling: touch;
-}
-.category-ribbon::-webkit-scrollbar { display: none; }
 
-.ribbon-track { display: flex; gap: 10px; padding: 0 15px; animation: scrollRibbon 40s linear infinite; }
-.category-ribbon:active .ribbon-track { animation-play-state: paused; }
-@keyframes scrollRibbon { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.category-ribbon {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none; /* Cache la barre Firefox */
+    cursor: grab;
+}
+
+.category-ribbon::-webkit-scrollbar {
+    display: none; /* Cache la barre Chrome/Safari */
+}
+
+.ribbon-track {
+    display: flex;
+    gap: 12px;
+    padding: 0 15px;
+    animation: scrollRibbon 40s linear infinite;
+}
+
+.category-ribbon:hover .ribbon-track,
+.category-ribbon:active .ribbon-track {
+    animation-play-state: paused;
+}
+
+@keyframes scrollRibbon {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
 
 .ribbon-item {
-    background: #f0f7ff; color: var(--primary-blue); border: 1px solid #cce5ff;
-    padding: 6px 15px; border-radius: 20px; white-space: nowrap;
-    font-size: 13px; font-weight: 600; cursor: pointer;
+    background: #f0f7ff;
+    color: var(--primary-blue);
+    border: 1px solid #cce5ff;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* ========== 3. NAVBAR (SOUS LE RUBAN) ========== */
+.ribbon-item:hover {
+    background: var(--primary-blue);
+    color: var(--white);
+    transform: scale(1.05);
+}
+
+/* ========== NAVBAR / HEADER ========== */
 .navbar {
-    position: fixed; top: calc(var(--h-banner) + var(--h-ribbon)); left: 0; right: 0;
-    height: var(--h-navbar); background: white; z-index: 4800;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 78px; /* Somme des hauteurs Bannière + Ruban */
+    z-index: 2000;
+    background-color: var(--white);
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px var(--spacing-lg);
+    transition: box-shadow var(--transition-smooth);
 }
-.logo { font-weight: 800; color: var(--primary-blue); text-transform: uppercase; font-size: 0.9rem; }
 
-/* Menu Mobile tiroir */
-.nav-menu {
-    position: fixed; right: -100%; top: calc(var(--h-banner) + var(--h-ribbon) + var(--h-navbar));
-    width: 70%; height: 100vh; background: white; flex-direction: column;
-    padding: 20px; gap: 20px; transition: 0.4s; box-shadow: -5px 10px 15px rgba(0,0,0,0.1);
-    list-style: none; display: flex;
+.logo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    text-transform: lowercase;
 }
-.nav-menu.active { right: 0; }
-.nav-menu a { text-decoration: none; color: var(--dark); font-weight: 600; font-size: 1.1rem; }
 
-.hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; }
-.hamburger span { width: 25px; height: 3px; background: var(--primary-blue); border-radius: 2px; }
-
-/* ========== 4. HERO SECTION & BOUTONS ========== */
+/* ========== HERO SECTION ========== */
 .hero {
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://i.postimg.cc/jjHfHdGY/1780202682425.jpg') center/cover;
-    min-height: 50vh; display: flex; align-items: center; justify-content: center;
-    text-align: center; color: white; padding: 20px; border-radius: 15px; margin: 10px;
+    background: linear-gradient(135deg, rgba(26, 26, 26, 0.6) 0%, rgba(0, 132, 255, 0.6) 100%), 
+                url('https://i.postimg.cc/jjHfHdGY/1780202682425.jpg') center/cover no-repeat;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--white);
+    margin-top: 78px; /* Espace pour les éléments fixes */
 }
-.hero-buttons { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; margin-top: 15px; }
 
-.btn {
-    padding: 12px 25px; border-radius: 30px; border: 2px solid var(--primary-blue);
-    background: var(--primary-blue); color: white; font-weight: 600;
-    cursor: pointer; transition: 0.3s; width: 100%; max-width: 280px; text-decoration: none;
+/* ========== CONTAINER & GRID ========== */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
 }
-.btn-secondary { background: white; color: var(--primary-blue); }
-.btn:hover { transform: scale(1.03); box-shadow: 0 5px 15px rgba(0,132,255,0.3); }
 
-/* ========== 5. PRODUITS (LOOK 3D & ZOOM) ========== */
-.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding: 15px; }
+/* ========== PRODUITS & CARTES 3D ========== */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-lg);
+    padding: var(--spacing-md) 0;
+}
 
 .product-card {
-    background: white; border-radius: 15px; overflow: hidden;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.08); border: 1px solid #eee;
-    transition: 0.3s ease; position: relative; height: 100%;
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1), 0 6px 6px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
-.product-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,132,255,0.15); }
 
-.product-image { height: 250px; width: 100%; overflow: hidden; }
-.product-image img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-.product-card:hover .product-image img { transform: scale(1.1); }
+.product-card:hover {
+    transform: translateY(-10px) scale(1.02) !important;
+    box-shadow: 0 15px 30px rgba(0, 132, 255, 0.2) !important;
+}
 
-.product-body { padding: 15px; text-align: center; }
+.product-image {
+    height: 250px;
+    overflow: hidden;
+    background: #f0f0f0;
+}
 
-/* BOUTON SUPPRIMER X (ROUGE) */
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-image img {
+    transform: scale(1.1);
+}
+
+.product-body { padding: var(--spacing-md); flex-grow: 1; display: flex; flex-direction: column; }
+.product-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; }
+.product-price { color: var(--primary-blue); font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; }
+
+/* ========== BOUTONS & ADMIN ========== */
+.btn {
+    padding: 10px 24px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: var(--primary-blue);
+    color: var(--white);
+    text-decoration: none;
+    transition: 0.3s;
+}
+
 .btn-delete-product {
-    position: absolute; top: 10px; right: 10px;
-    background: #ff0000 !important; color: white !important;
-    border: none; width: 30px; height: 30px; border-radius: 50%;
-    cursor: pointer; z-index: 10; font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ff4444 !important;
+    color: white !important;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 10;
+    display: none;
 }
 
-/* ========== 6. EXPLORER PAR CATÉGORIE (BAS) ========== */
-.catalogue-drawer { max-width: 400px; margin: 30px auto; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border: 1px solid #ddd; }
-.catalogue-toggle { width: 100%; padding: 15px; background: var(--primary-blue); color: white; border: none; font-weight: bold; cursor: pointer; }
-.catalogue-content { display: none; background: white; padding: 10px; }
-.catalogue-content.active { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.catalogue-link { padding: 10px; text-decoration: none; color: #444; background: #f9f9f9; border-radius: 8px; text-align: center; font-size: 0.8rem; }
-
-/* ========== ADMIN & DIVERS ========== */
 #btnAdmin {
-    position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px;
-    background: rgba(0, 0, 0, 0.2); color: white; border-radius: 50%;
-    border: none; font-size: 24px; z-index: 9999; cursor: pointer;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #333;
+    color: white;
+    border: none;
+    font-size: 24px;
+    z-index: 4000;
+    opacity: 0.6;
 }
-#popupPin { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; justify-content:center; align-items:center; }
-.popup-content { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 90%; max-width: 320px; }
 
-/* Correction Marges Texte */
-.container, section, .about-content { padding-left: 15px !important; padding-right: 15px !important; }
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 768px) {
+    #banner-toit-rouge { font-size: 12px; }
+    .category-ribbon-container { top: 29px; }
+    .navbar { top: 74px; }
+    .hero { margin-top: 74px; }
+    
+    .nav-menu {
+        position: fixed;
+        left: -100%;
+        top: 120px;
+        flex-direction: column;
+        background: white;
+        width: 100%;
+        padding: 20px;
+        box-shadow: var(--shadow-lg);
+    }
+    .nav-menu.active { left: 0; }
+    .hamburger { display: flex; }
+}
+
+/* ========== PATCH VISIBILITÉ FINALE ========== */
+.fade-in-section, #produits section {
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+}
