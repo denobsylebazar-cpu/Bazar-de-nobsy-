@@ -4,6 +4,22 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+/* ========== MENU HAMBURGER ========== */
+window.toggleMenu = function() {
+    const menu = document.getElementById('navMenu');
+    if (menu) {
+        menu.classList.toggle('active');
+    }
+};
+
+/* ========== CATALOGUE DU BAS (DRAWER) ========== */
+window.toggleCatalogue = function() {
+    const content = document.getElementById('catContent');
+    if (content) {
+        content.classList.toggle('active');
+    }
+};
+
 /* ========== CHARGEMENT ET TRI DES SECTIONS ========== */
 async function chargerProduits() {
     console.log("Mise à jour du catalogue...");
@@ -42,6 +58,7 @@ async function chargerProduits() {
         const gridElement = document.getElementById(targetId);
         if (gridElement) {
             const showX = document.body.classList.contains('admin-open') ? 'block' : 'none';
+            // Note : On utilise <strong> pour que le prix soit BLEU via le CSS
             gridElement.insertAdjacentHTML('beforeend', `
                 <div class="product-card" data-id="${product.id}">
                     <button class="btn-delete-product" style="display: ${showX}" onclick="handleDeleteProduct(event)">✕</button>
@@ -76,12 +93,6 @@ async function chargerProduits() {
     });
 }
 
-/* ========== CATALOGUE DU BAS (DRAWER) ========== */
-window.toggleCatalogue = function() {
-    const content = document.getElementById('catContent');
-    if (content) content.classList.toggle('active');
-};
-
 /* ========== FILTRAGE PAR CATÉGORIE ========== */
 window.filterByCategory = function(cat) {
     const ids = ['pop','jeuxvideo','livre','film','decoration','vaisselle','bijoux','jeux','peluche','vetement','maquillage','lumiere'];
@@ -93,16 +104,28 @@ window.filterByCategory = function(cat) {
     const selected = document.getElementById(cat);
     if (selected) {
         selected.style.display = 'block';
-        // Scroll avec offset pour ne pas être caché par le ruban
-        window.scrollTo({ top: selected.offsetTop - 120, behavior: 'smooth' });
+        // Scroll avec un décalage (offset) pour ne pas être caché par le menu fixe
+        const offset = 160; 
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = selected.getBoundingClientRect().top;
+        const elementPosition = elementRect - bodyRect;
+        const offsetPosition = elementPosition - offset;
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
     }
     
     document.getElementById('category-back-button').style.display = 'block';
     document.getElementById('default-title').style.display = 'none';
     
-    // Fermer le catalogue du bas si ouvert
-    const content = document.getElementById('catContent');
-    if (content) content.classList.remove('active');
+    // Fermer les menus après sélection
+    const navMenu = document.getElementById('navMenu');
+    if (navMenu) navMenu.classList.remove('active');
+    
+    const catContent = document.getElementById('catContent');
+    if (catContent) catContent.classList.remove('active');
 };
 
 window.showAllCategories = function() {
@@ -126,10 +149,12 @@ if (form) {
 
         try {
             const fileName = Date.now() + "-" + file.name;
-            await db.storage.from('product-images').upload(fileName, file);
+            const { error: uploadError } = await db.storage.from('product-images').upload(fileName, file);
+            if (uploadError) throw uploadError;
+
             const { data: linkData } = db.storage.from('product-images').getPublicUrl(fileName);
 
-            await db.from('products').insert([{
+            const { error: insertError } = await db.from('products').insert([{
                 name: document.getElementById('nomProduit').value,
                 description: document.getElementById('descProduit').value,
                 price: parseFloat(document.getElementById('prixProduit').value),
@@ -137,13 +162,21 @@ if (form) {
                 category: document.getElementById('categorieProduit').value
             }]);
 
+            if (insertError) throw insertError;
+
             alert("Produit publié ! ✅");
             form.reset();
             document.getElementById('preview-container').style.display = 'none';
             document.getElementById('admin').style.display = 'none';
+            document.body.classList.remove('admin-open');
             chargerProduits();
-        } catch (err) { alert(err.message); } 
-        finally { submitBtn.disabled = false; submitBtn.innerText = "🚀 Publier"; }
+
+        } catch (err) {
+            alert("Erreur : " + err.message);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "🚀 Publier le produit";
+        }
     };
 }
 
@@ -154,40 +187,54 @@ window.verifierPin = function() {
         document.getElementById('admin').style.display = 'block';
         document.getElementById('popupPin').style.display = 'none';
         document.body.classList.add('admin-open');
+        // Afficher les boutons X sur les produits existants
         document.querySelectorAll('.btn-delete-product').forEach(b => b.style.display = 'block');
         document.getElementById('admin').scrollIntoView({behavior: 'smooth'});
+    } else {
+        alert("Code PIN invalide");
     }
 };
 
-window.fermerPin = function() { document.getElementById('popupPin').style.display = 'none'; };
+window.fermerPin = function() {
+    document.getElementById('popupPin').style.display = 'none';
+};
 
 window.handleDeleteProduct = async function(event) {
     const card = event.target.closest('.product-card');
     const id = card.getAttribute('data-id');
-    const pin = prompt("Entrez le code PIN pour supprimer :");
+    const pin = prompt("Entrez le code PIN pour confirmer la suppression :");
     if (!pin) return;
 
-    const { error } = await db.rpc('delete_product_secure', { prod_id: id, pin_code: pin });
-    if (error) { alert("PIN incorrect"); } 
-    else { card.style.transform = "scale(0)"; setTimeout(() => card.remove(), 300); }
+    // Appel à la fonction RPC sécurisée de Supabase
+    const { error } = await db.rpc('delete_product_secure', { 
+        prod_id: id, 
+        pin_code: pin 
+    });
+
+    if (error) {
+        alert("PIN incorrect ou erreur de suppression");
+    } else {
+        card.style.transition = "0.4s";
+        card.style.transform = "scale(0) rotate(15deg)";
+        card.style.opacity = "0";
+        setTimeout(() => { card.remove(); }, 400);
+    }
 };
 
 /* ========== INITIALISATION ========== */
 document.addEventListener('DOMContentLoaded', () => {
-    const btnAdmin = document.getElementById('btnAdmin');
-    if (btnAdmin) btnAdmin.onclick = () => document.getElementById('popupPin').style.display = 'flex';
-    
-    const backBtn = document.getElementById('backToCatalogBtn');
-    if (backBtn) backBtn.onclick = showAllCategories;
-
-    // Aperçu image
+    // Aperçu de l'image lors du choix du fichier
     const imgInput = document.getElementById('imageProduit');
     if (imgInput) {
         imgInput.onchange = function() {
             const [file] = this.files;
             if (file) {
-                document.getElementById('preview-container').style.display = 'block';
-                document.getElementById('imagePreview').src = URL.createObjectURL(file);
+                const previewContainer = document.getElementById('preview-container');
+                const previewImg = document.getElementById('imagePreview');
+                if (previewContainer && previewImg) {
+                    previewContainer.style.display = 'block';
+                    previewImg.src = URL.createObjectURL(file);
+                }
             }
         };
     }
