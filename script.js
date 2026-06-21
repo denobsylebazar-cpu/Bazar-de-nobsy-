@@ -1,27 +1,18 @@
+// 1. CONFIGURATION SUPABASE
 const SUPABASE_URL = 'https://ghcaswgaghkzvyvmzkyb.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdoY2Fzd2dhZ2hrenZ5dm16a3liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MzUzMTUsImV4cCI6MjA5NzAxMTMxNX0.xwuTKMah1y1C2TkAqiKEe288UrfvY8DK_TyLauAKWB4';
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* ========== ADMIN : APPARITION FORMULAIRE ========== */
-window.verifierPin = function() {
-    const pin = document.getElementById('inputPin').value;
-    if (pin === "200611") {
-        // AFFICHE LE FORMULAIRE DIRECTEMENT
-        const adminSection = document.getElementById('admin');
-        adminSection.style.display = 'block';
-        
-        // CACHE LE POPUP
-        document.getElementById('popupPin').style.display = 'none';
-        
-        // ACTIVE LES BOUTONS SUPPRIMER
-        document.body.classList.add('admin-open');
-        document.querySelectorAll('.btn-delete-product').forEach(b => b.style.display = 'block');
-        
-        // DÉFILEMENT VERS LE FORMULAIRE
-        adminSection.scrollIntoView({ behavior: 'smooth' });
-    } else {
-        alert("PIN incorrect");
-    }
+/* ========== MENU MOBILE ========== */
+window.toggleMenu = function() {
+    const menu = document.getElementById('navMenu');
+    if (menu) menu.classList.toggle('active');
+};
+
+/* ========== TIROIR CATALOGUE ========== */
+window.toggleCatalogue = function() {
+    const content = document.getElementById('catContent');
+    if (content) content.classList.toggle('active');
 };
 
 /* ========== CHARGEMENT & TRI ========== */
@@ -58,7 +49,7 @@ async function chargerProduits() {
                     <div class="product-body">
                         <h3 class="product-name">${product.name}</h3>
                         <p class="product-description">${product.description}</p>
-                        <p class="product-price"><strong>${product.price}$</strong></p>
+                        <p class="product-price"><strong class="price">${product.price}$</strong></p>
                         <button class="btn-hero" style="max-width:100%;" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">Commander</button>
                     </div>
                 </div>`);
@@ -78,32 +69,55 @@ async function chargerProduits() {
     });
 }
 
-/* ========== AUTRES FONCTIONS ========== */
-window.toggleMenu = function() { document.getElementById('navMenu').classList.toggle('active'); };
-window.toggleCatalogue = function() { document.getElementById('catContent').classList.toggle('active'); };
-
+/* ========== FILTRES ========== */
 window.filterByCategory = function(cat) {
     const ids = ['pop','jeuxvideo','livre','film','decoration','vaisselle','bijoux','jeux','peluche','vetement','maquillage','lumiere'];
-    ids.forEach(id => { const s = document.getElementById(id); if (s) s.style.display = 'none'; });
+    ids.forEach(id => {
+        const s = document.getElementById(id);
+        if (s) s.style.display = 'none';
+    });
+
     const selected = document.getElementById(cat);
     if (selected) {
         selected.style.display = 'block';
         window.scrollTo({ top: selected.offsetTop - 130, behavior: 'smooth' });
     }
+    
+    document.getElementById('category-back-button').style.display = 'block';
+    document.getElementById('default-title').style.display = 'none';
     if (document.getElementById('catContent')) document.getElementById('catContent').classList.remove('active');
+};
+
+window.showAllCategories = function() {
+    chargerProduits();
+    document.getElementById('category-back-button').style.display = 'none';
+    document.getElementById('default-title').style.display = 'block';
+};
+
+/* ========== ADMIN ========== */
+window.verifierPin = function() {
+    const pin = document.getElementById('inputPin').value;
+    if (pin.length === 6) {
+        document.getElementById('admin').style.display = 'block';
+        document.getElementById('popupPin').style.display = 'none';
+        document.body.classList.add('admin-open');
+        document.querySelectorAll('.btn-delete-product').forEach(b => b.style.display = 'block');
+    }
 };
 
 window.handleDeleteProduct = async function(event) {
     const card = event.target.closest('.product-card');
     const id = card.getAttribute('data-id');
-    const pin = prompt("Code PIN :");
-    if (pin === "200611") {
-        const { error } = await db.rpc('delete_product_secure', { prod_id: id, pin_code: pin });
-        if (!error) card.remove();
-    }
+    const pin = prompt("Entrez le code PIN :");
+    if (!pin) return;
+    const { error } = await db.rpc('delete_product_secure', { prod_id: id, pin_code: pin });
+    if (!error) {
+        card.style.transform = "scale(0)";
+        setTimeout(() => card.remove(), 300);
+    } else { alert("PIN incorrect"); }
 };
 
-/* ========== AJOUT PRODUIT ========== */
+/* ========== AJOUTER PRODUIT ========== */
 const form = document.getElementById('formAjoutProduit');
 if (form) {
     form.onsubmit = async function(e) {
@@ -124,11 +138,11 @@ if (form) {
                 image_url: linkData.publicUrl,
                 category: document.getElementById('categorieProduit').value
             }]);
-            alert("Publié ! ✅");
+            alert("Produit publié ! ✅");
             form.reset();
             document.getElementById('admin').style.display = 'none';
             chargerProduits();
-        } catch (err) { alert("Erreur"); } 
+        } catch (err) { alert(err.message); } 
         finally { submitBtn.disabled = false; submitBtn.innerText = "🚀 Publier"; }
     };
 }
