@@ -3,10 +3,12 @@
     --primary-blue: #0084ff;
     --dark-black: #1a1a1a;
     --white: #ffffff;
-    --shadow-3d: 0 12px 25px rgba(0,0,0,0.12), 0 8px 10px rgba(0,0,0,0.08);
+    --shadow-pro: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-hover: 0 12px 24px rgba(0,132,255,0.12);
     
+    /* Hauteurs pour l'empilement */
     --h-banner: 35px;
-    --h-ribbon: 55px;
+    --h-ribbon: 50px;
     --h-navbar: 60px;
 }
 
@@ -15,26 +17,27 @@ html { scroll-behavior: smooth; }
 
 body { 
     font-family: 'Poppins', sans-serif; 
-    background-color: var(--white);
-    /* Empilement du haut */
+    background-color: #fcfcfc;
+    color: var(--dark-black);
+    /* Espace total du haut pour ne rien cacher */
     padding-top: calc(var(--h-banner) + var(--h-ribbon) + var(--h-navbar) + 10px); 
 }
 
-/* Texte en gras en Bleu */
-strong, b, .product-name { color: var(--primary-blue) !important; font-weight: 700; }
+/* Texte en gras et noms de produits en BLEU */
+strong, b, .product-name { color: var(--primary-blue) !important; font-weight: 600; }
 
-/* Marges près du mur mais pas collées (12px au lieu de 20px) */
+/* Marges propres (Près du mur mais avec un petit espace de 10px) */
 .container, section, .about-content {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
     max-width: 1200px;
     margin: 0 auto;
 }
 
-/* ========== TITRES AGRANDIS ========== */
-h1 { font-size: 2.2rem !important; margin-bottom: 15px; }
-h2.section-title { font-size: 2rem !important; margin-bottom: 20px; }
-h3 { font-size: 1.6rem !important; margin: 20px 0; }
+/* ========== TITRES (TAILLE NORMALE PRO) ========== */
+h1 { font-size: 1.6rem !important; }
+h2.section-title { font-size: 1.5rem !important; margin: 20px 0; text-align: center; }
+h3 { font-size: 1.2rem !important; margin: 15px 0; color: #444; border-left: 4px solid var(--primary-blue); padding-left: 10px; }
 
 /* ========== 1. BANNIÈRE ROUGE ========== */
 #banner-toit-rouge {
@@ -44,7 +47,7 @@ h3 { font-size: 1.6rem !important; margin: 20px 0; }
     position: fixed; top: 0; left: 0; right: 0;
     z-index: 5000;
     display: flex; align-items: center; justify-content: center;
-    font-weight: bold; font-size: 13px;
+    font-weight: bold; font-size: 12px;
 }
 
 /* ========== 2. RUBAN CATÉGORIES ========== */
@@ -59,14 +62,14 @@ h3 { font-size: 1.6rem !important; margin: 20px 0; }
 }
 .category-ribbon { display: flex; overflow-x: auto; width: 100%; scrollbar-width: none; }
 .category-ribbon::-webkit-scrollbar { display: none; }
-.ribbon-track { display: flex; gap: 10px; padding: 0 15px; animation: scrollRibbon 40s linear infinite; }
+.ribbon-track { display: flex; gap: 8px; padding: 0 10px; animation: scrollRibbon 40s linear infinite; }
 .category-ribbon:active .ribbon-track { animation-play-state: paused !important; }
 @keyframes scrollRibbon { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
 .ribbon-item {
-    background: #f0f7ff; color: var(--primary-blue); border: 1px solid #cce5ff;
-    padding: 7px 18px; border-radius: 20px; white-space: nowrap;
-    font-size: 14px; font-weight: 600; cursor: pointer;
+    background: #f8f9fa; color: #555; border: 1px solid #ddd;
+    padding: 5px 12px; border-radius: 15px; white-space: nowrap;
+    font-size: 13px; font-weight: 500; cursor: pointer;
 }
 
 /* ========== 3. NAVBAR ========== */
@@ -74,73 +77,71 @@ h3 { font-size: 1.6rem !important; margin: 20px 0; }
     position: fixed; top: calc(var(--h-banner) + var(--h-ribbon)); left: 0; right: 0;
     height: var(--h-navbar); background: white; z-index: 4800;
     display: flex; justify-content: space-between; align-items: center;
-    padding: 0 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    padding: 0 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.03);
 }
-.logo { font-weight: 800; color: var(--primary-blue); text-transform: uppercase; font-size: 1.2rem; }
+.logo { font-weight: 700; color: var(--primary-blue); text-transform: uppercase; font-size: 0.95rem; }
 
-/* ========== 4. CARTES PRODUITS AGRANDIES (EFFET 3D + CADRE) ========== */
+/* ========== 4. CARTES PRODUITS (LOOK PRO & CADRE) ========== */
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Plus large */
-    gap: 20px;
-    padding: 15px 0;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* Taille standard */
+    gap: 15px;
+    padding: 10px 0;
 }
 .product-card {
     background: white;
-    border-radius: 18px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: var(--shadow-3d);
-    border: 2px solid #eee; /* Encadrement bien visible */
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid #e0e0e0; /* Encadrement fin et pro */
+    box-shadow: var(--shadow-pro);
+    transition: all 0.3s ease;
     position: relative;
     height: 100%;
 }
 .product-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    border-color: var(--primary-blue); /* Le cadre devient bleu au survol */
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--primary-blue);
 }
 
-.product-image { height: 280px; width: 100%; overflow: hidden; } /* Image plus grande */
-.product-image img { width: 100%; height: 100%; object-fit: cover; transition: 0.6s; }
-.product-card:hover .product-image img { transform: scale(1.1); }
+.product-image { height: 220px; width: 100%; overflow: hidden; background: #fdfcfc; }
+.product-image img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+.product-card:hover .product-image img { transform: scale(1.08); }
 
-.product-body { padding: 20px; text-align: center; }
-.product-name { font-size: 1.4rem !important; margin-bottom: 10px; } /* Titre produit plus grand */
-.price { color: var(--primary-blue); font-size: 1.6rem; font-weight: 800; margin-bottom: 15px; display: block; }
+.product-body { padding: 15px; text-align: center; }
+.product-name { font-size: 1.1rem !important; margin-bottom: 5px; display: block; }
+.price { color: var(--primary-blue); font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; display: block; }
 
-/* BOUTON SUPPRIMER X (ROUGE) */
+/* BOUTON SUPPRIMER X (ROUGE VIF) */
 .btn-delete-product {
-    position: absolute; top: 12px; right: 12px;
-    background: #ff0000 !important; /* ROUGE */
+    position: absolute; top: 8px; right: 8px;
+    background: #ff0000 !important;
     color: white !important;
-    border: none; width: 35px; height: 35px;
+    border: none; width: 28px; height: 28px;
     border-radius: 50%; font-weight: bold; cursor: pointer;
-    z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 10; font-size: 12px;
 }
 
 /* ========== 5. HERO SECTION ========== */
 .hero {
     background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://i.postimg.cc/jjHfHdGY/1780202682425.jpg') center/cover;
-    min-height: 60vh; display: flex; align-items: center; justify-content: center;
-    text-align: center; color: white; padding: 20px; border-radius: 20px; margin: 0 5px 30px 5px;
+    min-height: 50vh; display: flex; align-items: center; justify-content: center;
+    text-align: center; color: white; padding: 20px; border-radius: 15px; margin: 0 5px 25px 5px;
 }
 
 /* ========== 6. ADMIN (TRANSPARENT) ========== */
 #btnAdmin {
-    position: fixed; bottom: 20px; right: 20px;
-    width: 55px; height: 55px;
-    background: rgba(0, 0, 0, 0.3) !important; /* TRANSPARENT COMME AVANT */
-    color: white; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.2);
-    font-size: 24px; cursor: pointer; z-index: 9999;
-    transition: 0.3s;
+    position: fixed; bottom: 15px; right: 15px;
+    width: 45px; height: 45px;
+    background: rgba(0, 0, 0, 0.25) !important; /* Discret et transparent */
+    color: white; border-radius: 50%; border: none;
+    font-size: 20px; cursor: pointer; z-index: 9999;
 }
-#btnAdmin:hover { background: rgba(0, 0, 0, 0.6) !important; }
 
 /* CATALOGUE DU BAS */
-.catalogue-drawer { max-width: 500px; margin: 30px auto; border-radius: 15px; overflow: hidden; box-shadow: var(--shadow-3d); }
-.catalogue-toggle { width: 100%; padding: 15px; background: var(--primary-blue); color: white; border: none; font-weight: bold; cursor: pointer; }
-.catalogue-content.active { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+.catalogue-drawer { max-width: 450px; margin: 30px auto; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-pro); }
+.catalogue-toggle { width: 100%; padding: 12px; background: var(--primary-blue); color: white; border: none; font-weight: 600; cursor: pointer; }
+.catalogue-content.active { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
 
 /* FIX VISIBILITÉ */
 .fade-in-section, #produits section { opacity: 1 !important; transform: none !important; visibility: visible !important; }
