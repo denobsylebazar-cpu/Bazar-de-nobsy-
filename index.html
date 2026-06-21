@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le bazar de Nobsy | Bons deals & Articles variés à Joliette</title>
-    <meta name="description" content="Découvrez les meilleurs deals à Joliette au bazar de Nobsy. Figurines Pop, jeux vidéo, livres, bijoux et déco à petits prix.">
+    <title>Le bazar de Nobsy | Joliette</title>
     <meta name="google-site-verification" content="IroNbFQ_1fITWkuZcoufSlIxAJ4PVPz7RKwwr_o6Gqo" />
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -14,7 +12,7 @@
 </head>
 <body>
 
-    <!-- 1. RUBAN DE CATÉGORIES HORIZONTAL (FIXÉ EN HAUT) -->
+    <!-- RUBAN DÉFILANT -->
     <div class="category-ribbon-container">
         <div class="category-ribbon">
             <div class="ribbon-track">
@@ -30,14 +28,11 @@
                 <button class="ribbon-item" onclick="filterByCategory('vetement')">👕 Habits</button>
                 <button class="ribbon-item" onclick="filterByCategory('maquillage')">💄 Beauté</button>
                 <button class="ribbon-item" onclick="filterByCategory('lumiere')">💡 Lumière</button>
-                <!-- Copies pour boucle -->
-                <button class="ribbon-item" onclick="filterByCategory('pop')">🧸 Pop</button>
-                <button class="ribbon-item" onclick="filterByCategory('jeuxvideo')">🎮 Jeux Vidéo</button>
             </div>
         </div>
     </div>
 
-    <!-- 2. NAVBAR AVEC MENU HAMBURGER -->
+    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="logo">le bazar de nobsy</div>
         <div class="hamburger" onclick="toggleMenu()">
@@ -46,25 +41,22 @@
         <ul class="nav-menu" id="navMenu">
             <li><a href="#accueil" onclick="toggleMenu()">Accueil</a></li>
             <li><a href="#produits" onclick="toggleMenu()">Produits</a></li>
-            <li><a href="#catalogue" onclick="toggleMenu()">Catalogue</a></li>
-            <li><a href="#contact" onclick="toggleMenu()">Contact</a></li>
+            <li><a href="#contact" onclick="toggleMenu()">Localisation</a></li>
         </ul>
     </nav>
 
-    <!-- 3. HERO SECTION (BOUTONS RÉPARÉS) -->
     <header id="accueil" class="hero">
         <div class="hero-content">
             <h1>Bienvenue au Bazar de Nobsy</h1>
-            <p class="hero-subtitle">Les meilleurs deals et articles variés à Joliette, Québec</p>
+            <p class="hero-subtitle">Les meilleurs deals à Joliette, Québec</p>
             <div class="hero-buttons">
                 <button class="btn-hero" onclick="document.getElementById('produits').scrollIntoView({behavior:'smooth'})">Voir les produits</button>
                 <button class="btn-hero btn-white" onclick="window.open('https://www.facebook.com/share/g/18YTkXrkvB/')">Rejoindre le Live</button>
-                <button class="btn-hero" onclick="window.open('https://ruinsnradz.servegame.com/')">Partenariat Ruins'n Radz</button>
             </div>
         </div>
     </header>
 
-    <!-- FORMULAIRE ADMIN -->
+    <!-- FORMULAIRE ADMIN (Apparaît après le code PIN) -->
     <section id="admin" style="display:none;">
         <div class="container">
             <h2 class="section-title">Ajouter un produit</h2>
@@ -72,7 +64,7 @@
                 <input type="text" id="nomProduit" placeholder="Nom du produit" required>
                 <textarea id="descProduit" placeholder="Description" rows="3" required></textarea>
                 <input type="number" id="prixProduit" placeholder="Prix $" step="0.01" required>
-                <label style="font-weight:bold; color: #0084ff;">📷 Photo :</label>
+                <label style="font-weight:bold; color: #0084ff;">📷 Choisir une photo :</label>
                 <input type="file" id="imageProduit" accept="image/*" required>
                 <div id="preview-container" style="display:none; text-align:center; margin-bottom:10px;">
                     <img id="imagePreview" src="" style="max-width:100px; border-radius:10px; border:2px solid #0084ff;">
@@ -97,24 +89,10 @@
         </div>
     </section>
 
-    <!-- SECTION À PROPOS -->
-    <section id="about">
-        <div class="container">
-            <h2 class="section-title">Le bazar de Nobsy à Joliette</h2>
-            <div class="about-content">
-                <p>Bonjour ! Bienvenue sur le site du <b>bazar de Nobsy</b>. Découvrez nos <b>figurines Pop</b>, nos <b>livres</b>, nos <b>jeux vidéo</b> et nos articles de décoration à prix imbattables.</p>
-            </div>
-        </div>
-    </section>
-    
-    <!-- SECTION PRODUITS -->
+    <!-- PRODUITS -->
     <section id="produits">
         <div class="container">
-            <div id="category-back-button" style="display:none; text-align:center; margin-bottom:20px;">
-                <button class="btn-hero btn-white" onclick="showAllCategories()">← Retour au catalogue</button>
-            </div>
             <h2 id="default-title" class="section-title">Nos Articles</h2>
-            
             <div id="pop"><h3>🧸 Pop et figurine</h3><div class="products-grid" id="grid-pop"></div></div>
             <div id="jeuxvideo"><h3>🎮 Jeux vidéo</h3><div class="products-grid" id="grid-jeuxvideo"></div></div>
             <div id="livre"><h3>📚 Livres</h3><div class="products-grid" id="grid-livre"></div></div>
@@ -130,7 +108,7 @@
         </div>
     </section>
 
-    <!-- CATALOGUE DU BAS (TIROIR) -->
+    <!-- CATALOGUE TIROIR -->
     <section id="catalogue">
         <div class="container">
             <div class="catalogue-drawer">
@@ -146,27 +124,41 @@
                     <a href="javascript:void(0)" onclick="filterByCategory('jeux')">🧩 Jeux</a>
                     <a href="javascript:void(0)" onclick="filterByCategory('peluche')">🧸 Peluches</a>
                     <a href="javascript:void(0)" onclick="filterByCategory('vetement')">👕 Habits</a>
-                    <a href="javascript:void(0)" onclick="filterByCategory('maquillage')">💄 Beauté</a>
-                    <a href="javascript:void(0)" onclick="filterByCategory('lumiere')">💡 Lumière</a>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer style="text-align:center; padding: 20px; background:#333; color:white;">
+    <!-- NOUVELLE SECTION LOCALISATION -->
+    <section id="contact" style="padding: 40px 0; background: #fff;">
+        <div class="container">
+            <h2 class="section-title">Notre Localisation</h2>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <p>📍 <b>Lieu :</b> Joliette, Québec, Canada</p>
+                <p>🚚 <b>Livraison :</b> Disponible dans les environs !</p>
+                <br>
+                <button class="btn-hero" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">💬 Nous contacter sur Messenger</button>
+            </div>
+            <div style="width: 100%; height: 350px; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border: 2px solid #eee;">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2793.5828456428615!2d-73.4418!3d46.0229!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cc9e3a5b8c00000%3A0x0!2zNDbCsDAxJzIyLjQiTiA3M8KwMjYnMzAuNSJX!5e0!3m2!1sfr!2sca!4v1718950000000!5m2!1sfr!2sca" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <footer style="text-align:center; padding: 30px; background:#333; color:white;">
         <p>&copy; 2026 Le bazar de Nobsy - Joliette.</p>
     </footer>
 
-    <!-- Admin -->
+    <!-- BOUTON ADMIN -->
     <button id="btnAdmin" onclick="document.getElementById('popupPin').style.display='flex'">⚙️</button>
 
     <div id="popupPin">
         <div class="popup-content">
-            <h3 style="color:#0084ff; margin-bottom:15px;">Admin</h3>
-            <input type="password" id="inputPin" placeholder="PIN" maxlength="6" style="width:100%; padding:12px; text-align:center; font-size:20px; border-radius:10px; border:1px solid #ddd; margin-bottom:15px;">
+            <h3 style="color:#0084ff; margin-bottom:15px;">Accès Admin</h3>
+            <input type="password" id="inputPin" placeholder="Entrez le PIN" maxlength="6" style="width:100%; padding:12px; text-align:center; font-size:20px; border-radius:10px; border:1px solid #ddd; margin-bottom:15px;">
             <div style="display:flex; gap:10px;">
                 <button class="btn-hero" style="flex:1" onclick="verifierPin()">Entrer</button>
-                <button class="btn-hero btn-white" style="flex:1" onclick="document.getElementById('popupPin').style.display='none'">X</button>
+                <button class="btn-hero btn-white" style="flex:1" onclick="document.getElementById('popupPin').style.display='none'">Annuler</button>
             </div>
         </div>
     </div>
@@ -174,4 +166,4 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
 </body>
-                </html>
+                        </html>
