@@ -1,147 +1,105 @@
-/* ========== VARIABLES & CONFIGURATION ========== */
 :root {
     --primary-blue: #0084ff;
-    --dark-black: #1a1a1a;
-    --white: #ffffff;
-    --shadow-pro: 0 4px 12px rgba(0,0,0,0.08);
-    --shadow-hover: 0 12px 24px rgba(0,132,255,0.12);
-    
-    /* Hauteurs pour l'empilement */
     --h-banner: 35px;
     --h-ribbon: 50px;
     --h-navbar: 60px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-
 body { 
     font-family: 'Poppins', sans-serif; 
-    background-color: #fcfcfc;
-    color: var(--dark-black);
-    /* Espace total du haut pour ne rien cacher */
-    padding-top: calc(var(--h-banner) + var(--h-ribbon) + var(--h-navbar) + 10px); 
+    padding-top: calc(var(--h-banner) + var(--h-ribbon) + var(--h-navbar)); 
 }
 
-/* Texte en gras et noms de produits en BLEU */
-strong, b, .product-name { color: var(--primary-blue) !important; font-weight: 600; }
-
-/* Marges propres (Près du mur mais avec un petit espace de 10px) */
-.container, section, .about-content {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-/* ========== TITRES (TAILLE NORMALE PRO) ========== */
-h1 { font-size: 1.6rem !important; }
-h2.section-title { font-size: 1.5rem !important; margin: 20px 0; text-align: center; }
-h3 { font-size: 1.2rem !important; margin: 15px 0; color: #444; border-left: 4px solid var(--primary-blue); padding-left: 10px; }
-
-/* ========== 1. BANNIÈRE ROUGE ========== */
+/* 1. BANNIÈRE ROUGE FIXE */
 #banner-toit-rouge {
-    background-color: #ff0000;
-    color: white;
+    background: #ff0000; color: white;
+    position: fixed; top: 0; left: 0; width: 100%;
     height: var(--h-banner);
-    position: fixed; top: 0; left: 0; right: 0;
-    z-index: 5000;
     display: flex; align-items: center; justify-content: center;
-    font-weight: bold; font-size: 12px;
+    font-size: 12px; font-weight: bold; z-index: 5000;
+    padding: 0 10px; text-align: center;
 }
 
-/* ========== 2. RUBAN CATÉGORIES ========== */
+/* 2. RUBAN HORIZONTAL */
 .category-ribbon-container {
-    background: white;
-    border-bottom: 1px solid #eee;
-    height: var(--h-ribbon);
-    position: fixed; top: var(--h-banner); left: 0; right: 0;
-    z-index: 4900;
-    display: flex; align-items: center;
-    overflow: hidden;
+    background: white; border-bottom: 1px solid #eee;
+    position: fixed; top: var(--h-banner); left: 0; width: 100%;
+    height: var(--h-ribbon); z-index: 4900;
+    display: flex; align-items: center; overflow: hidden;
 }
-.category-ribbon { display: flex; overflow-x: auto; width: 100%; scrollbar-width: none; }
+.category-ribbon { display: flex; overflow-x: auto; scrollbar-width: none; width: 100%; }
 .category-ribbon::-webkit-scrollbar { display: none; }
-.ribbon-track { display: flex; gap: 8px; padding: 0 10px; animation: scrollRibbon 40s linear infinite; }
-.category-ribbon:active .ribbon-track { animation-play-state: paused !important; }
-@keyframes scrollRibbon { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+.ribbon-track {
+    display: flex; gap: 10px; padding: 0 15px;
+    animation: scrollRibbon 30s linear infinite;
+}
+.ribbon-track:hover { animation-play-state: paused; }
+@keyframes scrollRibbon {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
 
 .ribbon-item {
-    background: #f8f9fa; color: #555; border: 1px solid #ddd;
-    padding: 5px 12px; border-radius: 15px; white-space: nowrap;
-    font-size: 13px; font-weight: 500; cursor: pointer;
+    background: #f0f7ff; color: var(--primary-blue);
+    border: 1px solid var(--primary-blue);
+    padding: 5px 15px; border-radius: 20px; white-space: nowrap;
+    font-size: 13px; font-weight: 600; cursor: pointer;
 }
 
-/* ========== 3. NAVBAR ========== */
+/* 3. NAVBAR & MENU HAMBURGER */
 .navbar {
-    position: fixed; top: calc(var(--h-banner) + var(--h-ribbon)); left: 0; right: 0;
-    height: var(--h-navbar); background: white; z-index: 4800;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    position: fixed; top: calc(var(--h-banner) + var(--h-ribbon));
+    left: 0; width: 100%; height: var(--h-navbar);
+    background: white; display: flex; justify-content: space-between;
+    align-items: center; padding: 0 20px; z-index: 4800;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
-.logo { font-weight: 700; color: var(--primary-blue); text-transform: uppercase; font-size: 0.95rem; }
+.logo { font-weight: bold; color: var(--primary-blue); text-transform: uppercase; }
 
-/* ========== 4. CARTES PRODUITS (LOOK PRO & CADRE) ========== */
-.products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* Taille standard */
-    gap: 15px;
-    padding: 10px 0;
+.hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; }
+.hamburger span { width: 25px; height: 3px; background: var(--primary-blue); border-radius: 2px; }
+
+.nav-menu {
+    position: fixed; top: calc(var(--h-banner) + var(--h-ribbon) + var(--h-navbar));
+    right: -100%; width: 250px; height: 100vh;
+    background: white; flex-direction: column; padding: 20px;
+    transition: 0.4s; box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    list-style: none; gap: 20px;
 }
-.product-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid #e0e0e0; /* Encadrement fin et pro */
-    box-shadow: var(--shadow-pro);
-    transition: all 0.3s ease;
-    position: relative;
-    height: 100%;
+.nav-menu.active { right: 0; }
+.nav-menu a { text-decoration: none; color: #333; font-weight: 600; font-size: 1.1rem; }
+
+/* 4. BOUTONS D'ACTION CENTRÉS */
+.hero-buttons {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 15px; width: 100%; padding: 20px;
 }
-.product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-hover);
-    border-color: var(--primary-blue);
-}
-
-.product-image { height: 220px; width: 100%; overflow: hidden; background: #fdfcfc; }
-.product-image img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-.product-card:hover .product-image img { transform: scale(1.08); }
-
-.product-body { padding: 15px; text-align: center; }
-.product-name { font-size: 1.1rem !important; margin-bottom: 5px; display: block; }
-.price { color: var(--primary-blue); font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; display: block; }
-
-/* BOUTON SUPPRIMER X (ROUGE VIF) */
-.btn-delete-product {
-    position: absolute; top: 8px; right: 8px;
-    background: #ff0000 !important;
+.btn-action {
+    background: var(--primary-blue) !important;
     color: white !important;
-    border: none; width: 28px; height: 28px;
-    border-radius: 50%; font-weight: bold; cursor: pointer;
-    z-index: 10; font-size: 12px;
+    border: 2px solid #0056b3 !important;
+    border-radius: 10px; padding: 12px 20px;
+    width: 90%; max-width: 300px;
+    font-weight: bold; transition: 0.3s;
+}
+.btn-action:hover { transform: scale(1.05); background: #0066cc !important; }
+
+/* 5. EXPLORER PAR CATÉGORIE (BAS) */
+.catalogue-drawer {
+    width: 90%; max-width: 400px; margin: 30px auto;
+    text-align: center; border-radius: 15px; overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+.catalogue-toggle {
+    width: 100%; padding: 15px; background: var(--primary-blue);
+    color: white; border: none; font-weight: bold; font-size: 1rem;
+}
+.catalogue-content.active {
+    display: grid !important; grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 15px; background: white;
 }
 
-/* ========== 5. HERO SECTION ========== */
-.hero {
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://i.postimg.cc/jjHfHdGY/1780202682425.jpg') center/cover;
-    min-height: 50vh; display: flex; align-items: center; justify-content: center;
-    text-align: center; color: white; padding: 20px; border-radius: 15px; margin: 0 5px 25px 5px;
-}
-
-/* ========== 6. ADMIN (TRANSPARENT) ========== */
-#btnAdmin {
-    position: fixed; bottom: 15px; right: 15px;
-    width: 45px; height: 45px;
-    background: rgba(0, 0, 0, 0.25) !important; /* Discret et transparent */
-    color: white; border-radius: 50%; border: none;
-    font-size: 20px; cursor: pointer; z-index: 9999;
-}
-
-/* CATALOGUE DU BAS */
-.catalogue-drawer { max-width: 450px; margin: 30px auto; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-pro); }
-.catalogue-toggle { width: 100%; padding: 12px; background: var(--primary-blue); color: white; border: none; font-weight: 600; cursor: pointer; }
-.catalogue-content.active { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
-
-/* FIX VISIBILITÉ */
-.fade-in-section, #produits section { opacity: 1 !important; transform: none !important; visibility: visible !important; }
+/* Patch pour le texte en gras bleu */
+strong, b { color: var(--primary-blue); }
