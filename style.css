@@ -115,3 +115,29 @@ strong, b, .product-name, .price { color: var(--primary-blue) !important; font-w
 
 /* Correction visibilité section */
 .fade-in-section, #produits section { opacity: 1 !important; transform: none !important; visibility: visible !important; }
+
+/* ========== FORCER L'AFFICHAGE DU BOUTON ADMIN ========== */
+#btnAdmin {
+    display: flex !important; /* Force l'affichage */
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    background: rgba(0, 0, 0, 0.4) !important; /* Gris transparent */
+    color: white !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    font-size: 28px !important;
+    cursor: pointer !important;
+    z-index: 100000 !important; /* Très haut pour être au-dessus de tout */
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+#btnAdmin:hover {
+    background: rgba(0, 0, 0, 0.7) !important;
+    transform: scale(1.1);
+}
