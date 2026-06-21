@@ -99,9 +99,9 @@ strong, b, .product-name, .price { color: var(--primary-blue) !important; font-w
 /* ========== 5. CATALOGUE DU BAS (TIROIR) ========== */
 .catalogue-drawer { max-width: 450px; margin: 40px auto; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #eee; }
 .catalogue-toggle { width: 100%; padding: 15px; background: var(--primary-blue); color: white; border: none; font-weight: bold; cursor: pointer; }
-.catalogue-content { display: none; background: white; padding: 15px; }
+.catalogue-content { display: none; background: white; padding: 10px; }
 .catalogue-content.active { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.catalogue-content a { padding: 12px; text-decoration: none; color: #444; background: #f8f9fa; border-radius: 10px; text-align: center; font-weight: 600; font-size: 0.85rem; }
+.catalogue-link { padding: 12px; text-decoration: none; color: #444; background: #f8f9fa; border-radius: 10px; text-align: center; font-weight: 600; font-size: 0.85rem; }
 
 /* ========== ADMIN ========== */
 #btnAdmin {
@@ -118,19 +118,19 @@ strong, b, .product-name, .price { color: var(--primary-blue) !important; font-w
 
 /* ========== FORCER L'AFFICHAGE DU BOUTON ADMIN ========== */
 #btnAdmin {
-    display: flex !important; /* Force l'affichage */
+    display: flex !important;
     position: fixed !important;
     bottom: 20px !important;
     right: 20px !important;
     width: 60px !important;
     height: 60px !important;
     border-radius: 50% !important;
-    background: rgba(0, 0, 0, 0.4) !important; /* Gris transparent */
+    background: rgba(0, 0, 0, 0.4) !important;
     color: white !important;
     border: 2px solid rgba(255, 255, 255, 0.3) !important;
     font-size: 28px !important;
     cursor: pointer !important;
-    z-index: 100000 !important; /* Très haut pour être au-dessus de tout */
+    z-index: 100000 !important;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
@@ -141,3 +141,92 @@ strong, b, .product-name, .price { color: var(--primary-blue) !important; font-w
     background: rgba(0, 0, 0, 0.7) !important;
     transform: scale(1.1);
 }
+
+/* ========== STYLE DU FORMULAIRE ADMIN (NOUVEAU) ========== */
+#admin {
+    background: #ffffff !important;
+    padding: 30px 20px !important;
+    border-radius: 20px !important;
+    margin: 25px 15px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+    border: 1px solid #eee !important;
+}
+
+#admin h2.section-title {
+    font-size: 1.6rem !important;
+    margin-bottom: 25px !important;
+    color: var(--primary-blue) !important;
+    text-align: center;
+}
+
+#formAjoutProduit {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#formAjoutProduit input[type="text"],
+#formAjoutProduit input[type="number"],
+#formAjoutProduit textarea,
+#formAjoutProduit select {
+    width: 100% !important;
+    padding: 14px !important;
+    border-radius: 12px !important;
+    border: 2px solid #f0f0f0 !important;
+    background: #f9f9f9 !important;
+    font-size: 16px !important;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    color: #333;
+}
+
+#formAjoutProduit input:focus,
+#formAjoutProduit textarea:focus,
+#formAjoutProduit select:focus {
+    outline: none !important;
+    border-color: var(--primary-blue) !important;
+    background: #fff !important;
+    box-shadow: 0 0 10px rgba(0, 132, 255, 0.1) !important;
+}
+
+#formAjoutProduit label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: -10px;
+    padding-left: 5px;
+    display: block;
+}
+
+#formAjoutProduit input[type="file"] {
+    background: #fff !important;
+    padding: 12px !important;
+    border: 2px dashed #0084ff !important;
+    border-radius: 12px !important;
+    cursor: pointer;
+    color: #0084ff;
+    font-weight: 600;
+}
+
+#formAjoutProduit .btn-hero {
+    margin-top: 10px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 16px !important;
+    font-size: 1.1rem !important;
+}
+
+#preview-container {
+    background: #f0f7ff !important;
+    padding: 10px !important;
+    border-radius: 15px !important;
+    border: 1px solid #cce5ff !important;
+    margin-top: 5px;
+    text-align: center;
+}
+
+#imagePreview {
+    max-width: 120px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
