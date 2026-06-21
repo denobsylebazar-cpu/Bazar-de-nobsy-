@@ -97,11 +97,17 @@ window.showAllCategories = function() {
 /* ========== ADMIN ========== */
 window.verifierPin = function() {
     const pin = document.getElementById('inputPin').value;
-    if (pin.length === 6) {
-        document.getElementById('admin').style.display = 'block';
+    if (pin === "200611") {
+        const adminSection = document.getElementById('admin');
+        adminSection.style.display = 'block'; // Fait apparaître le formulaire
         document.getElementById('popupPin').style.display = 'none';
         document.body.classList.add('admin-open');
         document.querySelectorAll('.btn-delete-product').forEach(b => b.style.display = 'block');
+        
+        // Défilement automatique vers le formulaire
+        adminSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        alert("Code PIN incorrect");
     }
 };
 
@@ -109,12 +115,13 @@ window.handleDeleteProduct = async function(event) {
     const card = event.target.closest('.product-card');
     const id = card.getAttribute('data-id');
     const pin = prompt("Entrez le code PIN :");
-    if (!pin) return;
-    const { error } = await db.rpc('delete_product_secure', { prod_id: id, pin_code: pin });
-    if (!error) {
-        card.style.transform = "scale(0)";
-        setTimeout(() => card.remove(), 300);
-    } else { alert("PIN incorrect"); }
+    if (pin === "200611") {
+        const { error } = await db.rpc('delete_product_secure', { prod_id: id, pin_code: pin });
+        if (!error) {
+            card.style.transform = "scale(0)";
+            setTimeout(() => card.remove(), 300);
+        }
+    }
 };
 
 /* ========== AJOUTER PRODUIT ========== */
