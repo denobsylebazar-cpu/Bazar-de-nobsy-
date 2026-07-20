@@ -1,11 +1,12 @@
 {
   "name": "Le Bazar de Nobsy",
   "short_name": "Bazar Nobsy",
-  "description": "Les meilleurs deals à Joliette, Québec",
-  "start_url": "/",
+  "start_url": "/Bazar-de-nobsy-/",
+  "scope": "/Bazar-de-nobsy-/",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#FF3B82",
+  "description": "Les meilleurs deals et articles variés à Joliette, Québec",
   "icons": [
     {
       "src": "logo-192.png",
@@ -14,7 +15,7 @@
     },
     {
       "src": "logo-512.png",
-      "sizes": "512x512", 
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
