@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#FF3B82">
+    <meta name="theme-color" content="#FF3B82">
 </head>
 <body>
 
@@ -52,7 +52,7 @@
         </ul>
     </nav>
 
-    <!-- 3. HERO SECTION (BOUTONS RÉPARÉS) -->
+    <!-- 3. HERO SECTION -->
     <header id="accueil" class="hero">
         <div class="hero-content">
             <h1>Bienvenue au Bazar de Nobsy</h1>
@@ -105,10 +105,8 @@
             <div class="about-content">
                 <p>Bonjour ! Bienvenue sur le site du <b>bazar de Nobsy</b>. Découvrez nos <b>figurines Pop</b>, nos <b>livres</b>, nos <b>jeux vidéo</b> et nos articles de décoration à prix imbattables.</p>
             </div>
-        </div>
-    </section>
-
-            <!-- SÉPARATEUR BLEU AJOUTÉ ICI -->
+            
+            <!-- SÉPARATEUR BLEU -->
             <div style="margin: 40px 0; text-align: center;">
                 <div style="height: 4px; width: 60px; background: #0084ff; margin: auto; border-radius: 10px; opacity: 0.8;"></div>
             </div>     
@@ -118,11 +116,17 @@
     <!-- SECTION PRODUITS -->
     <section id="produits">
         <div class="container">
+            <!-- BOUTON SUPPRESSION GROUPÉE (Apparaît via JS en mode admin) -->
+            <div style="text-align: center;">
+                <button id="btn-bulk-delete" onclick="deleteSelectedProducts()" style="display:none;">🗑️ Supprimer la sélection</button>
+            </div>
+
             <div id="category-back-button" style="display:none; text-align:center; margin-bottom:20px;">
                 <button class="btn-hero btn-white" onclick="showAllCategories()">← Retour au catalogue</button>
             </div>
             <h2 id="default-title" class="section-title">Nos Articles</h2>
             
+            <!-- Les grilles seront remplies par le JS -->
             <div id="pop"><h3>🧸 Pop et figurine</h3><div class="products-grid" id="grid-pop"></div></div>
             <div id="jeuxvideo"><h3>🎮 Jeux vidéo</h3><div class="products-grid" id="grid-jeuxvideo"></div></div>
             <div id="livre"><h3>📚 Livres</h3><div class="products-grid" id="grid-livre"></div></div>
@@ -144,45 +148,37 @@
             <div class="catalogue-drawer">
                 <button class="catalogue-toggle" onclick="toggleCatalogue()">Explorer par catégorie ▼</button>
                 <div class="catalogue-content" id="catContent">
-                    <a href="javascript:void(0)" onclick="filterByCategory('pop')">🧸 Pop</a>
-                    <a href="javascript:void(0)" onclick="filterByCategory('jeuxvideo')">🎮 Jeux</a>
-                    <a href="javascript:void(0)" onclick="filterByCategory('livre')">📚 Livres</a>
-                    <a href="javascript:void(0)" onclick="filterByCategory('film')">🎬 Films</a>
-                    <a href="javascript:void(0)" onclick="filterByCategory('decoration')">🖼️ Déco</a>
-                    <a href="javascript:void(0)" onclick="filterByCategory('vaisselle')">🍽️ Cuisine</a>
-                    <a href="javascript:void(0)" onclick="filterByCategory('bijoux')">💍 Bijoux</a>
-                    <a href="javascript:void(0)" onclick="filterByCategory('jeux')">🧩 Jeux</a>
-                    <a href="javascript:void(0)" onclick="filterByCategory('peluche')">🧸 Peluches</a>
-                    <a href="javascript:void(0)" onclick="filterByCategory('vetement')">👕 Habits</a>
-                    <a href="javascript:void(0)" onclick="filterByCategory('maquillage')">💄 Beauté</a>
-                    <a href="javascript:void(0)" onclick="filterByCategory('lumiere')">💡 Lumière</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('pop')">🧸 Pop</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('jeuxvideo')">🎮 Jeux</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('livre')">📚 Livres</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('film')">🎬 Films</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('decoration')">🖼️ Déco</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('vaisselle')">🍽️ Cuisine</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('bijoux')">💍 Bijoux</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('jeux')">🧩 Jeux</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('peluche')">🧸 Peluches</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('vetement')">👕 Habits</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('maquillage')">💄 Beauté</a>
+                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('lumiere')">💡 Lumière</a>
                 </div>
             </div>
         </div>
     </section>
     
-<!-- ============================================================
-         SECTION LOCALISATION & CARTE GOOGLE MAPS
-         ============================================================ -->
+    <!-- LOCALISATION -->
     <div style="text-align: center; padding: 40px 20px; background: #f8f9fa;">
         <div style="font-size: 40px; margin-bottom: 10px;">📍</div>
         <h3 style="margin: 0; color: #007bff; font-size: 22px;">Le bazar de Nobsy à Joliette, Québec</h3>
         <p style="margin: 10px 0 20px; color: #666; font-size: 16px;">Nouveau local au marché aux puces</p>
         <p style="margin: 0 0 20px; color: #dc3545; font-size: 18px; font-weight: bold; letter-spacing: 2px;">TOIT ROUGE</p>
         
-        <!-- Conteneur de la Carte -->
         <div style="max-width: 600px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #eee;">
             <iframe 
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d44111.45903901618!2d-73.473523!3d46.024225!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4cc90234a5d894b9%3A0x6e9f65d1d6d67b2d!2sJoliette%2C%20QC!5e0!3m2!1sfr!2sca!4v1718974523000!5m2!1sfr!2sca" 
-                width="100%" 
-                height="300" 
-                style="border:0; display: block;" 
-                allowfullscreen="" 
-                loading="lazy" 
-                referrerpolicy="no-referrer-when-downgrade">
-            </iframe>
+                width="100%" height="300" style="border:0; display: block;" allowfullscreen="" loading="lazy"></iframe>
         </div>
     </div>
+
     <footer style="text-align:center; padding: 20px; background:#333; color:white;">
         <p>&copy; 2026 Le bazar de Nobsy - Joliette.</p>
     </footer>
