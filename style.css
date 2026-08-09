@@ -180,3 +180,22 @@ strong, b, .product-name, .price { color: var(--primary-blue) !important; font-w
 #formAjoutProduit input, #formAjoutProduit textarea, #formAjoutProduit select {
     width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #f0f0f0; margin-bottom: 10px;
 }
+
+/* Modification de la carte produit pour l'ombre au survol */
+.product-card {
+    background: white; 
+    border-radius: 15px; 
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Ombre légère de base */
+    border: 1px solid #eee;
+    transition: all 0.3s ease-in-out; /* Transition fluide */
+    position: relative; 
+    height: 100%;
+}
+
+/* Effet au passage de la souris (Hover) */
+.product-card:hover {
+    transform: translateY(-8px); /* La carte monte légèrement */
+    box-shadow: 0 15px 35px rgba(0, 132, 255, 0.2); /* Ombre plus large et bleutée */
+    border-color: var(--primary-blue); /* La bordure devient bleue */
+}
