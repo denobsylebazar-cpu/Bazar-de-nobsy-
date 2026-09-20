@@ -47,6 +47,14 @@
     <!-- 2. NAVBAR AVEC MENU HAMBURGER -->
     <nav class="navbar">
         <div class="logo">le bazar de nobsy</div>
+        <div class="search-box">
+    <input
+        type="search"
+        id="searchProduct"
+        placeholder="🔍 Rechercher un produit..."
+        oninput="searchProducts()"
+    >
+        </div>
 
         <div class="hamburger" onclick="toggleMenu()">
             <span></span><span></span><span></span>
@@ -165,15 +173,6 @@
             </div>
 
             <!-- RECHERCHE RAPIDE DE PRODUITS -->
-            <div class="product-search">
-                <input
-                    type="search"
-                    id="rechercheProduit"
-                    placeholder="🔍 Rechercher un produit (ex : Barbie)..."
-                    autocomplete="off"
-                >
-            </div>
-
             <h2 id="default-title" class="section-title">Nos Articles</h2>
 
             <!-- GRILLES DES PRODUITS -->
