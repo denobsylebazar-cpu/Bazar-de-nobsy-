@@ -280,31 +280,62 @@ if (form) {
 
 
 
+
 /* ========== GESTION ADMIN & SUPPRESSION ========== */
 
-window.verifierPin = function() {
-    const pin = document.getElementById('inputPin').value;
+// Vérification réelle du PIN admin avec Supabase
+window.verifierPin = async function() {
+    const input = document.getElementById('inputPin');
+    const pin = input.value.trim();
 
-    // Conserver l'accès admin actuel
-    if (pin.length === 6) {
+    // Vérifier le format : exactement 6 chiffres
+    if (!/^\d{6}$/.test(pin)) {
+        alert("Veuillez entrer un PIN de 6 chiffres.");
+        return;
+    }
+
+    try {
+        // Vérifier le PIN enregistré dans Supabase
+        const { data, error } = await db.rpc('verify_admin_pin', {
+            pin_code: pin
+        });
+
+        if (error) {
+            console.error("Erreur vérification PIN :", error);
+            alert("Erreur Supabase : " + error.message);
+            return;
+        }
+
+        // Refuser les codes incorrects
+        if (data !== true) {
+            alert("Code PIN incorrect !");
+            input.value = "";
+            input.focus();
+            return;
+        }
+
+        // PIN correct : ouvrir l'espace admin
         document.getElementById('admin').style.display = 'block';
         document.getElementById('popupPin').style.display = 'none';
         document.getElementById('btn-bulk-delete').style.display = 'inline-block';
 
         document.body.classList.add('admin-open');
 
-        // Charger les produits
         chargerProduits();
 
         document.getElementById('admin').scrollIntoView({
             behavior: 'smooth'
         });
+
+    } catch (err) {
+        console.error("Erreur inattendue :", err);
+        alert("Une erreur est survenue : " + (err.message || err));
     }
 };
 
 
+// Suppression sécurisée d'un produit
 window.handleDeleteProduct = async function(event) {
-    // Trouver la carte du produit
     const card = event.target.closest('.product-card');
 
     if (!card) {
@@ -319,13 +350,11 @@ window.handleDeleteProduct = async function(event) {
         return;
     }
 
-    // Demander le PIN de suppression
     const pin = prompt("Entrez le code PIN pour supprimer :");
 
     if (!pin) return;
 
     try {
-        // Appeler la fonction sécurisée Supabase
         const { error } = await db.rpc('delete_product_secure', {
             prod_id: Number(id),
             pin_code: pin.trim()
@@ -333,12 +362,7 @@ window.handleDeleteProduct = async function(event) {
 
         if (error) {
             console.error("Erreur Supabase lors de la suppression :", error);
-
-            alert(
-                "Échec de la suppression :\n" +
-                error.message
-            );
-
+            alert("Échec de la suppression :\n" + error.message);
             return;
         }
 
@@ -355,7 +379,6 @@ window.handleDeleteProduct = async function(event) {
 
     } catch (err) {
         console.error("Erreur inattendue :", err);
-
         alert(
             "Une erreur inattendue est survenue :\n" +
             (err.message || err)
