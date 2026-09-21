@@ -279,10 +279,13 @@ if (form) {
 }
 
 
+
 /* ========== GESTION ADMIN & SUPPRESSION ========== */
+
 window.verifierPin = function() {
     const pin = document.getElementById('inputPin').value;
 
+    // Conserver l'accès admin actuel
     if (pin.length === 6) {
         document.getElementById('admin').style.display = 'block';
         document.getElementById('popupPin').style.display = 'none';
@@ -290,7 +293,7 @@ window.verifierPin = function() {
 
         document.body.classList.add('admin-open');
 
-        // Afficher les contrôles admin
+        // Charger les produits
         chargerProduits();
 
         document.getElementById('admin').scrollIntoView({
@@ -301,26 +304,64 @@ window.verifierPin = function() {
 
 
 window.handleDeleteProduct = async function(event) {
+    // Trouver la carte du produit
     const card = event.target.closest('.product-card');
+
+    if (!card) {
+        alert("Impossible de trouver le produit à supprimer.");
+        return;
+    }
+
     const id = card.getAttribute('data-id');
 
+    if (!id) {
+        alert("Identifiant du produit introuvable.");
+        return;
+    }
+
+    // Demander le PIN de suppression
     const pin = prompt("Entrez le code PIN pour supprimer :");
 
     if (!pin) return;
 
-    const { error } = await db.rpc('delete_product_secure', {
-        prod_id: id,
-        pin_code: pin
-    });
+    try {
+        // Appeler la fonction sécurisée Supabase
+        const { error } = await db.rpc('delete_product_secure', {
+            prod_id: Number(id),
+            pin_code: pin.trim()
+        });
 
-    if (error) {
-        alert("PIN incorrect");
-    } else {
+        if (error) {
+            console.error("Erreur Supabase lors de la suppression :", error);
+
+            alert(
+                "Échec de la suppression :\n" +
+                error.message
+            );
+
+            return;
+        }
+
+        // Animation puis retrait de la carte
+        card.style.transition = "transform 300ms ease, opacity 300ms ease";
         card.style.transform = "scale(0)";
-        setTimeout(() => card.remove(), 300);
+        card.style.opacity = "0";
+
+        setTimeout(() => {
+            card.remove();
+        }, 300);
+
+        alert("Produit supprimé avec succès !");
+
+    } catch (err) {
+        console.error("Erreur inattendue :", err);
+
+        alert(
+            "Une erreur inattendue est survenue :\n" +
+            (err.message || err)
+        );
     }
 };
-
 
 /* ========== SUPPRESSION GROUPÉE ========== */
 window.deleteSelectedProducts = async function() {
