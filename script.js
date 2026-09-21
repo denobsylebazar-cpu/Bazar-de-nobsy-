@@ -520,3 +520,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
     chargerProduits();
 });
+
+/* ========== RECHERCHE RAPIDE DE PRODUITS ========== */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Trouver la barre de recherche
+    const searchInput = document.querySelector(
+        'input[placeholder*="Rechercher"]'
+    );
+
+    if (!searchInput) {
+        console.warn("Barre de recherche introuvable.");
+        return;
+    }
+
+    searchInput.addEventListener("input", function () {
+        const recherche = this.value
+            .trim()
+            .toLowerCase();
+
+        const produits = document.querySelectorAll(
+            ".product-card"
+        );
+
+        produits.forEach(function (produit) {
+
+            // Récupérer le nom du produit
+            const titre = produit.querySelector("h3");
+
+            if (!titre) return;
+
+            const nom = titre.textContent
+                .trim()
+                .toLowerCase();
+
+            // Afficher uniquement les noms correspondants
+            produit.style.display =
+                nom.includes(recherche) ? "" : "none";
+        });
+    });
+
+});
