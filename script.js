@@ -97,24 +97,26 @@ window.showAllCategories = function() {
     document.getElementById('default-title').style.display = 'block';
 };
 
-/* Compression image pour éviter l'erreur undefined */
 function compressImage(file) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             const img = new Image();
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const MAX = 800;
+                const MAX = 600;
                 let w = img.width, h = img.height;
                 if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } }
                 else { if (h > MAX) { w *= MAX / h; h = MAX; } }
                 canvas.width = w; canvas.height = h;
-                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                resolve(canvas.toDataURL('image/jpeg', 0.7));
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                resolve(canvas.toDataURL('image/jpeg', 0.6));
             };
+            img.onerror = reject;
             img.src = e.target.result;
         };
+        reader.onerror = reject;
         reader.readAsDataURL(file);
     });
 }
@@ -147,7 +149,7 @@ if (form) {
             chargerProduits();
         } catch (err) {
             console.error(err);
-            alert("Erreur: " + (err.message || JSON.stringify(err)));
+            alert("Erreur: " + (err.message || err.error_description || JSON.stringify(err)));
         } finally {
             submitBtn.disabled = false;
             submitBtn.innerText = "🚀 Publier";
@@ -169,7 +171,7 @@ window.verifierPin = async function() {
         document.body.classList.add('admin-open');
         chargerProduits();
         document.getElementById('admin').scrollIntoView({ behavior: 'smooth' });
-    } catch (err) { alert(err.message); }
+    } catch (err) { alert("Erreur: " + (err.message || JSON.stringify(err))); }
 };
 
 window.handleDeleteProduct = async function(event) {
@@ -185,7 +187,7 @@ window.handleDeleteProduct = async function(event) {
         card.style.transform = "scale(0)"; card.style.opacity = "0";
         setTimeout(() => { card.remove(); }, 300);
         alert("Produit supprimé!");
-    } catch (err) { alert(err.message); }
+    } catch (err) { alert("Erreur: " + (err.message || JSON.stringify(err))); }
 };
 
 window.deleteSelectedProducts = async function() {
