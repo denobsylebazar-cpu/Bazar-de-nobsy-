@@ -2,6 +2,7 @@
 const SUPABASE_URL = 'https://grrlsfvttancthbnysyn.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdycmxzZnZ0dGFuY3RoYm55c3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyODk0NTcsImV4cCI6MjEwNjg2NTQ1N30.TBbrrvddtKjNQApbKXD6zrIzHL9TaujqEMLelfCxWxA';
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 /* ========== MENU HAMBURGER ========== */
 window.toggleMenu = function() {
     const navMenu = document.getElementById('navMenu');
@@ -107,20 +108,26 @@ async function chargerProduits() {
         }
     });
 
+    // CORRECTION ICI - avec espace
     const container = document.querySelector('#produits.container');
-    sectionsIds.forEach(id => {
-        const section = document.getElementById(id);
-        const grid = document.getElementById('grid-' + id);
-        if (section && grid) {
-            if (grid.children.length > 0) {
-                container.prepend(section);
-                section.style.display = "block";
-            } else {
-                container.appendChild(section);
-                section.style.display = "none";
+
+    if (container) {
+        sectionsIds.forEach(id => {
+            const section = document.getElementById(id);
+            const grid = document.getElementById('grid-' + id);
+
+            if (section && grid) {
+                if (grid.children.length > 0) {
+                    container.prepend(section);
+                    section.style.display = "block";
+                } else {
+                    container.appendChild(section);
+                    section.style.display = "none";
+                }
             }
-        }
-    });
+        });
+    }
+
     appliquerRecherche();
 }
 
@@ -132,8 +139,7 @@ window.toggleCatalogue = function() {
 window.filterByCategory = function(cat) {
     const recherche = document.getElementById('rechercheProduit');
     if (recherche) recherche.value = '';
-    const ids = sectionsIds;
-    ids.forEach(id => {
+    sectionsIds.forEach(id => {
         const s = document.getElementById(id);
         if (s) s.style.display = 'none';
     });
@@ -172,12 +178,12 @@ if (form) {
             if (uploadError) throw uploadError;
             const { data: linkData } = db.storage.from('product-images').getPublicUrl(fileName);
             const { error: insertError } = await db.from('products').insert([{
-                    name: document.getElementById('nomProduit').value,
-                    description: document.getElementById('descProduit').value,
-                    price: parseFloat(document.getElementById('prixProduit').value),
-                    image_url: linkData.publicUrl,
-                    category: document.getElementById('categorieProduit').value
-                }]);
+                name: document.getElementById('nomProduit').value,
+                description: document.getElementById('descProduit').value,
+                price: parseFloat(document.getElementById('prixProduit').value),
+                image_url: linkData.publicUrl,
+                category: document.getElementById('categorieProduit').value
+            }]);
             if (insertError) throw insertError;
             alert("Produit publié! ✅");
             form.reset();
@@ -185,8 +191,7 @@ if (form) {
             chargerProduits();
         } catch (err) {
             alert(err.message);
-        }
-        finally {
+        } finally {
             submitBtn.disabled = false;
             submitBtn.innerText = "🚀 Publier";
         }
@@ -273,7 +278,6 @@ function appliquerRecherche() {
     const rechercheInput = document.getElementById('rechercheProduit');
     if (!rechercheInput) return;
     const recherche = rechercheInput.value.trim().toLowerCase();
-    let nombreTrouve = 0;
     sectionsIds.forEach(id => {
         const section = document.getElementById(id);
         if (!section) return;
@@ -283,7 +287,7 @@ function appliquerRecherche() {
             const nom = carte.querySelector('.product-name');
             const correspond = nom && nom.textContent.toLowerCase().includes(recherche);
             carte.style.display = correspond? '' : 'none';
-            if (correspond) { cartesVisibles++; nombreTrouve++; }
+            if (correspond) { cartesVisibles++; }
         });
         if (recherche) {
             section.style.display = cartesVisibles > 0? 'block' : 'none';
