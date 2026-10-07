@@ -10,16 +10,12 @@ window.toggleMenu = function() {
 const sectionsIds = ['pop','jeuxvideo','skylander','livre','film','decoration','vaisselle','bijoux','jeux','peluche','vetement','maquillage','lumiere'];
 
 async function chargerProduits() {
-    console.log("Chargement...");
     const { data: products, error } = await db.from('products').select('*').order('created_at', { ascending: false });
     if (error) { console.error(error); return; }
     if (!products) return;
-
     document.querySelectorAll('.products-grid').forEach(g => g.innerHTML = "");
-
     const isAdmin = document.body.classList.contains('admin-open');
     const displayStyle = isAdmin? 'block' : 'none';
-
     products.forEach(product => {
         let cat = (product.category || '').toLowerCase().trim();
         let targetId = "grid-decoration";
@@ -35,7 +31,6 @@ async function chargerProduits() {
         else if (cat.includes("vetement")) targetId = "grid-vetement";
         else if (cat.includes("maquillage")) targetId = "grid-maquillage";
         else if (cat.includes("lumiere")) targetId = "grid-lumiere";
-
         const grid = document.getElementById(targetId);
         if (grid) {
             grid.insertAdjacentHTML('beforeend', `
@@ -52,8 +47,6 @@ async function chargerProduits() {
                 </div>`);
         }
     });
-
-    // AFFICHAGE ACCUEIL CORRIGÉ - on ne déplace plus, on affiche juste
     sectionsIds.forEach(id => {
         const section = document.getElementById(id);
         const grid = document.getElementById('grid-' + id);
@@ -61,51 +54,58 @@ async function chargerProduits() {
             section.style.display = grid.children.length > 0? "block" : "none";
         }
     });
-
     appliquerRecherche();
 }
 
-window.toggleCatalogue = function() {
-    const c = document.getElementById('catContent');
-    if (c) c.classList.toggle('active');
-};
-
+window.toggleCatalogue = function() { const c = document.getElementById('catContent'); if (c) c.classList.toggle('active'); };
 window.filterByCategory = function(cat) {
-    const r = document.getElementById('rechercheProduit');
-    if (r) r.value = '';
-    sectionsIds.forEach(id => {
-        const s = document.getElementById(id);
-        if (s) s.style.display = 'none';
-    });
+    const r = document.getElementById('rechercheProduit'); if (r) r.value = '';
+    sectionsIds.forEach(id => { const s = document.getElementById(id); if (s) s.style.display = 'none'; });
     const selected = document.getElementById(cat);
-    if (selected) {
-        selected.style.display = 'block';
-        selected.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    const backBtn = document.getElementById('category-back-button');
-    const defTitle = document.getElementById('default-title');
-    if (backBtn) backBtn.style.display = 'block';
-    if (defTitle) defTitle.style.display = 'none';
-    const catContent = document.getElementById('catContent');
-    if (catContent) catContent.classList.remove('active');
+    if (selected) { selected.style.display = 'block'; selected.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    const backBtn = document.getElementById('category-back-button'); const defTitle = document.getElementById('default-title');
+    if (backBtn) backBtn.style.display = 'block'; if (defTitle) defTitle.style.display = 'none';
+    const catContent = document.getElementById('catContent'); if (catContent) catContent.classList.remove('active');
 };
-
 window.showAllCategories = function() {
-    const r = document.getElementById('rechercheProduit');
-    if (r) r.value = '';
+    const r = document.getElementById('rechercheProduit'); if (r) r.value = '';
     sectionsIds.forEach(id => {
-        const section = document.getElementById(id);
-        const grid = document.getElementById('grid-' + id);
-        if (section && grid) {
-            section.style.display = grid.children.length > 0? "block" : "none";
-        }
+        const section = document.getElementById(id); const grid = document.getElementById('grid-' + id);
+        if (section && grid) section.style.display = grid.children.length > 0? "block" : "none";
     });
-    const backBtn = document.getElementById('category-back-button');
-    const defTitle = document.getElementById('default-title');
-    if (backBtn) backBtn.style.display = 'none';
-    if (defTitle) defTitle.style.display = 'block';
+    const backBtn = document.getElementById('category-back-button'); const defTitle = document.getElementById('default-title');
+    if (backBtn) backBtn.style.display = 'none'; if (defTitle) defTitle.style.display = 'block';
     appliquerRecherche();
 };
+
+// CONVERSION IMAGE ROBUSTE POUR MOBILE
+function fileToBase64Compressed(file) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width, h = img.height;
+            const MAX = 800;
+            if (w > MAX || h > MAX) {
+                if (w > h) { h = h * MAX / w; w = MAX; } else { w = w * MAX / h; h = MAX; }
+            }
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            URL.revokeObjectURL(url);
+            resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            // Fallback simple si canvas échoue
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error("Impossible de lire l'image"));
+            reader.readAsDataURL(file);
+        };
+        img.src = url;
+    });
+}
 
 const form = document.getElementById('formAjoutProduit');
 if (form) {
@@ -114,16 +114,11 @@ if (form) {
         const btn = form.querySelector('button[type="submit"]');
         const file = document.getElementById('imageProduit').files[0];
         if (!file) return alert("Choisis une photo!");
-        if (file.size > 2 * 1024 * 1024) return alert("Photo trop grosse! < 2Mo");
         btn.disabled = true;
-        btn.innerText = "⏳ Envoi...";
+        btn.innerText = "⏳ Compression...";
         try {
-            const base64 = await new Promise((resolve, reject) => {
-                const r = new FileReader();
-                r.onload = () => resolve(r.result);
-                r.onerror = () => reject(new Error("Lecture échouée"));
-                r.readAsDataURL(file);
-            });
+            const base64 = await fileToBase64Compressed(file);
+            btn.innerText = "⏳ Envoi...";
             const { error } = await db.from('products').insert([{
                 name: document.getElementById('nomProduit').value,
                 description: document.getElementById('descProduit').value,
@@ -137,6 +132,7 @@ if (form) {
             document.getElementById('preview-container').style.display = 'none';
             chargerProduits();
         } catch (err) {
+            console.error(err);
             alert("Erreur: " + (err.message || JSON.stringify(err)));
         } finally {
             btn.disabled = false;
@@ -157,74 +153,44 @@ window.verifierPin = async function() {
     document.body.classList.add('admin-open');
     chargerProduits();
 };
-
 window.handleDeleteProduct = async function(event) {
     const card = event.target.closest('.product-card');
     const id = card.getAttribute('data-id');
-    const pin = prompt("PIN:");
-    if (!pin) return;
+    const pin = prompt("PIN:"); if (!pin) return;
     const { error } = await db.rpc('delete_product_secure', { prod_id: Number(id), pin_code: pin.trim() });
-    if (error) return alert(error.message);
-    card.remove();
+    if (error) return alert(error.message); card.remove();
 };
-
 window.deleteSelectedProducts = async function() {
     const cbs = document.querySelectorAll('.select-product-checkbox:checked');
     if (!cbs.length) return alert("Aucun");
-    const pin = prompt(`Supprimer ${cbs.length}? PIN:`);
-    if (!pin) return;
-    let n = 0;
-    for (let cb of cbs) {
-        const { error } = await db.rpc('delete_product_secure', { prod_id: cb.value, pin_code: pin });
-        if (!error) n++;
-    }
-    alert(n + " supprimé(s)");
-    chargerProduits();
+    const pin = prompt(`Supprimer ${cbs.length}? PIN:`); if (!pin) return;
+    let n = 0; for (let cb of cbs) { const { error } = await db.rpc('delete_product_secure', { prod_id: cb.value, pin_code: pin }); if (!error) n++; }
+    alert(n + " supprimé(s)"); chargerProduits();
 };
-
 function appliquerRecherche() {
-    const input = document.getElementById('rechercheProduit');
-    if (!input) return;
+    const input = document.getElementById('rechercheProduit'); if (!input) return;
     const recherche = input.value.trim().toLowerCase();
     if (!recherche) {
-        sectionsIds.forEach(id => {
-            const sec = document.getElementById(id);
-            const grid = document.getElementById('grid-' + id);
-            if (sec && grid) sec.style.display = grid.children.length > 0? 'block' : 'none';
-        });
+        sectionsIds.forEach(id => { const sec = document.getElementById(id); const grid = document.getElementById('grid-' + id); if (sec && grid) sec.style.display = grid.children.length > 0? 'block' : 'none'; });
         return;
     }
     sectionsIds.forEach(id => {
-        const section = document.getElementById(id);
-        if (!section) return;
-        const cartes = section.querySelectorAll('.product-card');
+        const section = document.getElementById(id); if (!section) return;
         let visibles = 0;
-        cartes.forEach(c => {
-            const nom = c.querySelector('.product-name');
-            const ok = nom && nom.textContent.toLowerCase().includes(recherche);
-            c.style.display = ok? '' : 'none';
-            if (ok) visibles++;
+        section.querySelectorAll('.product-card').forEach(c => {
+            const nom = c.querySelector('.product-name'); const ok = nom && nom.textContent.toLowerCase().includes(recherche);
+            c.style.display = ok? '' : 'none'; if (ok) visibles++;
         });
         section.style.display = visibles > 0? 'block' : 'none';
     });
 }
-
 document.addEventListener('DOMContentLoaded', () => {
-    const btnAdmin = document.getElementById('btnAdmin');
-    if (btnAdmin) btnAdmin.onclick = () => document.getElementById('popupPin').style.display = 'flex';
-    const backBtn = document.getElementById('backToCatalogBtn');
-    if (backBtn) backBtn.onclick = showAllCategories;
+    const btnAdmin = document.getElementById('btnAdmin'); if (btnAdmin) btnAdmin.onclick = () => document.getElementById('popupPin').style.display = 'flex';
+    const backBtn = document.getElementById('backToCatalogBtn'); if (backBtn) backBtn.onclick = showAllCategories;
     const imgInput = document.getElementById('imageProduit');
     if (imgInput) {
-        imgInput.onchange = function() {
-            const [f] = this.files;
-            if (f) {
-                document.getElementById('preview-container').style.display = 'block';
-                document.getElementById('imagePreview').src = URL.createObjectURL(f);
-            }
-        };
+        imgInput.onchange = function() { const [f] = this.files; if (f) { document.getElementById('preview-container').style.display = 'block'; document.getElementById('imagePreview').src = URL.createObjectURL(f); } };
     }
-    const rechercheInput = document.getElementById('rechercheProduit');
-    if (rechercheInput) rechercheInput.addEventListener('input', appliquerRecherche);
+    const rechercheInput = document.getElementById('rechercheProduit'); if (rechercheInput) rechercheInput.addEventListener('input', appliquerRecherche);
     chargerProduits();
 });
