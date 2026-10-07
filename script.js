@@ -1,10 +1,23 @@
 /* ========== 1. CONFIGURATION SUPABASE ========== */
-
 const SUPABASE_URL = 'https://grrlsfvttancthbnysyn.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdycmxzZnZ0dGFuY3Rocm55c3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyODk0NTcsImV4cCI6MjEwNjg2NTQ1N30.TBbrrvddtKjNQApbKXD6zrIzHL9TaujqEMLelfCxWxA';
 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdycmxzZnZ0dGFuY3RoYm55c3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyODk0NTcsImV4cCI6MjEwNjg2NTQ1N30.TBbrrvddtKjNQApbKXD6zrIzHL9TaujqEMLelfCxWxA';
+// Création client
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Test de connexion
+async function testConnexion() {
+    const { data, error } = await db.from('products').select('id').limit(1);
+    if (error) {
+        console.error("❌ Erreur connexion Supabase:", error.message);
+        console.log("Vérifie si RLS est activé sur la table products");
+    } else {
+        console.log("✅ Connecté à Supabase !", data);
+    }
+}
+
+testConnexion();
 
 /* ========== MENU HAMBURGER ========== */
 window.toggleMenu = function() {
