@@ -29,74 +29,34 @@ const sectionsIds = [
 /* ========== CHARGEMENT ET TRI DES SECTIONS ========== */
 async function chargerProduits() {
     console.log("Mise à jour du catalogue...");
-
-    const { data: products, error } = await db
-      .from('products')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error("Erreur de chargement:", error.message);
-        return;
-    }
-
+    const { data: products, error } = await db.from('products').select('*').order('created_at', { ascending: false });
+    if (error) { console.error("Erreur de chargement:", error.message); return; }
     const grilles = document.querySelectorAll('.products-grid');
     grilles.forEach(g => g.innerHTML = "");
-
     const isAdmin = document.body.classList.contains('admin-open');
     const displayStyle = isAdmin? 'block' : 'none';
-
     products.forEach(product => {
         let cat = (product.category || '').toLowerCase().trim();
         let targetId = "grid-decoration";
-
-        if (cat.includes("skylander")) {
-            targetId = "grid-skylander";
-        }
-        else if (cat.includes("vaisselle")) {
-            targetId = "grid-vaisselle";
-        }
-        else if (cat.includes("bijoux")) {
-            targetId = "grid-bijoux";
-        }
-        else if (cat.includes("pop")) {
-            targetId = "grid-pop";
-        }
-        else if (cat.includes("livre")) {
-            targetId = "grid-livre";
-        }
-        else if (cat.includes("jeuxvideo")) {
-            targetId = "grid-jeuxvideo";
-        }
-        else if (cat.includes("film")) {
-            targetId = "grid-film";
-        }
-        else if (cat.includes("jeux") || cat.includes("casse")) {
-            targetId = "grid-jeux";
-        }
-        else if (cat.includes("peluche")) {
-            targetId = "grid-peluche";
-        }
-        else if (cat.includes("vetement")) {
-            targetId = "grid-vetement";
-        }
-        else if (cat.includes("maquillage")) {
-            targetId = "grid-maquillage";
-        }
-        else if (cat.includes("lumiere")) {
-            targetId = "grid-lumiere";
-        }
-
+        if (cat.includes("skylander")) targetId = "grid-skylander";
+        else if (cat.includes("vaisselle")) targetId = "grid-vaisselle";
+        else if (cat.includes("bijoux")) targetId = "grid-bijoux";
+        else if (cat.includes("pop")) targetId = "grid-pop";
+        else if (cat.includes("livre")) targetId = "grid-livre";
+        else if (cat.includes("jeuxvideo")) targetId = "grid-jeuxvideo";
+        else if (cat.includes("film")) targetId = "grid-film";
+        else if (cat.includes("jeux") || cat.includes("casse")) targetId = "grid-jeux";
+        else if (cat.includes("peluche")) targetId = "grid-peluche";
+        else if (cat.includes("vetement")) targetId = "grid-vetement";
+        else if (cat.includes("maquillage")) targetId = "grid-maquillage";
+        else if (cat.includes("lumiere")) targetId = "grid-lumiere";
         const gridElement = document.getElementById(targetId);
-
         if (gridElement) {
             gridElement.insertAdjacentHTML('beforeend', `
                 <div class="product-card" data-id="${product.id}">
                     <input type="checkbox" class="select-product-checkbox" value="${product.id}" style="display: ${displayStyle}">
                     <button class="btn-delete-product" style="display: ${displayStyle}" onclick="handleDeleteProduct(event)">✕</button>
-                    <div class="product-image">
-                        <img src="${product.image_url}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/150'">
-                    </div>
+                    <div class="product-image"><img src="${product.image_url}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/150'"></div>
                     <div class="product-body">
                         <h3 class="product-name">${product.name}</h3>
                         <p class="product-description">${product.description}</p>
@@ -107,59 +67,57 @@ async function chargerProduits() {
             `);
         }
     });
-
     const container = document.querySelector('#produits.container');
-
     if (container) {
         sectionsIds.forEach(id => {
             const section = document.getElementById(id);
             const grid = document.getElementById('grid-' + id);
-
             if (section && grid) {
-                if (grid.children.length > 0) {
-                    container.prepend(section);
-                    section.style.display = "block";
-                } else {
-                    container.appendChild(section);
-                    section.style.display = "none";
-                }
+                if (grid.children.length > 0) { container.prepend(section); section.style.display = "block"; }
+                else { container.appendChild(section); section.style.display = "none"; }
             }
         });
     }
-
     appliquerRecherche();
 }
 
-window.toggleCatalogue = function() {
-    const content = document.getElementById('catContent');
-    if (content) content.classList.toggle('active');
-};
-
+window.toggleCatalogue = function() { const c = document.getElementById('catContent'); if (c) c.classList.toggle('active'); };
 window.filterByCategory = function(cat) {
-    const recherche = document.getElementById('rechercheProduit');
-    if (recherche) recherche.value = '';
-    sectionsIds.forEach(id => {
-        const s = document.getElementById(id);
-        if (s) s.style.display = 'none';
-    });
-    const selected = document.getElementById(cat);
-    if (selected) {
-        selected.style.display = 'block';
-        window.scrollTo({ top: selected.offsetTop - 120, behavior: 'smooth' });
-    }
+    const r = document.getElementById('rechercheProduit'); if (r) r.value = '';
+    sectionsIds.forEach(id => { const s = document.getElementById(id); if (s) s.style.display = 'none'; });
+    const sel = document.getElementById(cat); if (sel) { sel.style.display = 'block'; window.scrollTo({ top: sel.offsetTop - 120, behavior: 'smooth' }); }
     document.getElementById('category-back-button').style.display = 'block';
     document.getElementById('default-title').style.display = 'none';
-    const content = document.getElementById('catContent');
-    if (content) content.classList.remove('active');
+    document.getElementById('catContent').classList.remove('active');
 };
-
 window.showAllCategories = function() {
-    const recherche = document.getElementById('rechercheProduit');
-    if (recherche) recherche.value = '';
+    const r = document.getElementById('rechercheProduit'); if (r) r.value = '';
     chargerProduits();
     document.getElementById('category-back-button').style.display = 'none';
     document.getElementById('default-title').style.display = 'block';
 };
+
+/* Compression image pour éviter l'erreur undefined */
+function compressImage(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX = 800;
+                let w = img.width, h = img.height;
+                if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } }
+                else { if (h > MAX) { w *= MAX / h; h = MAX; } }
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                resolve(canvas.toDataURL('image/jpeg', 0.7));
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
 
 /* ========== AJOUTER UN PRODUIT - SANS BUCKET ========== */
 const form = document.getElementById('formAjoutProduit');
@@ -171,15 +129,10 @@ if (form) {
         const file = fileInput.files[0];
         if (!file) return alert("Choisis une photo!");
         submitBtn.disabled = true;
-        submitBtn.innerText = "⏳ Envoi...";
+        submitBtn.innerText = "⏳ Compression...";
         try {
-            const imageBase64 = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-
+            const imageBase64 = await compressImage(file);
+            submitBtn.innerText = "⏳ Envoi...";
             const { error: insertError } = await db.from('products').insert([{
                 name: document.getElementById('nomProduit').value,
                 description: document.getElementById('descProduit').value,
@@ -193,7 +146,8 @@ if (form) {
             document.getElementById('preview-container').style.display = 'none';
             chargerProduits();
         } catch (err) {
-            alert(err.message);
+            console.error(err);
+            alert("Erreur: " + (err.message || JSON.stringify(err)));
         } finally {
             submitBtn.disabled = false;
             submitBtn.innerText = "🚀 Publier";
@@ -204,77 +158,48 @@ if (form) {
 window.verifierPin = async function() {
     const input = document.getElementById('inputPin');
     const pin = input.value.trim();
-    if (!/^\d{6}$/.test(pin)) {
-        alert("Veuillez entrer un PIN de 6 chiffres.");
-        return;
-    }
+    if (!/^\d{6}$/.test(pin)) { alert("Veuillez entrer un PIN de 6 chiffres."); return; }
     try {
         const { data, error } = await db.rpc('verify_admin_pin', { pin_code: pin });
-        if (error) {
-            console.error("Erreur vérification PIN :", error);
-            alert("Erreur Supabase : " + error.message);
-            return;
-        }
-        if (data!== true) {
-            alert("Code PIN incorrect!");
-            input.value = "";
-            input.focus();
-            return;
-        }
+        if (error) { alert("Erreur Supabase : " + error.message); return; }
+        if (data!== true) { alert("Code PIN incorrect!"); input.value = ""; return; }
         document.getElementById('admin').style.display = 'block';
         document.getElementById('popupPin').style.display = 'none';
         document.getElementById('btn-bulk-delete').style.display = 'inline-block';
         document.body.classList.add('admin-open');
         chargerProduits();
         document.getElementById('admin').scrollIntoView({ behavior: 'smooth' });
-    } catch (err) {
-        console.error("Erreur inattendue :", err);
-        alert("Une erreur est survenue : " + (err.message || err));
-    }
+    } catch (err) { alert(err.message); }
 };
 
 window.handleDeleteProduct = async function(event) {
     const card = event.target.closest('.product-card');
-    if (!card) { alert("Impossible de trouver le produit à supprimer."); return; }
+    if (!card) return alert("Produit introuvable.");
     const id = card.getAttribute('data-id');
-    if (!id) { alert("Identifiant du produit introuvable."); return; }
     const pin = prompt("Entrez le code PIN pour supprimer :");
     if (!pin) return;
     try {
         const { error } = await db.rpc('delete_product_secure', { prod_id: Number(id), pin_code: pin.trim() });
-        if (error) {
-            console.error("Erreur Supabase lors de la suppression :", error);
-            alert("Échec de la suppression :\n" + error.message);
-            return;
-        }
+        if (error) { alert("Échec : " + error.message); return; }
         card.style.transition = "transform 300ms ease, opacity 300ms ease";
-        card.style.transform = "scale(0)";
-        card.style.opacity = "0";
+        card.style.transform = "scale(0)"; card.style.opacity = "0";
         setTimeout(() => { card.remove(); }, 300);
-        alert("Produit supprimé avec succès!");
-    } catch (err) {
-        console.error("Erreur inattendue :", err);
-        alert("Une erreur inattendue est survenue :\n" + (err.message || err));
-    }
+        alert("Produit supprimé!");
+    } catch (err) { alert(err.message); }
 };
 
 window.deleteSelectedProducts = async function() {
     const checkboxes = document.querySelectorAll('.select-product-checkbox:checked');
-    if (checkboxes.length === 0) { return alert("Aucun produit sélectionné"); }
-    const pin = prompt(`Supprimer ${checkboxes.length} produits? Entrez le code PIN :`);
+    if (checkboxes.length === 0) return alert("Aucun produit sélectionné");
+    const pin = prompt(`Supprimer ${checkboxes.length} produits? PIN :`);
     if (!pin) return;
     let successCount = 0;
     for (let cb of checkboxes) {
-        const id = cb.value;
-        const { error } = await db.rpc('delete_product_secure', { prod_id: id, pin_code: pin });
+        const { error } = await db.rpc('delete_product_secure', { prod_id: cb.value, pin_code: pin });
         if (!error) successCount++;
     }
-    if (successCount > 0) {
-        alert(`${successCount} produit(s) supprimé(s).`);
-        chargerProduits();
-    } else {
-        alert("Erreur ou PIN incorrect.");
-    }
+    if (successCount > 0) { alert(`${successCount} supprimé(s).`); chargerProduits(); }
+    else alert("Erreur ou PIN incorrect.");
 };
 
 function appliquerRecherche() {
@@ -282,43 +207,29 @@ function appliquerRecherche() {
     if (!rechercheInput) return;
     const recherche = rechercheInput.value.trim().toLowerCase();
     sectionsIds.forEach(id => {
-        const section = document.getElementById(id);
-        if (!section) return;
+        const section = document.getElementById(id); if (!section) return;
         const cartes = section.querySelectorAll('.product-card');
         let cartesVisibles = 0;
         cartes.forEach(carte => {
             const nom = carte.querySelector('.product-name');
             const correspond = nom && nom.textContent.toLowerCase().includes(recherche);
             carte.style.display = correspond? '' : 'none';
-            if (correspond) { cartesVisibles++; }
+            if (correspond) cartesVisibles++;
         });
-        if (recherche) {
-            section.style.display = cartesVisibles > 0? 'block' : 'none';
-        } else {
-            section.style.display = cartes.length > 0? 'block' : 'none';
-        }
+        section.style.display = recherche? (cartesVisibles > 0? 'block' : 'none') : (cartes.length > 0? 'block' : 'none');
     });
-    if (recherche) {
-        document.getElementById('default-title').style.display = 'none';
-        document.getElementById('category-back-button').style.display = 'block';
-    } else {
-        document.getElementById('default-title').style.display = 'block';
-        document.getElementById('category-back-button').style.display = 'none';
-    }
+    const hasSearch =!!rechercheInput.value.trim();
+    document.getElementById('default-title').style.display = hasSearch? 'none' : 'block';
+    document.getElementById('category-back-button').style.display = hasSearch? 'block' : 'none';
 }
 
 const rechercheProduit = document.getElementById('rechercheProduit');
-if (rechercheProduit) {
-    rechercheProduit.addEventListener('input', function() { appliquerRecherche(); });
-}
+if (rechercheProduit) rechercheProduit.addEventListener('input', appliquerRecherche);
 
 document.addEventListener('DOMContentLoaded', () => {
     const btnAdmin = document.getElementById('btnAdmin');
-    if (btnAdmin) {
-        btnAdmin.onclick = () => { document.getElementById('popupPin').style.display = 'flex'; };
-    }
-    const backBtn = document.getElementById('backToCatalogBtn');
-    if (backBtn) { backBtn.onclick = showAllCategories; }
+    if (btnAdmin) btnAdmin.onclick = () => { document.getElementById('popupPin').style.display = 'flex'; };
+    const backBtn = document.getElementById('backToCatalogBtn'); if (backBtn) backBtn.onclick = showAllCategories;
     const imgInput = document.getElementById('imageProduit');
     if (imgInput) {
         imgInput.onchange = function() {
@@ -334,15 +245,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.querySelector('input[placeholder*="Rechercher"]');
-    if (!searchInput) { console.warn("Barre de recherche introuvable."); return; }
+    if (!searchInput) return;
     searchInput.addEventListener("input", function () {
         const recherche = this.value.trim().toLowerCase();
-        const produits = document.querySelectorAll(".product-card");
-        produits.forEach(function (produit) {
-            const titre = produit.querySelector("h3");
-            if (!titre) return;
-            const nom = titre.textContent.trim().toLowerCase();
-            produit.style.display = nom.includes(recherche)? "" : "none";
+        document.querySelectorAll(".product-card").forEach(function (produit) {
+            const titre = produit.querySelector("h3"); if (!titre) return;
+            produit.style.display = titre.textContent.toLowerCase().includes(recherche)? "" : "none";
         });
     });
 });
