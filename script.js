@@ -1,10 +1,8 @@
-/* ========== 1. CONFIGURATION SUPABASE ========== */
-const SUPABASE_URL = 'https://embeosfcjqgsignobcsl.supabase.co';
+const SUPABASE_URL = 'https://grrlsfvttanctbnysun.supabase.co';
 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtYmVvc2ZjanFnc2lnbm9iY3NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5NzU1NzAsImV4cCI6MjEwNTU1MTU3MH0.4JnCnuJ5tcAtUjfKqigNpyYRSDk-vq_4xtao7mkVf8g';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdycmxzZnZ0dGFuY3RoYm55c3VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyODk0NTcsImV4cCI6MjEwNjg2NTQ1N30.TBbrrvddtKjNQApbKXD6zrIzHL9TaujqEMLelfCxWxA';
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 
 /* ========== MENU HAMBURGER ========== */
 window.toggleMenu = function() {
