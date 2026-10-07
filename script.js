@@ -1,4 +1,4 @@
-/* ========== 1. CONFIGURATION SUPABASE - NOUVELLE BASE ========== */
+/* ========== 1. CONFIGURATION SUPABASE - NOUVELLE BASE SANS BUCKET ========== */
 const SUPABASE_URL = 'https://grrlsfvttancthbnysyn.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdycmxzZnZ0dGFuY3RoYm55c3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyODk0NTcsImV4cCI6MjEwNjg2NTQ1N30.TBbrrvddtKjNQApbKXD6zrIzHL9TaujqEMLelfCxWxA';
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -31,9 +31,9 @@ async function chargerProduits() {
     console.log("Mise à jour du catalogue...");
 
     const { data: products, error } = await db
-       .from('products')
-       .select('*')
-       .order('created_at', { ascending: false });
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
 
     if (error) {
         console.error("Erreur de chargement:", error.message);
@@ -108,7 +108,6 @@ async function chargerProduits() {
         }
     });
 
-    // CORRECTION ICI - avec espace
     const container = document.querySelector('#produits.container');
 
     if (container) {
@@ -162,6 +161,7 @@ window.showAllCategories = function() {
     document.getElementById('default-title').style.display = 'block';
 };
 
+/* ========== AJOUTER UN PRODUIT - SANS BUCKET ========== */
 const form = document.getElementById('formAjoutProduit');
 if (form) {
     form.onsubmit = async function(e) {
@@ -173,15 +173,18 @@ if (form) {
         submitBtn.disabled = true;
         submitBtn.innerText = "⏳ Envoi...";
         try {
-            const fileName = Date.now() + "-" + file.name;
-            const { error: uploadError } = await db.storage.from('product-images').upload(fileName, file);
-            if (uploadError) throw uploadError;
-            const { data: linkData } = db.storage.from('product-images').getPublicUrl(fileName);
+            const imageBase64 = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+
             const { error: insertError } = await db.from('products').insert([{
                 name: document.getElementById('nomProduit').value,
                 description: document.getElementById('descProduit').value,
                 price: parseFloat(document.getElementById('prixProduit').value),
-                image_url: linkData.publicUrl,
+                image_url: imageBase64,
                 category: document.getElementById('categorieProduit').value
             }]);
             if (insertError) throw insertError;
