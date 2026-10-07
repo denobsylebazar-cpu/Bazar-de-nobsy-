@@ -3,17 +3,36 @@ const SUPABASE_URL = 'https://grrlsfvttancthbnysyn.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdycmxzZnZ0dGFuY3RoYm55c3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyODk0NTcsImV4cCI6MjEwNjg2NTQ1N30.TBbrrvddtKjNQApbKXD6zrIzHL9TaujqEMLelfCxWxA';
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+/* ========== MENU HAMBURGER ========== */
 window.toggleMenu = function() {
     const navMenu = document.getElementById('navMenu');
     if (navMenu) navMenu.classList.toggle('active');
 };
 
-const sectionsIds = ['pop','jeuxvideo','skylander','livre','film','decoration','vaisselle','bijoux','jeux','peluche','vetement','maquillage','lumiere'];
+/* ========== LISTE DES CATÉGORIES ========== */
+const sectionsIds = [
+    'pop',
+    'jeuxvideo',
+    'skylander',
+    'livre',
+    'film',
+    'decoration',
+    'vaisselle',
+    'bijoux',
+    'jeux',
+    'peluche',
+    'vetement',
+    'maquillage',
+    'lumiere'
+];
 
+/* ========== CHARGEMENT ET TRI DES SECTIONS ========== */
 async function chargerProduits() {
+    console.log("Mise à jour du catalogue...");
     const { data: products, error } = await db.from('products').select('*').order('created_at', { ascending: false });
-    if (error) { console.error(error); return; }
-    document.querySelectorAll('.products-grid').forEach(g => g.innerHTML = "");
+    if (error) { console.error("Erreur de chargement:", error.message); return; }
+    const grilles = document.querySelectorAll('.products-grid');
+    grilles.forEach(g => g.innerHTML = "");
     const isAdmin = document.body.classList.contains('admin-open');
     const displayStyle = isAdmin? 'block' : 'none';
     products.forEach(product => {
@@ -31,149 +50,211 @@ async function chargerProduits() {
         else if (cat.includes("vetement")) targetId = "grid-vetement";
         else if (cat.includes("maquillage")) targetId = "grid-maquillage";
         else if (cat.includes("lumiere")) targetId = "grid-lumiere";
-        const grid = document.getElementById(targetId);
-        if (grid) {
-            grid.insertAdjacentHTML('beforeend', `
+        const gridElement = document.getElementById(targetId);
+        if (gridElement) {
+            gridElement.insertAdjacentHTML('beforeend', `
                 <div class="product-card" data-id="${product.id}">
-                    <input type="checkbox" class="select-product-checkbox" value="${product.id}" style="display:${displayStyle}">
-                    <button class="btn-delete-product" style="display:${displayStyle}" onclick="handleDeleteProduct(event)">✕</button>
+                    <input type="checkbox" class="select-product-checkbox" value="${product.id}" style="display: ${displayStyle}">
+                    <button class="btn-delete-product" style="display: ${displayStyle}" onclick="handleDeleteProduct(event)">✕</button>
                     <div class="product-image"><img src="${product.image_url}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/150'"></div>
                     <div class="product-body">
                         <h3 class="product-name">${product.name}</h3>
                         <p class="product-description">${product.description}</p>
                         <p class="product-price"><strong>${product.price}$</strong></p>
-                        <button class="btn" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505','_blank')">Commander</button>
+                        <button class="btn" onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')">Commander</button>
                     </div>
-                </div>`);
+                </div>
+            `);
         }
     });
-    const container = document.querySelector('#produits.container');
+    const container = document.querySelector('#produits.container') || document.querySelector('#produits.container') || document.querySelector('#produits');
     if (container) {
         sectionsIds.forEach(id => {
             const section = document.getElementById(id);
             const grid = document.getElementById('grid-' + id);
             if (section && grid) {
-                if (grid.children.length > 0) { container.prepend(section); section.style.display = "block"; }
-                else { container.appendChild(section); section.style.display = "none"; }
+                if (grid.children.length > 0) {
+                    if (section.parentElement!== container && container.classList && container.classList.contains('container')) {
+                        container.prepend(section);
+                    }
+                    section.style.display = "block";
+                } else {
+                    section.style.display = "none";
+                }
+            }
+        });
+    } else {
+        sectionsIds.forEach(id => {
+            const section = document.getElementById(id);
+            const grid = document.getElementById('grid-' + id);
+            if (section && grid) {
+                section.style.display = grid.children.length > 0? "block" : "none";
             }
         });
     }
     appliquerRecherche();
 }
 
-window.toggleCatalogue = function() { document.getElementById('catContent').classList.toggle('active'); };
+window.toggleCatalogue = function() { const c = document.getElementById('catContent'); if (c) c.classList.toggle('active'); };
 window.filterByCategory = function(cat) {
-    document.getElementById('rechercheProduit').value = '';
+    const r = document.getElementById('rechercheProduit'); if (r) r.value = '';
     sectionsIds.forEach(id => { const s = document.getElementById(id); if (s) s.style.display = 'none'; });
-    document.getElementById(cat).style.display = 'block';
+    const sel = document.getElementById(cat); if (sel) { sel.style.display = 'block'; window.scrollTo({ top: sel.offsetTop - 120, behavior: 'smooth' }); }
     document.getElementById('category-back-button').style.display = 'block';
     document.getElementById('default-title').style.display = 'none';
-    document.getElementById('catContent').classList.remove('active');
+    const cc = document.getElementById('catContent'); if (cc) cc.classList.remove('active');
 };
 window.showAllCategories = function() {
-    document.getElementById('rechercheProduit').value = '';
+    const r = document.getElementById('rechercheProduit'); if (r) r.value = '';
     chargerProduits();
     document.getElementById('category-back-button').style.display = 'none';
     document.getElementById('default-title').style.display = 'block';
 };
 
-/* ========== AJOUT SANS BUCKET - SIMPLE BASE64 ========== */
+/* ========== AJOUTER UN PRODUIT - SANS BUCKET ========== */
 const form = document.getElementById('formAjoutProduit');
 if (form) {
     form.onsubmit = async function(e) {
         e.preventDefault();
-        const btn = form.querySelector('button[type="submit"]');
-        const file = document.getElementById('imageProduit').files[0];
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const fileInput = document.getElementById('imageProduit');
+        const file = fileInput.files[0];
         if (!file) return alert("Choisis une photo!");
-        if (file.size > 2 * 1024 * 1024) return alert("Photo trop grosse! Prends une photo de moins de 2 Mo");
-        btn.disabled = true;
-        btn.innerText = "⏳ Envoi...";
+        if (file.size > 2 * 1024 * 1024) return alert("Photo trop grosse! Moins de 2 Mo SVP");
+        submitBtn.disabled = true;
+        submitBtn.innerText = "⏳ Envoi...";
         try {
-            const base64 = await new Promise((resolve, reject) => {
-                const r = new FileReader();
-                r.onload = () => resolve(r.result);
-                r.onerror = () => reject(new Error("Lecture fichier échouée"));
-                r.readAsDataURL(file);
+            const imageBase64 = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error("Lecture fichier échouée"));
+                reader.readAsDataURL(file);
             });
-            const { data, error } = await db.from('products').insert([{
+            const { error: insertError } = await db.from('products').insert([{
                 name: document.getElementById('nomProduit').value,
                 description: document.getElementById('descProduit').value,
                 price: parseFloat(document.getElementById('prixProduit').value),
-                image_url: base64,
+                image_url: imageBase64,
                 category: document.getElementById('categorieProduit').value
-            }]).select();
-            if (error) throw error;
+            }]);
+            if (insertError) throw insertError;
             alert("Produit publié! ✅");
             form.reset();
             document.getElementById('preview-container').style.display = 'none';
             chargerProduits();
         } catch (err) {
             console.error(err);
-            alert("Erreur Supabase: " + (err.message || JSON.stringify(err)));
+            alert("Erreur: " + (err.message || JSON.stringify(err)));
         } finally {
-            btn.disabled = false;
-            btn.innerText = "🚀 Publier";
+            submitBtn.disabled = false;
+            submitBtn.innerText = "🚀 Publier";
         }
     };
 }
 
 window.verifierPin = async function() {
-    const pin = document.getElementById('inputPin').value.trim();
-    if (!/^\d{6}$/.test(pin)) return alert("PIN 6 chiffres");
-    const { data, error } = await db.rpc('verify_admin_pin', { pin_code: pin });
-    if (error) return alert(error.message);
-    if (data!== true) return alert("PIN incorrect");
-    document.getElementById('admin').style.display = 'block';
-    document.getElementById('popupPin').style.display = 'none';
-    document.getElementById('btn-bulk-delete').style.display = 'inline-block';
-    document.body.classList.add('admin-open');
-    chargerProduits();
+    const input = document.getElementById('inputPin');
+    const pin = input.value.trim();
+    if (!/^\d{6}$/.test(pin)) { alert("Veuillez entrer un PIN de 6 chiffres."); return; }
+    try {
+        const { data, error } = await db.rpc('verify_admin_pin', { pin_code: pin });
+        if (error) { alert("Erreur Supabase : " + error.message); return; }
+        if (data!== true) { alert("Code PIN incorrect!"); input.value = ""; return; }
+        document.getElementById('admin').style.display = 'block';
+        document.getElementById('popupPin').style.display = 'none';
+        document.getElementById('btn-bulk-delete').style.display = 'inline-block';
+        document.body.classList.add('admin-open');
+        chargerProduits();
+        document.getElementById('admin').scrollIntoView({ behavior: 'smooth' });
+    } catch (err) { alert("Erreur: " + (err.message || JSON.stringify(err))); }
 };
+
 window.handleDeleteProduct = async function(event) {
     const card = event.target.closest('.product-card');
+    if (!card) return alert("Produit introuvable.");
     const id = card.getAttribute('data-id');
-    const pin = prompt("PIN pour supprimer :");
+    const pin = prompt("Entrez le code PIN pour supprimer :");
     if (!pin) return;
-    const { error } = await db.rpc('delete_product_secure', { prod_id: Number(id), pin_code: pin.trim() });
-    if (error) return alert(error.message);
-    card.remove();
-    alert("Supprimé!");
+    try {
+        const { error } = await db.rpc('delete_product_secure', { prod_id: Number(id), pin_code: pin.trim() });
+        if (error) { alert("Échec : " + error.message); return; }
+        card.style.transition = "transform 300ms ease, opacity 300ms ease";
+        card.style.transform = "scale(0)"; card.style.opacity = "0";
+        setTimeout(() => { card.remove(); }, 300);
+        alert("Produit supprimé!");
+    } catch (err) { alert("Erreur: " + (err.message || JSON.stringify(err))); }
 };
+
 window.deleteSelectedProducts = async function() {
-    const cbs = document.querySelectorAll('.select-product-checkbox:checked');
-    if (!cbs.length) return alert("Aucun sélectionné");
-    const pin = prompt(`Supprimer ${cbs.length}? PIN :`);
+    const checkboxes = document.querySelectorAll('.select-product-checkbox:checked');
+    if (checkboxes.length === 0) return alert("Aucun produit sélectionné");
+    const pin = prompt(`Supprimer ${checkboxes.length} produits? PIN :`);
     if (!pin) return;
-    let n=0;
-    for (let cb of cbs) { const {error} = await db.rpc('delete_product_secure', { prod_id: cb.value, pin_code: pin }); if (!error) n++; }
-    alert(n+" supprimé(s)"); chargerProduits();
+    let successCount = 0;
+    for (let cb of checkboxes) {
+        const { error } = await db.rpc('delete_product_secure', { prod_id: cb.value, pin_code: pin });
+        if (!error) successCount++;
+    }
+    if (successCount > 0) { alert(`${successCount} supprimé(s).`); chargerProduits(); }
+    else alert("Erreur ou PIN incorrect.");
 };
+
 function appliquerRecherche() {
-    const val = document.getElementById('rechercheProduit').value.trim().toLowerCase();
+    const rechercheInput = document.getElementById('rechercheProduit');
+    if (!rechercheInput) return;
+    const recherche = rechercheInput.value.trim().toLowerCase();
     sectionsIds.forEach(id => {
-        const sec = document.getElementById(id); if (!sec) return;
-        let visible=0;
-        sec.querySelectorAll('.product-card').forEach(c => {
-            const ok = c.querySelector('.product-name').textContent.toLowerCase().includes(val);
-            c.style.display = ok? '' : 'none'; if (ok) visible++;
+        const section = document.getElementById(id); if (!section) return;
+        const cartes = section.querySelectorAll('.product-card');
+        let cartesVisibles = 0;
+        cartes.forEach(carte => {
+            const nom = carte.querySelector('.product-name');
+            const correspond = nom && nom.textContent.toLowerCase().includes(recherche);
+            carte.style.display = correspond? '' : 'none';
+            if (correspond) cartesVisibles++;
         });
-        sec.style.display = val? (visible?'block':'none') : (sec.querySelectorAll('.product-card').length?'block':'none');
+        if (recherche) {
+            section.style.display = cartesVisibles > 0? 'block' : 'none';
+        } else {
+            const hasProducts = cartes.length > 0;
+            section.style.display = hasProducts? 'block' : 'none';
+        }
     });
+    const hasSearch =!!rechercheInput.value.trim();
+    const dt = document.getElementById('default-title');
+    const bb = document.getElementById('category-back-button');
+    if (dt) dt.style.display = hasSearch? 'none' : 'block';
+    if (bb) bb.style.display = hasSearch? 'block' : 'none';
 }
+
+const rechercheProduit = document.getElementById('rechercheProduit');
+if (rechercheProduit) rechercheProduit.addEventListener('input', appliquerRecherche);
+
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('btnAdmin').onclick = () => document.getElementById('popupPin').style.display = 'flex';
-    document.getElementById('backToCatalogBtn').onclick = showAllCategories;
-    document.getElementById('imageProduit').onchange = function() {
-        const [f] = this.files;
-        if (f) { document.getElementById('preview-container').style.display = 'block'; document.getElementById('imagePreview').src = URL.createObjectURL(f); }
-    };
+    const btnAdmin = document.getElementById('btnAdmin');
+    if (btnAdmin) btnAdmin.onclick = () => { document.getElementById('popupPin').style.display = 'flex'; };
+    const backBtn = document.getElementById('backToCatalogBtn'); if (backBtn) backBtn.onclick = showAllCategories;
+    const imgInput = document.getElementById('imageProduit');
+    if (imgInput) {
+        imgInput.onchange = function() {
+            const [file] = this.files;
+            if (file) {
+                document.getElementById('preview-container').style.display = 'block';
+                document.getElementById('imagePreview').src = URL.createObjectURL(file);
+            }
+        };
+    }
     chargerProduits();
-    const s = document.querySelector('input[placeholder*="Rechercher"]');
-    if (s) s.addEventListener("input", function() {
-        const r = this.value.trim().toLowerCase();
-        document.querySelectorAll(".product-card").forEach(p => {
-            const t = p.querySelector("h3"); if (!t) return;
-            p.style.display = t.textContent.toLowerCase().includes(r)? "" : "none";
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.querySelector('input[placeholder*="Rechercher"]');
+    if (!searchInput) return;
+    searchInput.addEventListener("input", function () {
+        const recherche = this.value.trim().toLowerCase();
+        document.querySelectorAll(".product-card").forEach(function (produit) {
+            const titre = produit.querySelector("h3"); if (!titre) return;
+            produit.style.display = titre.textContent.toLowerCase().includes(recherche)? "" : "none";
         });
     });
 });
