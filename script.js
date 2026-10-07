@@ -1,18 +1,12 @@
 const SUPABASE_URL = 'https://grrlsfvttancthbnysyn.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdycmxzZnZ0dGFuY3RoYm55c3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyODk0NTcsImV4cCI6MjEwNjg2NTQ1N30.TBbrrvddtKjNQApbKXD6zrIzHL9TaujqEMLelfCxWxA';
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-window.toggleMenu = function() {
-    const navMenu = document.getElementById('navMenu');
-    if (navMenu) navMenu.classList.toggle('active');
-};
-
+window.toggleMenu = function() { const n = document.getElementById('navMenu'); if (n) n.classList.toggle('active'); };
 const sectionsIds = ['pop','jeuxvideo','skylander','livre','film','decoration','vaisselle','bijoux','jeux','peluche','vetement','maquillage','lumiere'];
 
 async function chargerProduits() {
     const { data: products, error } = await db.from('products').select('*').order('created_at', { ascending: false });
-    if (error) { console.error(error); return; }
-    if (!products) return;
+    if (error) return;
     document.querySelectorAll('.products-grid').forEach(g => g.innerHTML = "");
     const isAdmin = document.body.classList.contains('admin-open');
     const displayStyle = isAdmin? 'block' : 'none';
@@ -50,60 +44,51 @@ async function chargerProduits() {
     sectionsIds.forEach(id => {
         const section = document.getElementById(id);
         const grid = document.getElementById('grid-' + id);
-        if (section && grid) {
-            section.style.display = grid.children.length > 0? "block" : "none";
-        }
+        if (section && grid) section.style.display = grid.children.length > 0? "block" : "none";
     });
     appliquerRecherche();
 }
-
 window.toggleCatalogue = function() { const c = document.getElementById('catContent'); if (c) c.classList.toggle('active'); };
 window.filterByCategory = function(cat) {
     const r = document.getElementById('rechercheProduit'); if (r) r.value = '';
     sectionsIds.forEach(id => { const s = document.getElementById(id); if (s) s.style.display = 'none'; });
-    const selected = document.getElementById(cat);
-    if (selected) { selected.style.display = 'block'; selected.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    const selected = document.getElementById(cat); if (selected) { selected.style.display = 'block'; selected.scrollIntoView({ behavior: 'smooth' }); }
     const backBtn = document.getElementById('category-back-button'); const defTitle = document.getElementById('default-title');
     if (backBtn) backBtn.style.display = 'block'; if (defTitle) defTitle.style.display = 'none';
     const catContent = document.getElementById('catContent'); if (catContent) catContent.classList.remove('active');
 };
 window.showAllCategories = function() {
     const r = document.getElementById('rechercheProduit'); if (r) r.value = '';
-    sectionsIds.forEach(id => {
-        const section = document.getElementById(id); const grid = document.getElementById('grid-' + id);
-        if (section && grid) section.style.display = grid.children.length > 0? "block" : "none";
-    });
+    sectionsIds.forEach(id => { const sec = document.getElementById(id); const g = document.getElementById('grid-' + id); if (sec && g) sec.style.display = g.children.length > 0? "block" : "none"; });
     const backBtn = document.getElementById('category-back-button'); const defTitle = document.getElementById('default-title');
     if (backBtn) backBtn.style.display = 'none'; if (defTitle) defTitle.style.display = 'block';
     appliquerRecherche();
 };
 
-// CONVERSION IMAGE ROBUSTE POUR MOBILE
-function fileToBase64Compressed(file) {
+// LECTURE SANS FILEREADER - 100% compatible mobile
+function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const img = new Image();
-        const url = URL.createObjectURL(file);
+        const objectUrl = URL.createObjectURL(file);
         img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let w = img.width, h = img.height;
-            const MAX = 800;
-            if (w > MAX || h > MAX) {
-                if (w > h) { h = h * MAX / w; w = MAX; } else { w = w * MAX / h; h = MAX; }
-            }
-            canvas.width = w; canvas.height = h;
-            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-            URL.revokeObjectURL(url);
-            resolve(canvas.toDataURL('image/jpeg', 0.7));
+            try {
+                const canvas = document.createElement('canvas');
+                let w = img.width, h = img.height;
+                const MAX = 700;
+                if (w > MAX || h > MAX) {
+                    if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+                    else { w = Math.round(w * MAX / h); h = MAX; }
+                }
+                canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                URL.revokeObjectURL(objectUrl);
+                resolve(dataUrl);
+            } catch (e) { URL.revokeObjectURL(objectUrl); reject(e); }
         };
-        img.onerror = () => {
-            URL.revokeObjectURL(url);
-            // Fallback simple si canvas échoue
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = () => reject(new Error("Impossible de lire l'image"));
-            reader.readAsDataURL(file);
-        };
-        img.src = url;
+        img.onerror = (e) => { URL.revokeObjectURL(objectUrl); reject(new Error("Image invalide - prends une autre photo")); };
+        img.src = objectUrl;
     });
 }
 
@@ -115,9 +100,9 @@ if (form) {
         const file = document.getElementById('imageProduit').files[0];
         if (!file) return alert("Choisis une photo!");
         btn.disabled = true;
-        btn.innerText = "⏳ Compression...";
+        btn.innerText = "⏳ Traitement...";
         try {
-            const base64 = await fileToBase64Compressed(file);
+            const base64 = await fileToBase64(file);
             btn.innerText = "⏳ Envoi...";
             const { error } = await db.from('products').insert([{
                 name: document.getElementById('nomProduit').value,
@@ -133,14 +118,13 @@ if (form) {
             chargerProduits();
         } catch (err) {
             console.error(err);
-            alert("Erreur: " + (err.message || JSON.stringify(err)));
+            alert("Erreur: " + err.message);
         } finally {
             btn.disabled = false;
             btn.innerText = "🚀 Publier";
         }
     };
 }
-
 window.verifierPin = async function() {
     const pin = document.getElementById('inputPin').value.trim();
     if (!/^\d{6}$/.test(pin)) return alert("PIN 6 chiffres");
@@ -188,9 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnAdmin = document.getElementById('btnAdmin'); if (btnAdmin) btnAdmin.onclick = () => document.getElementById('popupPin').style.display = 'flex';
     const backBtn = document.getElementById('backToCatalogBtn'); if (backBtn) backBtn.onclick = showAllCategories;
     const imgInput = document.getElementById('imageProduit');
-    if (imgInput) {
-        imgInput.onchange = function() { const [f] = this.files; if (f) { document.getElementById('preview-container').style.display = 'block'; document.getElementById('imagePreview').src = URL.createObjectURL(f); } };
-    }
+    if (imgInput) { imgInput.onchange = function() { const [f] = this.files; if (f) { document.getElementById('preview-container').style.display = 'block'; document.getElementById('imagePreview').src = URL.createObjectURL(f); } }; }
     const rechercheInput = document.getElementById('rechercheProduit'); if (rechercheInput) rechercheInput.addEventListener('input', appliquerRecherche);
     chargerProduits();
 });
