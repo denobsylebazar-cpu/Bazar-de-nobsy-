@@ -43,59 +43,42 @@ async function chargerProduits() {
 
     if (error) {
         console.error("Erreur de chargement:", error.message);
-        alert("Erreur Supabase : " + error.message);
         return;
     }
 
-    // Vider toutes les grilles
     const grilles = document.querySelectorAll('.products-grid');
     grilles.forEach(g => g.innerHTML = "");
 
-    // Vérifier si on est en mode admin
     const isAdmin = document.body.classList.contains('admin-open');
     const displayStyle = isAdmin ? 'block' : 'none';
 
-    // Remplir les grilles
     products.forEach(product => {
-
         let cat = (product.category || '').toLowerCase().trim();
         let targetId = "grid-decoration";
 
-        // Skylanders doit être séparé des jeux vidéo
         if (cat.includes("skylander")) {
             targetId = "grid-skylander";
-        }
-        else if (cat.includes("vaisselle")) {
+        } else if (cat.includes("vaisselle")) {
             targetId = "grid-vaisselle";
-        }
-        else if (cat.includes("bijoux")) {
+        } else if (cat.includes("bijoux")) {
             targetId = "grid-bijoux";
-        }
-        else if (cat.includes("pop")) {
+        } else if (cat.includes("pop")) {
             targetId = "grid-pop";
-        }
-        else if (cat.includes("livre")) {
+        } else if (cat.includes("livre")) {
             targetId = "grid-livre";
-        }
-        else if (cat.includes("jeuxvideo")) {
+        } else if (cat.includes("jeuxvideo")) {
             targetId = "grid-jeuxvideo";
-        }
-        else if (cat.includes("film")) {
+        } else if (cat.includes("film")) {
             targetId = "grid-film";
-        }
-        else if (cat.includes("jeux") || cat.includes("casse")) {
+        } else if (cat.includes("jeux") || cat.includes("casse")) {
             targetId = "grid-jeux";
-        }
-        else if (cat.includes("peluche")) {
+        } else if (cat.includes("peluche")) {
             targetId = "grid-peluche";
-        }
-        else if (cat.includes("vetement")) {
+        } else if (cat.includes("vetement")) {
             targetId = "grid-vetement";
-        }
-        else if (cat.includes("maquillage")) {
+        } else if (cat.includes("maquillage")) {
             targetId = "grid-maquillage";
-        }
-        else if (cat.includes("lumiere")) {
+        } else if (cat.includes("lumiere")) {
             targetId = "grid-lumiere";
         }
 
@@ -104,7 +87,6 @@ async function chargerProduits() {
         if (gridElement) {
             gridElement.insertAdjacentHTML('beforeend', `
                 <div class="product-card" data-id="${product.id}">
-
                     <input
                         type="checkbox"
                         class="select-product-checkbox"
@@ -120,21 +102,18 @@ async function chargerProduits() {
 
                     <div class="product-image">
                         <img
-                            src="${product.image_url || 'https://via.placeholder.com/150'}"
-                            alt="${product.name || ''}"
+                            src="${product.image_url}"
+                            alt="${product.name}"
                             onerror="this.src='https://via.placeholder.com/150'"
                         >
                     </div>
 
                     <div class="product-body">
-                        <h3 class="product-name">${product.name || ''}</h3>
-
-                        <p class="product-description">${product.description || ''}</p>
-
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
                         <p class="product-price">
-                            <strong>${product.price ?? ''}$</strong>
+                            <strong>${product.price}$</strong>
                         </p>
-
                         <button
                             class="btn"
                             onclick="window.open('https://www.facebook.com/noemie.nadeau.705505', '_blank')"
@@ -145,27 +124,23 @@ async function chargerProduits() {
         }
     });
 
-    // TRI DES SECTIONS
     const container = document.querySelector('#produits .container');
 
-    if (container) {
-        sectionsIds.forEach(id => {
-            const section = document.getElementById(id);
-            const grid = document.getElementById('grid-' + id);
+    sectionsIds.forEach(id => {
+        const section = document.getElementById(id);
+        const grid = document.getElementById('grid-' + id);
 
-            if (section && grid) {
-                if (grid.children.length > 0) {
-                    container.prepend(section);
-                    section.style.display = "block";
-                } else {
-                    container.appendChild(section);
-                    section.style.display = "none";
-                }
+        if (section && grid && container) {
+            if (grid.children.length > 0) {
+                container.prepend(section);
+                section.style.display = "block";
+            } else {
+                container.appendChild(section);
+                section.style.display = "none";
             }
-        });
-    }
+        }
+    });
 
-    // Réappliquer la recherche après le chargement
     appliquerRecherche();
 }
 
@@ -179,20 +154,18 @@ window.toggleCatalogue = function() {
 
 /* ========== FILTRAGE PAR CATÉGORIE ========== */
 window.filterByCategory = function(cat) {
-
     const recherche = document.getElementById('rechercheProduit');
     if (recherche) recherche.value = '';
 
     sectionsIds.forEach(id => {
-        const s = document.getElementById(id);
-        if (s) s.style.display = 'none';
+        const section = document.getElementById(id);
+        if (section) section.style.display = 'none';
     });
 
     const selected = document.getElementById(cat);
 
     if (selected) {
         selected.style.display = 'block';
-
         window.scrollTo({
             top: selected.offsetTop - 120,
             behavior: 'smooth'
@@ -200,10 +173,10 @@ window.filterByCategory = function(cat) {
     }
 
     const backButton = document.getElementById('category-back-button');
-    const defaultTitle = document.getElementById('default-title');
+    const title = document.getElementById('default-title');
 
     if (backButton) backButton.style.display = 'block';
-    if (defaultTitle) defaultTitle.style.display = 'none';
+    if (title) title.style.display = 'none';
 
     const content = document.getElementById('catContent');
     if (content) content.classList.remove('active');
@@ -218,10 +191,10 @@ window.showAllCategories = function() {
     chargerProduits();
 
     const backButton = document.getElementById('category-back-button');
-    const defaultTitle = document.getElementById('default-title');
+    const title = document.getElementById('default-title');
 
     if (backButton) backButton.style.display = 'none';
-    if (defaultTitle) defaultTitle.style.display = 'block';
+    if (title) title.style.display = 'block';
 };
 
 
@@ -234,14 +207,12 @@ if (form) {
 
         const submitBtn = form.querySelector('button[type="submit"]');
         const fileInput = document.getElementById('imageProduit');
-        const file = fileInput?.files?.[0];
+        const file = fileInput.files[0];
 
         if (!file) return alert("Choisis une photo !");
 
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerText = "⏳ Envoi...";
-        }
+        submitBtn.disabled = true;
+        submitBtn.innerText = "⏳ Envoi...";
 
         try {
             const fileName = Date.now() + "-" + file.name;
@@ -269,7 +240,6 @@ if (form) {
             if (insertError) throw insertError;
 
             alert("Produit publié ! ✅");
-
             form.reset();
 
             const preview = document.getElementById('preview-container');
@@ -278,13 +248,10 @@ if (form) {
             await chargerProduits();
 
         } catch (err) {
-            console.error("Erreur ajout produit :", err);
             alert("Erreur lors de la publication : " + err.message);
         } finally {
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerText = "🚀 Publier";
-            }
+            submitBtn.disabled = false;
+            submitBtn.innerText = "🚀 Publier";
         }
     };
 }
@@ -292,15 +259,8 @@ if (form) {
 
 /* ========== GESTION ADMIN & SUPPRESSION ========== */
 
-// Vérification du PIN admin avec Supabase
 window.verifierPin = async function() {
     const input = document.getElementById('inputPin');
-
-    if (!input) {
-        alert("Champ PIN introuvable.");
-        return;
-    }
-
     const pin = input.value.trim();
 
     if (!/^\d{6}$/.test(pin)) {
@@ -326,21 +286,16 @@ window.verifierPin = async function() {
             return;
         }
 
-        const admin = document.getElementById('admin');
-        const popupPin = document.getElementById('popupPin');
-        const bulkButton = document.getElementById('btn-bulk-delete');
-
-        if (admin) admin.style.display = 'block';
-        if (popupPin) popupPin.style.display = 'none';
-        if (bulkButton) bulkButton.style.display = 'inline-block';
-
+        document.getElementById('admin').style.display = 'block';
+        document.getElementById('popupPin').style.display = 'none';
+        document.getElementById('btn-bulk-delete').style.display = 'inline-block';
         document.body.classList.add('admin-open');
 
         await chargerProduits();
 
-        if (admin) {
-            admin.scrollIntoView({ behavior: 'smooth' });
-        }
+        document.getElementById('admin').scrollIntoView({
+            behavior: 'smooth'
+        });
 
     } catch (err) {
         console.error("Erreur inattendue :", err);
@@ -349,7 +304,6 @@ window.verifierPin = async function() {
 };
 
 
-// Suppression sécurisée d'un produit
 window.handleDeleteProduct = async function(event) {
     const card = event.target.closest('.product-card');
 
@@ -359,18 +313,16 @@ window.handleDeleteProduct = async function(event) {
     }
 
     const id = card.getAttribute('data-id');
-
     if (!id) {
         alert("Identifiant du produit introuvable.");
         return;
     }
 
     const pin = prompt("Entrez le code PIN pour supprimer :");
-
     if (!pin) return;
 
     try {
-        const { data, error } = await db.rpc('delete_product_secure', {
+        const { error } = await db.rpc('delete_product_secure', {
             prod_id: Number(id),
             pin_code: pin.trim()
         });
@@ -381,17 +333,11 @@ window.handleDeleteProduct = async function(event) {
             return;
         }
 
-        if (data !== true) {
-            alert("Suppression refusée : PIN incorrect ou produit introuvable.");
-            return;
-        }
-
         card.style.transition = "transform 300ms ease, opacity 300ms ease";
         card.style.transform = "scale(0)";
         card.style.opacity = "0";
 
         setTimeout(() => card.remove(), 300);
-
         alert("Produit supprimé avec succès !");
 
     } catch (err) {
@@ -403,29 +349,24 @@ window.handleDeleteProduct = async function(event) {
 
 /* ========== SUPPRESSION GROUPÉE ========== */
 window.deleteSelectedProducts = async function() {
-    const checkboxes = document.querySelectorAll(
-        '.select-product-checkbox:checked'
-    );
+    const checkboxes = document.querySelectorAll('.select-product-checkbox:checked');
 
     if (checkboxes.length === 0) {
         return alert("Aucun produit sélectionné");
     }
 
-    const pin = prompt(
-        `Supprimer ${checkboxes.length} produits ? Entrez le code PIN :`
-    );
-
+    const pin = prompt(`Supprimer ${checkboxes.length} produits ? Entrez le code PIN :`);
     if (!pin) return;
 
     let successCount = 0;
 
     for (const cb of checkboxes) {
-        const { data, error } = await db.rpc('delete_product_secure', {
+        const { error } = await db.rpc('delete_product_secure', {
             prod_id: Number(cb.value),
             pin_code: pin.trim()
         });
 
-        if (!error && data === true) successCount++;
+        if (!error) successCount++;
     }
 
     if (successCount > 0) {
@@ -437,13 +378,21 @@ window.deleteSelectedProducts = async function() {
 };
 
 
-/* ========== RECHERCHE RAPIDE DE PRODUITS ========== */
+/* ========== RECHERCHE RAPIDE ========== */
 
 function appliquerRecherche() {
-    const rechercheInput = document.getElementById('rechercheProduit');
+    const rechercheInput = document.getElementById('rechercheProduit')
+        || document.querySelector('input[placeholder*="Rechercher" i]');
+
     if (!rechercheInput) return;
 
-    const recherche = rechercheInput.value.trim().toLowerCase();
+    const normaliser = texte => (texte || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim()
+        .toLowerCase();
+
+    const recherche = normaliser(rechercheInput.value);
 
     sectionsIds.forEach(id => {
         const section = document.getElementById(id);
@@ -453,10 +402,9 @@ function appliquerRecherche() {
         let cartesVisibles = 0;
 
         cartes.forEach(carte => {
-            const nom = carte.querySelector('.product-name');
-
+            const nom = carte.querySelector('.product-name, h3, h2');
             const correspond = !recherche ||
-                (nom && nom.textContent.toLowerCase().includes(recherche));
+                (nom && normaliser(nom.textContent).includes(recherche));
 
             carte.style.display = correspond ? '' : 'none';
 
@@ -466,49 +414,40 @@ function appliquerRecherche() {
         section.style.display = cartesVisibles > 0 ? 'block' : 'none';
     });
 
-    const defaultTitle = document.getElementById('default-title');
-    const backButton = document.getElementById('category-back-button');
+    const titre = document.getElementById('default-title');
+    const boutonRetour = document.getElementById('category-back-button');
 
-    if (recherche) {
-        if (defaultTitle) defaultTitle.style.display = 'none';
-        if (backButton) backButton.style.display = 'block';
-    } else {
-        if (defaultTitle) defaultTitle.style.display = 'block';
-        if (backButton) backButton.style.display = 'none';
-    }
-}
-
-const rechercheProduit = document.getElementById('rechercheProduit');
-
-if (rechercheProduit) {
-    rechercheProduit.addEventListener('input', appliquerRecherche);
+    if (titre) titre.style.display = recherche ? 'none' : 'block';
+    if (boutonRetour) boutonRetour.style.display = recherche ? 'block' : 'none';
 }
 
 
 /* ========== INITIALISATION ========== */
 document.addEventListener('DOMContentLoaded', () => {
+    const rechercheInput = document.getElementById('rechercheProduit')
+        || document.querySelector('input[placeholder*="Rechercher" i]');
+
+    if (rechercheInput) {
+        rechercheInput.addEventListener('input', appliquerRecherche);
+    }
 
     const btnAdmin = document.getElementById('btnAdmin');
 
     if (btnAdmin) {
         btnAdmin.onclick = () => {
-            const popupPin = document.getElementById('popupPin');
-            if (popupPin) popupPin.style.display = 'flex';
+            const popup = document.getElementById('popupPin');
+            if (popup) popup.style.display = 'flex';
         };
     }
 
     const backBtn = document.getElementById('backToCatalogBtn');
+    if (backBtn) backBtn.onclick = showAllCategories;
 
-    if (backBtn) {
-        backBtn.onclick = window.showAllCategories;
-    }
-
-    // Aperçu image
     const imgInput = document.getElementById('imageProduit');
 
     if (imgInput) {
         imgInput.onchange = function() {
-            const file = this.files?.[0];
+            const [file] = this.files;
 
             if (file) {
                 const previewContainer = document.getElementById('preview-container');
