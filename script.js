@@ -1,7 +1,7 @@
 /* ========== 1. CONFIGURATION SUPABASE ========== */
 const SUPABASE_URL = 'https://grrlsfvttancthbnysyn.supabase.co';
 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdycmxzZnZ0YW5jdGhi bnlzeW4iLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc5MTI4OTQ1NywiZXhwIjoyMTA2ODY1NDU3fQ.TBbrrvddtKjNQApbKXD6zrIzHL9TaujqEMLelfCxWxA';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdycmxzZnZ0dGFuY3RoYm55c3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyODk0NTcsImV4cCI6MjEwNjg2NTQ1N30.TBbrrvddtKjNQApbKXD6zrIzHL9TaujqEMLelfCxWxA';
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
