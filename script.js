@@ -658,4 +658,80 @@ window.deleteSelectedProducts = async function() {
 };
 
 
-/* ========== RECHERCHE RAPIDE ==
+/* ========== RECHERCHE RAPIDE ========== */
+function appliquerRecherche() {
+    const rechercheInput = document.getElementById('rechercheProduit')
+        || document.querySelector('input[placeholder*="Rechercher" i]');
+
+    if (!rechercheInput) return;
+
+    const recherche = normaliserTexte(rechercheInput.value);
+
+    sectionsIds.forEach(id => {
+        const section = document.getElementById(id);
+        if (!section) return;
+
+        const cartes = section.querySelectorAll('.product-card');
+        let cartesVisibles = 0;
+
+        cartes.forEach(carte => {
+            const nom = carte.querySelector('.product-name, h3, h2');
+
+            const correspond = !recherche ||
+                (nom && normaliserTexte(nom.textContent).includes(recherche));
+
+            carte.style.display = correspond ? '' : 'none';
+
+            if (correspond) cartesVisibles++;
+        });
+
+        section.style.display = cartesVisibles > 0 ? 'block' : 'none';
+    });
+
+    const titre = document.getElementById('default-title');
+    const boutonRetour = document.getElementById('category-back-button');
+
+    if (titre) titre.style.display = recherche ? 'none' : 'block';
+    if (boutonRetour) boutonRetour.style.display = recherche ? 'block' : 'none';
+}
+
+
+/* ========== INITIALISATION ========== */
+document.addEventListener('DOMContentLoaded', () => {
+    const rechercheInput = document.getElementById('rechercheProduit')
+        || document.querySelector('input[placeholder*="Rechercher" i]');
+
+    if (rechercheInput) {
+        rechercheInput.addEventListener('input', appliquerRecherche);
+    }
+
+    const btnAdmin = document.getElementById('btnAdmin');
+
+    if (btnAdmin) {
+        btnAdmin.onclick = () => {
+            const popup = document.getElementById('popupPin');
+            if (popup) popup.style.display = 'flex';
+        };
+    }
+
+    const backBtn = document.getElementById('backToCatalogBtn');
+    if (backBtn) backBtn.onclick = showAllCategories;
+
+    const imgInput = document.getElementById('imageProduit');
+
+    if (imgInput) {
+        imgInput.onchange = function() {
+            const [file] = this.files;
+
+            if (file) {
+                const previewContainer = document.getElementById('preview-container');
+                const imagePreview = document.getElementById('imagePreview');
+
+                if (previewContainer) previewContainer.style.display = 'block';
+                if (imagePreview) imagePreview.src = URL.createObjectURL(file);
+            }
+        };
+    }
+
+    chargerProduits();
+});
