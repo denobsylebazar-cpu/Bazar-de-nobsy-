@@ -8,7 +8,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Deuxième projet Supabase
 const SUPABASE_URL_2 = 'https://exhlnudmbnounidmxqhh.supabase.co';
 
-const SUPABASE_ANON_KEY_2 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiLCJyZWYiOiJleGh lbnVkbWJub3VuaWRteHFoaCIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzkxNjEwMDk1LCJleHAiOjIxMDcxODYwOTV9.PXx9Ovv651ESeyX6-ZHAunEWhnf3pH_xNiC87r52FfA';
+const SUPABASE_ANON_KEY_2 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4aGxudWRtYm5vdW5pZG14cWhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2MTAwOTUsImV4cCI6MjEwNzE4NjA5NX0.PXx9Ovv651ESeyX6-ZHAunEWhnf3pH_xNiC87r52FfA';
 
 const db2 = supabase.createClient(SUPABASE_URL_2, SUPABASE_ANON_KEY_2);
 
