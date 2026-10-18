@@ -7,7 +7,8 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Deuxième projet Supabase
 const SUPABASE_URL_2 = 'https://exhlnudmbnounidmxqhh.supabase.co';
-const SUPABASE_ANON_KEY_2 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4aGxudWRtYm5vdW5pZG14cWhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2MTAwOTUsImV4cCI6MjEwNzE4NjA5NX0.PXx9Ovv651ESeyX6-ZHAunEWhnf3pH_xNiC87r52FfA';
+
+const SUPABASE_ANON_KEY_2 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiLCJyZWYiOiJleGh lbnVkbWJub3VuaWRteHFoaCIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzkxNjEwMDk1LCJleHAiOjIxMDcxODYwOTV9.PXx9Ovv651ESeyX6-ZHAunEWhnf3pH_xNiC87r52FfA';
 
 const db2 = supabase.createClient(SUPABASE_URL_2, SUPABASE_ANON_KEY_2);
 
@@ -126,6 +127,9 @@ async function actualiserTableauAdmin() {
     `;
 }
 
+
+/* ========== SUPPRESSION DE LA PHOTO DANS STORAGE ========== */
+
 function extraireCheminPhoto(imageUrl) {
     if (!imageUrl) return null;
 
@@ -145,7 +149,7 @@ function extraireCheminPhoto(imageUrl) {
 }
 
 async function supprimerPhotoSiInutilisee(base, imageUrl) {
-    if (!imageUrl) return;
+    if (!imageUrl) return null;
 
     const { data: encoreUtilisee, error: rechercheErreur } =
         await base.client
@@ -154,25 +158,40 @@ async function supprimerPhotoSiInutilisee(base, imageUrl) {
             .eq('image_url', imageUrl)
             .limit(1);
 
-    if (rechercheErreur ||
-        (encoreUtilisee && encoreUtilisee.length > 0)) {
-        return;
+    if (rechercheErreur) {
+        return 'Produit supprimé, mais impossible de vérifier si sa photo est encore utilisée dans ' +
+            base.nom + '. Vérifie le Storage manuellement.';
+    }
+
+    if (encoreUtilisee && encoreUtilisee.length > 0) {
+        return null;
     }
 
     const chemin = extraireCheminPhoto(imageUrl);
-    if (!chemin) return;
 
-    const { error } = await base.client.storage
+    if (!chemin) {
+        return 'Produit supprimé, mais le chemin de la photo n’a pas pu être identifié.';
+    }
+
+    const { data, error } = await base.client.storage
         .from('product-images')
         .remove([chemin]);
 
     if (error) {
-        console.warn(
-            'Produit supprimé, mais la photo n’a pas pu être supprimée du bucket ' +
-            base.nom + ':',
-            error.message
-        );
+        console.error('Erreur suppression Storage :', error);
+
+        return 'Produit supprimé, mais sa photo n’a pas pu être supprimée de ' +
+            base.nom + ' : ' + error.message;
     }
+
+    if (!data || data.length === 0) {
+        return 'Produit supprimé, mais Supabase n’a confirmé aucune suppression de photo dans ' +
+            base.nom + '. Vérifie le bucket.';
+    }
+
+    console.log('Photo supprimée du bucket :', chemin);
+
+    return null;
 }
 
 async function supprimerEnregistrementProduit(product, pin) {
@@ -184,7 +203,7 @@ async function supprimerEnregistrementProduit(product, pin) {
         throw new Error('Base de données du produit introuvable.');
     }
 
-    const { error } = await base.client.rpc('delete_product_secure', {
+    const { data, error } = await base.client.rpc('delete_product_secure', {
         prod_id: Number(product.id),
         pin_code: pin.trim()
     });
@@ -193,18 +212,30 @@ async function supprimerEnregistrementProduit(product, pin) {
         throw new Error(base.nom + ' : ' + error.message);
     }
 
-    await supprimerPhotoSiInutilisee(base, product.image_url);
+    if (data !== true) {
+        throw new Error(
+            'La suppression du produit a été refusée par ' +
+            base.nom + '. Vérifie le PIN administrateur.'
+        );
+    }
+
+    return await supprimerPhotoSiInutilisee(base, product.image_url);
 }
 
 
 /* ========== MENU HAMBURGER ========== */
+
 window.toggleMenu = function() {
     const navMenu = document.getElementById('navMenu');
-    if (navMenu) navMenu.classList.toggle('active');
+
+    if (navMenu) {
+        navMenu.classList.toggle('active');
+    }
 };
 
 
 /* ========== LISTE DES CATÉGORIES ========== */
+
 const sectionsIds = [
     'pop',
     'jeuxvideo',
@@ -223,6 +254,7 @@ const sectionsIds = [
 
 
 /* ========== CHARGEMENT DES PRODUITS ========== */
+
 async function chargerProduits() {
     console.log('Mise à jour du catalogue...');
 
@@ -237,6 +269,7 @@ async function chargerProduits() {
     }
 
     const grilles = document.querySelectorAll('.products-grid');
+
     grilles.forEach(g => g.innerHTML = '');
 
     produitsAffiches.clear();
@@ -246,6 +279,7 @@ async function chargerProduits() {
 
     products.forEach((product, index) => {
         const cat = (product.category || '').toLowerCase().trim();
+
         let targetId = 'grid-decoration';
 
         if (cat.includes('skylander')) {
@@ -364,19 +398,26 @@ async function chargerProduits() {
 
 
 /* ========== CATALOGUE DU BAS ========== */
+
 window.toggleCatalogue = function() {
     const content = document.getElementById('catContent');
-    if (content) content.classList.toggle('active');
+
+    if (content) {
+        content.classList.toggle('active');
+    }
 };
 
 
 /* ========== FILTRAGE PAR CATÉGORIE ========== */
+
 window.filterByCategory = function(cat) {
     const recherche = document.getElementById('rechercheProduit');
+
     if (recherche) recherche.value = '';
 
     sectionsIds.forEach(id => {
         const section = document.getElementById(id);
+
         if (section) section.style.display = 'none';
     });
 
@@ -384,6 +425,7 @@ window.filterByCategory = function(cat) {
 
     if (selected) {
         selected.style.display = 'block';
+
         window.scrollTo({
             top: selected.offsetTop - 120,
             behavior: 'smooth'
@@ -397,13 +439,16 @@ window.filterByCategory = function(cat) {
     if (title) title.style.display = 'none';
 
     const content = document.getElementById('catContent');
+
     if (content) content.classList.remove('active');
 };
 
 
 /* ========== AFFICHER TOUTES LES CATÉGORIES ========== */
+
 window.showAllCategories = function() {
     const recherche = document.getElementById('rechercheProduit');
+
     if (recherche) recherche.value = '';
 
     chargerProduits();
@@ -417,6 +462,7 @@ window.showAllCategories = function() {
 
 
 /* ========== AJOUTER UN PRODUIT ========== */
+
 const form = document.getElementById('formAjoutProduit');
 
 if (form) {
@@ -447,7 +493,9 @@ if (form) {
                 );
             }
 
-            baseChoisie = count < 80 ? basesSupabase[0] : basesSupabase[1];
+            baseChoisie = count < 80
+                ? basesSupabase[0]
+                : basesSupabase[1];
 
             const fileName =
                 Date.now() + '-' +
@@ -479,9 +527,11 @@ if (form) {
             if (insertError) throw insertError;
 
             alert('Produit publié dans ' + baseChoisie.nom + ' ! ✅');
+
             form.reset();
 
             const preview = document.getElementById('preview-container');
+
             if (preview) preview.style.display = 'none';
 
             await chargerProduits();
@@ -504,6 +554,7 @@ if (form) {
 
 
 /* ========== GESTION ADMIN & SUPPRESSION ========== */
+
 window.verifierPin = async function() {
     const input = document.getElementById('inputPin');
     const pin = input.value.trim();
@@ -542,12 +593,14 @@ window.verifierPin = async function() {
 
             input.value = '';
             input.focus();
+
             return;
         }
 
         document.getElementById('admin').style.display = 'block';
         document.getElementById('popupPin').style.display = 'none';
         document.getElementById('btn-bulk-delete').style.display = 'inline-block';
+
         document.body.classList.add('admin-open');
 
         await chargerProduits();
@@ -559,6 +612,7 @@ window.verifierPin = async function() {
 
     } catch (err) {
         console.error('Erreur inattendue :', err);
+
         alert('Une erreur est survenue : ' + (err.message || err));
     }
 };
@@ -581,11 +635,18 @@ window.handleDeleteProduct = async function(event) {
     }
 
     const pin = prompt('Entrez le code PIN pour supprimer :');
+
     if (!pin) return;
 
     try {
+        const avertissements = [];
+
         for (const product of records) {
-            await supprimerEnregistrementProduit(product, pin);
+            const avertissement = await supprimerEnregistrementProduit(product, pin);
+
+            if (avertissement) {
+                avertissements.push(avertissement);
+            }
         }
 
         card.style.transition = 'transform 300ms ease, opacity 300ms ease';
@@ -596,142 +657,21 @@ window.handleDeleteProduct = async function(event) {
 
         produitsAffiches.delete(cardToken);
 
-        alert('Produit supprimé avec succès !');
+        alert(
+            avertissements.length
+                ? 'Produit supprimé, mais attention :\n\n' +
+                    avertissements.join('\n\n')
+                : 'Produit et photo supprimés avec succès !'
+        );
 
         await actualiserTableauAdmin();
 
     } catch (err) {
         console.error('Erreur Supabase lors de la suppression :', err);
+
         alert('Échec de la suppression :\n' + err.message);
     }
 };
 
 
-/* ========== SUPPRESSION GROUPÉE ========== */
-window.deleteSelectedProducts = async function() {
-    const checkboxes = document.querySelectorAll(
-        '.select-product-checkbox:checked'
-    );
-
-    if (checkboxes.length === 0) {
-        return alert('Aucun produit sélectionné');
-    }
-
-    const pin = prompt(
-        `Supprimer ${checkboxes.length} produits ? Entrez le code PIN :`
-    );
-
-    if (!pin) return;
-
-    let successCount = 0;
-    const errors = [];
-
-    for (const cb of checkboxes) {
-        const cardToken = cb.value;
-        const records = produitsAffiches.get(cardToken) || [];
-
-        try {
-            for (const product of records) {
-                await supprimerEnregistrementProduit(product, pin);
-            }
-
-            successCount++;
-
-        } catch (err) {
-            errors.push(err.message);
-        }
-    }
-
-    if (successCount > 0) {
-        alert(`${successCount} produit(s) supprimé(s).`);
-        await chargerProduits();
-    } else {
-        alert(
-            'Aucun produit supprimé. ' +
-            (errors[0] || 'Vérifie le PIN et les autorisations Supabase.')
-        );
-    }
-
-    if (errors.length) {
-        console.error('Erreurs de suppression groupée :', errors);
-    }
-};
-
-
-/* ========== RECHERCHE RAPIDE ========== */
-function appliquerRecherche() {
-    const rechercheInput = document.getElementById('rechercheProduit')
-        || document.querySelector('input[placeholder*="Rechercher" i]');
-
-    if (!rechercheInput) return;
-
-    const recherche = normaliserTexte(rechercheInput.value);
-
-    sectionsIds.forEach(id => {
-        const section = document.getElementById(id);
-        if (!section) return;
-
-        const cartes = section.querySelectorAll('.product-card');
-        let cartesVisibles = 0;
-
-        cartes.forEach(carte => {
-            const nom = carte.querySelector('.product-name, h3, h2');
-
-            const correspond = !recherche ||
-                (nom && normaliserTexte(nom.textContent).includes(recherche));
-
-            carte.style.display = correspond ? '' : 'none';
-
-            if (correspond) cartesVisibles++;
-        });
-
-        section.style.display = cartesVisibles > 0 ? 'block' : 'none';
-    });
-
-    const titre = document.getElementById('default-title');
-    const boutonRetour = document.getElementById('category-back-button');
-
-    if (titre) titre.style.display = recherche ? 'none' : 'block';
-    if (boutonRetour) boutonRetour.style.display = recherche ? 'block' : 'none';
-}
-
-
-/* ========== INITIALISATION ========== */
-document.addEventListener('DOMContentLoaded', () => {
-    const rechercheInput = document.getElementById('rechercheProduit')
-        || document.querySelector('input[placeholder*="Rechercher" i]');
-
-    if (rechercheInput) {
-        rechercheInput.addEventListener('input', appliquerRecherche);
-    }
-
-    const btnAdmin = document.getElementById('btnAdmin');
-
-    if (btnAdmin) {
-        btnAdmin.onclick = () => {
-            const popup = document.getElementById('popupPin');
-            if (popup) popup.style.display = 'flex';
-        };
-    }
-
-    const backBtn = document.getElementById('backToCatalogBtn');
-    if (backBtn) backBtn.onclick = showAllCategories;
-
-    const imgInput = document.getElementById('imageProduit');
-
-    if (imgInput) {
-        imgInput.onchange = function() {
-            const [file] = this.files;
-
-            if (file) {
-                const previewContainer = document.getElementById('preview-container');
-                const imagePreview = document.getElementById('imagePreview');
-
-                if (previewContainer) previewContainer.style.display = 'block';
-                if (imagePreview) imagePreview.src = URL.createObjectURL(file);
-            }
-        };
-    }
-
-    chargerProduits();
-});
+/* =========
