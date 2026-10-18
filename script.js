@@ -554,7 +554,6 @@ if (form) {
 
 
 /* ========== GESTION ADMIN & SUPPRESSION ========== */
-
 window.verifierPin = async function() {
     const input = document.getElementById('inputPin');
     const pin = input.value.trim();
@@ -593,14 +592,12 @@ window.verifierPin = async function() {
 
             input.value = '';
             input.focus();
-
             return;
         }
 
         document.getElementById('admin').style.display = 'block';
         document.getElementById('popupPin').style.display = 'none';
         document.getElementById('btn-bulk-delete').style.display = 'inline-block';
-
         document.body.classList.add('admin-open');
 
         await chargerProduits();
@@ -612,12 +609,12 @@ window.verifierPin = async function() {
 
     } catch (err) {
         console.error('Erreur inattendue :', err);
-
         alert('Une erreur est survenue : ' + (err.message || err));
     }
 };
 
 
+/* ========== SUPPRESSION D'UN PRODUIT ========== */
 window.handleDeleteProduct = async function(event) {
     const card = event.target.closest('.product-card');
 
@@ -635,7 +632,6 @@ window.handleDeleteProduct = async function(event) {
     }
 
     const pin = prompt('Entrez le code PIN pour supprimer :');
-
     if (!pin) return;
 
     try {
@@ -660,7 +656,7 @@ window.handleDeleteProduct = async function(event) {
         alert(
             avertissements.length
                 ? 'Produit supprimé, mais attention :\n\n' +
-                    avertissements.join('\n\n')
+                  avertissements.join('\n\n')
                 : 'Produit et photo supprimés avec succès !'
         );
 
@@ -668,10 +664,148 @@ window.handleDeleteProduct = async function(event) {
 
     } catch (err) {
         console.error('Erreur Supabase lors de la suppression :', err);
-
         alert('Échec de la suppression :\n' + err.message);
     }
 };
 
 
-/* =========
+/* ========== SUPPRESSION GROUPÉE ========== */
+window.deleteSelectedProducts = async function() {
+    const checkboxes = document.querySelectorAll(
+        '.select-product-checkbox:checked'
+    );
+
+    if (checkboxes.length === 0) {
+        return alert('Aucun produit sélectionné');
+    }
+
+    const pin = prompt(
+        `Supprimer ${checkboxes.length} produits ? Entrez le code PIN :`
+    );
+
+    if (!pin) return;
+
+    let successCount = 0;
+    const errors = [];
+    const avertissements = [];
+
+    for (const cb of checkboxes) {
+        const cardToken = cb.value;
+        const records = produitsAffiches.get(cardToken) || [];
+
+        try {
+            for (const product of records) {
+                const avertissement = await supprimerEnregistrementProduit(product, pin);
+
+                if (avertissement) {
+                    avertissements.push(avertissement);
+                }
+            }
+
+            successCount++;
+
+        } catch (err) {
+            errors.push(err.message);
+        }
+    }
+
+    if (successCount > 0) {
+        let message = `${successCount} produit(s) supprimé(s).`;
+
+        if (avertissements.length) {
+            message += '\n\nAttention :\n\n' + avertissements.join('\n\n');
+        }
+
+        alert(message);
+        await chargerProduits();
+
+    } else {
+        alert(
+            'Aucun produit supprimé. ' +
+            (errors[0] || 'Vérifie le PIN et les autorisations Supabase.')
+        );
+    }
+
+    if (errors.length) {
+        console.error('Erreurs de suppression groupée :', errors);
+    }
+};
+
+
+/* ========== RECHERCHE RAPIDE ========== */
+function appliquerRecherche() {
+    const rechercheInput = document.getElementById('rechercheProduit')
+        || document.querySelector('input[placeholder*="Rechercher" i]');
+
+    if (!rechercheInput) return;
+
+    const recherche = normaliserTexte(rechercheInput.value);
+
+    sectionsIds.forEach(id => {
+        const section = document.getElementById(id);
+        if (!section) return;
+
+        const cartes = section.querySelectorAll('.product-card');
+        let cartesVisibles = 0;
+
+        cartes.forEach(carte => {
+            const nom = carte.querySelector('.product-name, h3, h2');
+
+            const correspond = !recherche ||
+                (nom && normaliserTexte(nom.textContent).includes(recherche));
+
+            carte.style.display = correspond ? '' : 'none';
+
+            if (correspond) cartesVisibles++;
+        });
+
+        section.style.display = cartesVisibles > 0 ? 'block' : 'none';
+    });
+
+    const titre = document.getElementById('default-title');
+    const boutonRetour = document.getElementById('category-back-button');
+
+    if (titre) titre.style.display = recherche ? 'none' : 'block';
+    if (boutonRetour) boutonRetour.style.display = recherche ? 'block' : 'none';
+}
+
+
+/* ========== INITIALISATION ========== */
+document.addEventListener('DOMContentLoaded', () => {
+    const rechercheInput = document.getElementById('rechercheProduit')
+        || document.querySelector('input[placeholder*="Rechercher" i]');
+
+    if (rechercheInput) {
+        rechercheInput.addEventListener('input', appliquerRecherche);
+    }
+
+    const btnAdmin = document.getElementById('btnAdmin');
+
+    if (btnAdmin) {
+        btnAdmin.onclick = () => {
+            const popup = document.getElementById('popupPin');
+            if (popup) popup.style.display = 'flex';
+        };
+    }
+
+    const backBtn = document.getElementById('backToCatalogBtn');
+    if (backBtn) backBtn.onclick = showAllCategories;
+
+    const imgInput = document.getElementById('imageProduit');
+
+    if (imgInput) {
+        imgInput.onchange = function() {
+            const [file] = this.files;
+
+            if (file) {
+                const previewContainer = document.getElementById('preview-container');
+                const imagePreview = document.getElementById('imagePreview');
+
+                if (previewContainer) previewContainer.style.display = 'block';
+                if (imagePreview) imagePreview.src = URL.createObjectURL(file);
+            }
+        };
+    }
+
+    chargerProduits();
+});
