@@ -1,14 +1,14 @@
 /* ========== 1. CONFIGURATION SUPABASE ========== */
-const SUPABASE_URL = 'https://grrlsfvttancthbnysyn.supabase.co';
+const SUPABASE_URL = 'https://uhqjgopxzcoiwihrkcjl.supabase.co';
 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdycmxzZnZ0dGFuY3RoYm55c3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyODk0NTcsImV4cCI6MjEwNjg2NTQ1N30.TBbrrvddtKjNQApbKXD6zrIzHL9TaujqEMLelfCxWxA';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVocWpnb3B4emNvaXdpaHJrY2psIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNDMxMzcsImV4cCI6MjEwODgxOTEzN30.ujYExmQNFiRkxGqNFudI7DeTXdJvWoJAuWvxOEKIFFY';
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Deuxième projet Supabase
-const SUPABASE_URL_2 = 'https://exhlnudmbnounidmxqhh.supabase.co';
+const SUPABASE_URL_2 = 'https://afnhmmamxsjdiswdfydw.supabase.co';
 
-const SUPABASE_ANON_KEY_2 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4aGxudWRtYm5vdW5pZG14cWhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2MTAwOTUsImV4cCI6MjEwNzE4NjA5NX0.PXx9Ovv651ESeyX6-ZHAunEWhnf3pH_xNiC87r52FfA';
+const SUPABASE_ANON_KEY_2 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbmhtbWFteHNqZGlzd2RmeWR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNTQyMTgsImV4cCI6MjEwODgzMDIxOH0.LOGQStBQc1Uls7Iir15RfBilqfyRMcQOadPFdXHHOZE';
 
 const db2 = supabase.createClient(SUPABASE_URL_2, SUPABASE_ANON_KEY_2);
 
