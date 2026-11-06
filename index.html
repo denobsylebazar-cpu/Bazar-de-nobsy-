@@ -22,13 +22,11 @@
             <div class="ribbon-track">
 
                 <button class="ribbon-item" onclick="filterByCategory('pop')">🧸 Pop</button>
-                <button class="ribbon-item" onclick="filterByCategory('jeuxvideo')">🎮 Jeux Vidéo</button>
                 <button class="ribbon-item" onclick="filterByCategory('skylander')">🌀 Skylanders</button>
                 
 
                 <!-- Copies pour boucle -->
                 <button class="ribbon-item" onclick="filterByCategory('pop')">🧸 Pop</button>
-                <button class="ribbon-item" onclick="filterByCategory('jeuxvideo')">🎮 Jeux Vidéo</button>
                 <button class="ribbon-item" onclick="filterByCategory('skylander')">🌀 Skylanders</button>
 
             </div>
@@ -107,7 +105,6 @@
                 <select id="categorieProduit" required>
                     <option value="">Choisir la catégorie...</option>
                     <option value="pop">Pop et figurine</option>
-                    <option value="jeuxvideo">Jeux vidéo</option>
                     <option value="skylander">Skylanders</option>
                 </select>
 
@@ -128,7 +125,7 @@
                     Bonjour ! Bienvenue sur le site du
                     <b>bazar de Nobsy</b>. Découvrez nos
                     <b>figurines Pop</b>,
-                    nos <b>jeux vidéo</b> et nos articles
+                     <b>Skylanders</b> et nos articles
                     de décoration à prix imbattables.
                 </p>
             </div>
@@ -166,11 +163,6 @@
                 <div class="products-grid" id="grid-pop"></div>
             </div>
 
-            <div id="jeuxvideo">
-                <h3>🎮 Jeux vidéo</h3>
-                <div class="products-grid" id="grid-jeuxvideo"></div>
-            </div>
-
             <!-- NOUVELLE SECTION SKYLANDERS -->
             <div id="skylander">
                 <h3>🌀 Skylanders</h3>
@@ -189,7 +181,6 @@
 
                 <div class="catalogue-content" id="catContent">
                     <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('pop')">🧸 Pop</a>
-                    <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('jeuxvideo')">🎮 Jeux</a>
                     <a href="javascript:void(0)" class="catalogue-link" onclick="filterByCategory('skylander')">🌀 Skylanders</a>
                 </div>
             </div>
