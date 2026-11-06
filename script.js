@@ -238,9 +238,7 @@ window.toggleMenu = function() {
 
 const sectionsIds = [
     'pop',
-    'jeuxvideo',
-    'skylander',
-    'film'
+    'skylander'
 ];
 
 
@@ -277,10 +275,6 @@ async function chargerProduits() {
             targetId = 'grid-skylander';
         } else if (cat.includes('pop')) {
             targetId = 'grid-pop';
-        } else if (cat.includes('jeuxvideo') || cat.includes('jeux video')) {
-            targetId = 'grid-jeuxvideo';
-        } else if (cat.includes('film')) {
-            targetId = 'grid-film';
         }
 
         // Si le produit appartient à une catégorie retirée, on ne l'affiche pas
