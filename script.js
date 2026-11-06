@@ -234,22 +234,13 @@ window.toggleMenu = function() {
 };
 
 
-/* ========== LISTE DES CATÉGORIES ========== */
+/* ========== LISTE DES CATÉGORIES CONSERVÉES ========== */
 
 const sectionsIds = [
     'pop',
     'jeuxvideo',
     'skylander',
-    'livre',
-    'film',
-    'decoration',
-    'vaisselle',
-    'bijoux',
-    'jeux',
-    'peluche',
-    'vetement',
-    'maquillage',
-    'lumiere'
+    'film'
 ];
 
 
@@ -280,43 +271,30 @@ async function chargerProduits() {
     products.forEach((product, index) => {
         const cat = (product.category || '').toLowerCase().trim();
 
-        let targetId = 'grid-decoration';
+        let targetId = null;
 
         if (cat.includes('skylander')) {
             targetId = 'grid-skylander';
-        } else if (cat.includes('vaisselle')) {
-            targetId = 'grid-vaisselle';
-        } else if (cat.includes('bijoux')) {
-            targetId = 'grid-bijoux';
         } else if (cat.includes('pop')) {
             targetId = 'grid-pop';
-        } else if (cat.includes('livre')) {
-            targetId = 'grid-livre';
-        } else if (cat.includes('jeuxvideo')) {
+        } else if (cat.includes('jeuxvideo') || cat.includes('jeux video')) {
             targetId = 'grid-jeuxvideo';
         } else if (cat.includes('film')) {
             targetId = 'grid-film';
-        } else if (cat.includes('jeux') || cat.includes('casse')) {
-            targetId = 'grid-jeux';
-        } else if (cat.includes('peluche')) {
-            targetId = 'grid-peluche';
-        } else if (cat.includes('vetement')) {
-            targetId = 'grid-vetement';
-        } else if (cat.includes('maquillage')) {
-            targetId = 'grid-maquillage';
-        } else if (cat.includes('lumiere')) {
-            targetId = 'grid-lumiere';
         }
 
+        // Si le produit appartient à une catégorie supprimée, on ne l'affiche pas
+        if (!targetId) return;
+
         const gridElement = document.getElementById(targetId);
+        if (!gridElement) return;
+
         const cardToken = 'produit-' + index;
 
         produitsAffiches.set(
             cardToken,
             product._records || [product]
         );
-
-        if (!gridElement) return;
 
         const escapeHtml = value =>
             String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -694,118 +672,119 @@ window.deleteSelectedProducts = async function() {
         const records = produitsAffiches.get(cardToken) || [];
 
         try {
-            for (const product of records) {
-                const avertissement = await supprimerEnregistrementProduit(product, pin);
+            for (const product of recortry {
+                    for (const product of records) {
+                        const avertissement = await supprimerEnregistrementProduit(product, pin);
 
-                if (avertissement) {
-                    avertissements.push(avertissement);
+                        if (avertissement) {
+                            avertissements.push(avertissement);
+                        }
+                    }
+
+                    successCount++;
+
+                } catch (err) {
+                    errors.push(err.message);
                 }
             }
 
-            successCount++;
+            if (successCount > 0) {
+                let message = `${successCount} produit(s) supprimé(s).`;
 
-        } catch (err) {
-            errors.push(err.message);
-        }
-    }
+                if (avertissements.length) {
+                    message += '\n\nAttention :\n\n' + avertissements.join('\n\n');
+                }
 
-    if (successCount > 0) {
-        let message = `${successCount} produit(s) supprimé(s).`;
+                alert(message);
+                await chargerProduits();
 
-        if (avertissements.length) {
-            message += '\n\nAttention :\n\n' + avertissements.join('\n\n');
-        }
+            } else {
+                alert(
+                    'Aucun produit supprimé. ' +
+                    (errors[0] || 'Vérifie le PIN et les autorisations Supabase.')
+                );
+            }
 
-        alert(message);
-        await chargerProduits();
-
-    } else {
-        alert(
-            'Aucun produit supprimé. ' +
-            (errors[0] || 'Vérifie le PIN et les autorisations Supabase.')
-        );
-    }
-
-    if (errors.length) {
-        console.error('Erreurs de suppression groupée :', errors);
-    }
-};
-
-
-/* ========== RECHERCHE RAPIDE ========== */
-function appliquerRecherche() {
-    const rechercheInput = document.getElementById('rechercheProduit')
-        || document.querySelector('input[placeholder*="Rechercher" i]');
-
-    if (!rechercheInput) return;
-
-    const recherche = normaliserTexte(rechercheInput.value);
-
-    sectionsIds.forEach(id => {
-        const section = document.getElementById(id);
-        if (!section) return;
-
-        const cartes = section.querySelectorAll('.product-card');
-        let cartesVisibles = 0;
-
-        cartes.forEach(carte => {
-            const nom = carte.querySelector('.product-name, h3, h2');
-
-            const correspond = !recherche ||
-                (nom && normaliserTexte(nom.textContent).includes(recherche));
-
-            carte.style.display = correspond ? '' : 'none';
-
-            if (correspond) cartesVisibles++;
-        });
-
-        section.style.display = cartesVisibles > 0 ? 'block' : 'none';
-    });
-
-    const titre = document.getElementById('default-title');
-    const boutonRetour = document.getElementById('category-back-button');
-
-    if (titre) titre.style.display = recherche ? 'none' : 'block';
-    if (boutonRetour) boutonRetour.style.display = recherche ? 'block' : 'none';
-}
-
-
-/* ========== INITIALISATION ========== */
-document.addEventListener('DOMContentLoaded', () => {
-    const rechercheInput = document.getElementById('rechercheProduit')
-        || document.querySelector('input[placeholder*="Rechercher" i]');
-
-    if (rechercheInput) {
-        rechercheInput.addEventListener('input', appliquerRecherche);
-    }
-
-    const btnAdmin = document.getElementById('btnAdmin');
-
-    if (btnAdmin) {
-        btnAdmin.onclick = () => {
-            const popup = document.getElementById('popupPin');
-            if (popup) popup.style.display = 'flex';
-        };
-    }
-
-    const backBtn = document.getElementById('backToCatalogBtn');
-    if (backBtn) backBtn.onclick = showAllCategories;
-
-    const imgInput = document.getElementById('imageProduit');
-
-    if (imgInput) {
-        imgInput.onchange = function() {
-            const [file] = this.files;
-
-            if (file) {
-                const previewContainer = document.getElementById('preview-container');
-                const imagePreview = document.getElementById('imagePreview');
-
-                if (previewContainer) previewContainer.style.display = 'block';
-                if (imagePreview) imagePreview.src = URL.createObjectURL(file);
+            if (errors.length) {
+                console.error('Erreurs de suppression groupée :', errors);
             }
         };
-    }
 
-    chargerProduits();
-});
+
+        /* ========== RECHERCHE RAPIDE ========== */
+        function appliquerRecherche() {
+            const rechercheInput = document.getElementById('rechercheProduit')
+                || document.querySelector('input[placeholder*="Rechercher" i]');
+
+            if (!rechercheInput) return;
+
+            const recherche = normaliserTexte(rechercheInput.value);
+
+            sectionsIds.forEach(id => {
+                const section = document.getElementById(id);
+                if (!section) return;
+
+                const cartes = section.querySelectorAll('.product-card');
+                let cartesVisibles = 0;
+
+                cartes.forEach(carte => {
+                    const nom = carte.querySelector('.product-name, h3, h2');
+
+                    const correspond = !recherche ||
+                        (nom && normaliserTexte(nom.textContent).includes(recherche));
+
+                    carte.style.display = correspond ? '' : 'none';
+
+                    if (correspond) cartesVisibles++;
+                });
+
+                section.style.display = cartesVisibles > 0 ? 'block' : 'none';
+            });
+
+            const titre = document.getElementById('default-title');
+            const boutonRetour = document.getElementById('category-back-button');
+
+            if (titre) titre.style.display = recherche ? 'none' : 'block';
+            if (boutonRetour) boutonRetour.style.display = recherche ? 'block' : 'none';
+        }
+
+
+        /* ========== INITIALISATION ========== */
+        document.addEventListener('DOMContentLoaded', () => {
+            const rechercheInput = document.getElementById('rechercheProduit')
+                || document.querySelector('input[placeholder*="Rechercher" i]');
+
+            if (rechercheInput) {
+                rechercheInput.addEventListener('input', appliquerRecherche);
+            }
+
+            const btnAdmin = document.getElementById('btnAdmin');
+
+            if (btnAdmin) {
+                btnAdmin.onclick = () => {
+                    const popup = document.getElementById('popupPin');
+                    if (popup) popup.style.display = 'flex';
+                };
+            }
+
+            const backBtn = document.getElementById('backToCatalogBtn');
+            if (backBtn) backBtn.onclick = showAllCategories;
+
+            const imgInput = document.getElementById('imageProduit');
+
+            if (imgInput) {
+                imgInput.onchange = function() {
+                    const [file] = this.files;
+
+                    if (file) {
+                        const previewContainer = document.getElementById('preview-container');
+                        const imagePreview = document.getElementById('imagePreview');
+
+                        if (previewContainer) previewContainer.style.display = 'block';
+                        if (imagePreview) imagePreview.src = URL.createObjectURL(file);
+                    }
+                };
+            }
+
+            chargerProduits();
+        });
