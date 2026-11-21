@@ -454,16 +454,16 @@ strong, b, .product-name, .price {
 .navbar .hamburger {
     flex-shrink: 0;
 }
-/* Feu d'artifice fixe à l'écran même pendant le scroll (1 à gauche, 1 à droite) */
-html::before,
-html::after {
+/* Feu d'artifice complet (1 à gauche, 1 à droite) qui reste visible au scroll */
+body::before,
+body::after {
   content: "";
-  position: fixed;
+  position: fixed; /* Reste affiché en haut de l'écran même pendant le scroll */
   top: 2px;
   width: 165px;
   height: 165px;
-  pointer-events: none; /* N'empêche pas de cliquer ni de scroller */
-  z-index: 999999;
+  pointer-events: none; /* Permet toujours de cliquer sur les boutons et de scroller */
+  z-index: 999999; /* Passe au-dessus de tout le contenu de la page */
   opacity: 0;
   background-repeat: no-repeat;
   background-position: center;
@@ -474,13 +474,13 @@ html::after {
 }
 
 /* Position à GAUCHE */
-html::before {
+body::before {
   left: -15px;
   animation: clochetteEclat 2.5s ease-out infinite;
 }
 
 /* Position à DROITE */
-html::after {
+body::after {
   right: -15px;
   animation: clochetteEclat 2.5s ease-out 0.6s infinite;
 }
