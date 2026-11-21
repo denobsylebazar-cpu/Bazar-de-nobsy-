@@ -454,3 +454,77 @@ strong, b, .product-name, .price {
 .navbar .hamburger {
     flex-shrink: 0;
 }
+/* Feu d'artifice en haut à gauche et en haut à droite */
+body::before,
+body::after {
+  content: "";
+  position: fixed; /* Reste en haut même si on défile, ou mettez "absolute" */
+  top: 55px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  pointer-events: none; /* Très important : permet de cliquer sur les boutons dessous */
+  z-index: 9999;
+  opacity: 0;
+  
+  /* Particules colorées du feu d'artifice (visibles sur fond blanc) */
+  box-shadow:
+    /* Cercle extérieur */
+    0 -45px 0 0 #ffbe0b,
+    32px -32px 0 0 #ff006e,
+    45px 0 0 0 #3a86ff,
+    32px 32px 0 0 #fb5607,
+    0 45px 0 0 #8338ec,
+    -32px 32px 0 0 #ffbe0b,
+    -45px 0 0 0 #ff006e,
+    -32px -32px 0 0 #3a86ff,
+    /* Rayons intermédiaires */
+    17px -41px 0 -1px #fb5607,
+    41px -17px 0 -1px #ffbe0b,
+    41px 17px 0 -1px #8338ec,
+    17px 41px 0 -1px #ff006e,
+    -17px 41px 0 -1px #3a86ff,
+    -41px 17px 0 -1px #fb5607,
+    -41px -17px 0 -1px #ffbe0b,
+    -17px -41px 0 -1px #8338ec,
+    /* Cercle intérieur */
+    0 -22px 0 -1px #ff006e,
+    16px -16px 0 -1px #3a86ff,
+    22px 0 0 -1px #ffbe0b,
+    16px 16px 0 -1px #fb5607,
+    0 22px 0 -1px #ff006e,
+    -16px 16px 0 -1px #8338ec,
+    -22px 0 0 -1px #ffbe0b,
+    -16px -16px 0 -1px #fb5607;
+}
+
+/* Position et timing du feu d'artifice de GAUCHE */
+body::before {
+  left: 50px;
+  animation: eclatFeu 2.2s ease-out infinite;
+}
+
+/* Position et timing du feu d'artifice de DROITE (décalé de 1s) */
+body::after {
+  right: 50px;
+  animation: eclatFeu 2.2s ease-out 1s infinite;
+}
+
+/* Animation d'apparition et d'éclatement */
+@keyframes eclatFeu {
+  0% {
+    transform: scale(0.05) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1.2) rotate(15deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6) translateY(15px) rotate(25deg);
+    opacity: 0;
+  }
+        }
