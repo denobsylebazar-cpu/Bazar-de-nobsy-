@@ -454,16 +454,16 @@ strong, b, .product-name, .price {
 .navbar .hamburger {
     flex-shrink: 0;
 }
-/* Feu d'artifice en haut de la page (1 à gauche, 1 à droite) : blanc/gris + touche de bleu et rose */
-body::before,
-body::after {
+/* Feu d'artifice fixe à l'écran même pendant le scroll (1 à gauche, 1 à droite) */
+html::before,
+html::after {
   content: "";
-  position: absolute;
+  position: fixed;
   top: 2px;
   width: 165px;
   height: 165px;
-  pointer-events: none; /* Permet de cliquer sur le menu et les boutons dessous */
-  z-index: 9999;
+  pointer-events: none; /* N'empêche pas de cliquer ni de scroller */
+  z-index: 999999;
   opacity: 0;
   background-repeat: no-repeat;
   background-position: center;
@@ -474,13 +474,13 @@ body::after {
 }
 
 /* Position à GAUCHE */
-body::before {
+html::before {
   left: -15px;
   animation: clochetteEclat 2.5s ease-out infinite;
 }
 
 /* Position à DROITE */
-body::after {
+html::after {
   right: -15px;
   animation: clochetteEclat 2.5s ease-out 0.6s infinite;
 }
